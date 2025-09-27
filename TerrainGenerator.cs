@@ -10,10 +10,8 @@ public class TerrainGenerator
     private Dictionary<Point, TerrainChunk> _loadedChunks;
     private Random _random;
     private int _chunkSize = 32; // 32x32 tiles per chunk
-    private int _tileSize = 16; // 16x16 pixels per tile
-    private Texture2D _grassTexture;
-    private Texture2D _stoneTexture;
-    private Texture2D _waterTexture;
+    private int _tileSize = 32; // 32x32 pixels per tile
+    private AssetManager _assetManager;
 
     public TerrainGenerator(int seed = 0)
     {
@@ -21,11 +19,9 @@ public class TerrainGenerator
         _random = seed == 0 ? new Random() : new Random(seed);
     }
 
-    public void LoadContent(Texture2D grassTexture, Texture2D stoneTexture, Texture2D waterTexture)
+    public void LoadContent(AssetManager assetManager)
     {
-        _grassTexture = grassTexture;
-        _stoneTexture = stoneTexture;
-        _waterTexture = waterTexture;
+        _assetManager = assetManager;
     }
 
     public void Update(Vector2 playerPosition)
@@ -85,15 +81,17 @@ public class TerrainGenerator
                 // Simple height-based terrain generation
                 float height = GetHeight(worldX, worldY);
                 
-                TileType tileType;
+                TerrainType terrainType;
                 if (height < 0.3f)
-                    tileType = TileType.Water;
-                else if (height < 0.7f)
-                    tileType = TileType.Grass;
+                    terrainType = TerrainType.Water;
+                else if (height < 0.5f)
+                    terrainType = TerrainType.Dirt;
+                else if (height < 0.8f)
+                    terrainType = TerrainType.Grass;
                 else
-                    tileType = TileType.Stone;
+                    terrainType = TerrainType.Stone;
                 
-                chunk.SetTile(x, y, tileType);
+                chunk.SetTile(x, y, terrainType);
             }
         }
         
@@ -116,49 +114,47 @@ public class TerrainGenerator
     {
         foreach (var chunk in _loadedChunks.Values)
         {
-            chunk.Draw(spriteBatch, _tileSize, _grassTexture, _stoneTexture, _waterTexture);
+            chunk.Draw(spriteBatch, _tileSize, _assetManager);
         }
     }
-}
 
-public enum TileType
-{
-    Grass,
-    Stone,
-    Water
+    public TerrainChunk GetChunk(Point chunkCoord)
+    {
+        return _loadedChunks.TryGetValue(chunkCoord, out var chunk) ? chunk : null;
+    }
 }
 
 public class TerrainChunk
 {
     public Point ChunkCoord { get; }
-    private TileType[,] _tiles;
+    private TerrainType[,] _tiles;
     private int _size;
 
     public TerrainChunk(Point chunkCoord, int size)
     {
         ChunkCoord = chunkCoord;
         _size = size;
-        _tiles = new TileType[size, size];
+        _tiles = new TerrainType[size, size];
     }
 
-    public void SetTile(int x, int y, TileType tileType)
+    public void SetTile(int x, int y, TerrainType terrainType)
     {
         if (x >= 0 && x < _size && y >= 0 && y < _size)
         {
-            _tiles[x, y] = tileType;
+            _tiles[x, y] = terrainType;
         }
     }
 
-    public TileType GetTile(int x, int y)
+    public TerrainType GetTile(int x, int y)
     {
         if (x >= 0 && x < _size && y >= 0 && y < _size)
         {
             return _tiles[x, y];
         }
-        return TileType.Grass; // Default
+        return TerrainType.Grass; // Default to passable terrain if out of bounds
     }
 
-    public void Draw(SpriteBatch spriteBatch, int tileSize, Texture2D grassTexture, Texture2D stoneTexture, Texture2D waterTexture)
+    public void Draw(SpriteBatch spriteBatch, int tileSize, AssetManager assetManager)
     {
         for (int x = 0; x < _size; x++)
         {
@@ -169,18 +165,7 @@ public class TerrainChunk
                     (ChunkCoord.Y * _size + y) * tileSize
                 );
 
-                Texture2D texture = _tiles[x, y] switch
-                {
-                    TileType.Grass => grassTexture,
-                    TileType.Stone => stoneTexture,
-                    TileType.Water => waterTexture,
-                    _ => grassTexture
-                };
-
-                if (texture != null)
-                {
-                    spriteBatch.Draw(texture, position, Color.White);
-                }
+                assetManager.DrawTerrain(spriteBatch, _tiles[x, y], position);
             }
         }
     }

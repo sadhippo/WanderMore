@@ -1,0 +1,5 @@
+Source File,Dest File,Processor Type,Content Type,Source File Size,Dest File Size,Build Seconds
+"C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/adventurer/homeboy.png","C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/bin/DesktopGL/adventurer/homeboy.xnb","TextureProcessor","Texture2DContent",1709,4181,0.119816
+"C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/adventurer/homeboywalkingsmall.png","C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/bin/DesktopGL/adventurer/homeboywalkingsmall.xnb","TextureProcessor","Texture2DContent",5465,7893,0.0030416
+"C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet_objects.png","C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/bin/DesktopGL/tilesheet/fantasytilesheet_objects.xnb","TextureProcessor","Texture2DContent",39605,940885,0.0355823
+"C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet.png","C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/bin/DesktopGL/tilesheet/fantasytilesheet.xnb","TextureProcessor","Texture2DContent",221732,4128853,0.1416436

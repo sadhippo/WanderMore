@@ -29,3 +29,9 @@ C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\obj\Debug\net8.0\refint\H
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\obj\Debug\net8.0\HiddenHorizons.pdb
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\obj\Debug\net8.0\HiddenHorizons.genruntimeconfig.cache
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\obj\Debug\net8.0\ref\HiddenHorizons.dll
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\obj\Debug\net8.0\HiddenHorizons.sourcelink.json
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\adventurer\homeboy.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\fantasytilesheet.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\fantasytilesheet_objects.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\adventurer\homeboywalkingsmall.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\Fonts\DefaultFont.xnb

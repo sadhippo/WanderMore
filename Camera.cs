@@ -6,7 +6,7 @@ namespace HiddenHorizons;
 public class Camera
 {
     public Vector2 Position { get; set; }
-    public float Zoom { get; set; } = 1f;
+    public float Zoom { get; set; } = 2f;
     public Vector2 Origin { get; set; }
     
     private Vector2 _targetPosition;
@@ -33,6 +33,12 @@ public class Camera
         // Smoothly move camera towards target
         Vector2 difference = _targetPosition - Position;
         Position += difference * _followSpeed * deltaTime;
+    }
+
+    public void SnapToPosition(Vector2 position)
+    {
+        Position = position;
+        _targetPosition = position;
     }
 
     public Matrix GetTransformMatrix()
