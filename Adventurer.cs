@@ -82,7 +82,7 @@ public class Adventurer
         }
     }
 
-    public void Update(GameTime gameTime, ZoneManager zoneManager)
+    public void Update(GameTime gameTime, ZoneManager zoneManager, PoIManager poiManager = null)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         
@@ -107,10 +107,13 @@ public class Adventurer
         UpdateAnimation(deltaTime);
         
         // Check for collision and update position
-        if (CheckCollision(newPosition, zoneManager))
+        bool terrainCollision = CheckCollision(newPosition, zoneManager);
+        bool poiCollision = poiManager != null && CheckPoICollision(newPosition, poiManager);
+        
+        if (terrainCollision || poiCollision)
         {
-            // Check if we can transition to another zone
-            if (zoneManager.TryTransitionZone(newPosition, out Vector2 transitionPosition))
+            // Check if we can transition to another zone (only for terrain collision)
+            if (terrainCollision && zoneManager.TryTransitionZone(newPosition, out Vector2 transitionPosition))
             {
                 // Successfully transitioned to new zone
                 Position = transitionPosition;
@@ -284,6 +287,39 @@ public class Adventurer
         
         // If no bounce direction works, pick a completely random direction
         ChangeDirection();
+    }
+
+    private bool CheckPoICollision(Vector2 newPosition, PoIManager poiManager)
+    {
+        // Check collision with PoIs (buildings and large objects)
+        var nearbyPoIs = poiManager.GetNearbyPoIs(newPosition, 64f);
+        
+        Rectangle adventurerBounds = new Rectangle(
+            (int)newPosition.X, (int)newPosition.Y, 32, 32
+        );
+        
+        foreach (var poi in nearbyPoIs)
+        {
+            // Only collide with buildings and large objects
+            if (IsCollidablePoI(poi.Type) && adventurerBounds.Intersects(poi.GetBounds()))
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+
+    private bool IsCollidablePoI(PoIType type)
+    {
+        // Buildings and large structures should block movement
+        return type switch
+        {
+            PoIType.Farmhouse or PoIType.Inn or PoIType.Cottage or PoIType.Hut or
+            PoIType.Castle or PoIType.Chapel or PoIType.Oracle or PoIType.SkullFortress or
+            PoIType.HauntedHouse or PoIType.TreeHouse or PoIType.Mine => true,
+            _ => false // NPCs and animals don't block movement
+        };
     }
 }
 

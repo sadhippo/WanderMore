@@ -19,6 +19,8 @@ namespace HiddenHorizons
             _individualTextures = new Dictionary<string, Texture2D>();
         }
 
+        public ContentManager GetContent() => _content;
+
         public void LoadAssets()
         {
             // Load your main fantasy tilesheet

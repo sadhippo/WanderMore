@@ -15,12 +15,16 @@ public class TimeManager
     public float DayProgress { get; private set; } // 0.0 to 1.0
     public int CurrentDay { get; private set; } = 1;
     
-    // Time events
+    // Time events for other systems to subscribe to
     public event Action<TimeOfDay> TimeOfDayChanged;
     public event Action<int> DayChanged;
+    public event Action<float> HourPassed; // Fires every game hour for regular updates
+    public event Action<int> WeekPassed;   // Fires every 7 days for weekly events
     
     private float _totalCycleTime;
     private TimeOfDay _previousTimeOfDay;
+    private float _lastHourCheck;
+    private int _lastWeekCheck;
 
     public TimeManager()
     {
@@ -64,6 +68,22 @@ public class TimeManager
             }
             
             _previousTimeOfDay = CurrentTimeOfDay;
+        }
+        
+        // Check for hourly events (useful for weather changes, hunger, etc.)
+        float currentGameHour = GetCurrentGameHour();
+        if (Math.Floor(currentGameHour) != Math.Floor(_lastHourCheck))
+        {
+            HourPassed?.Invoke(currentGameHour);
+        }
+        _lastHourCheck = currentGameHour;
+        
+        // Check for weekly events (useful for seasonal changes, etc.)
+        int currentWeek = CurrentDay / 7;
+        if (currentWeek != _lastWeekCheck)
+        {
+            WeekPassed?.Invoke(currentWeek);
+            _lastWeekCheck = currentWeek;
         }
     }
 
@@ -162,6 +182,52 @@ public class TimeManager
         {
             CurrentTime = DayDuration + (progress * NightDuration);
         }
+    }
+
+    // Utility methods for other systems
+    public float GetCurrentGameHour()
+    {
+        // Returns 0-24 hour format (0 = 6 AM, 12 = 6 PM, 18 = midnight, etc.)
+        if (CurrentTimeOfDay == TimeOfDay.Day)
+        {
+            return DayProgress * 12f; // 0-12 hours of day
+        }
+        else
+        {
+            return 12f + (DayProgress * 12f); // 12-24 hours of night
+        }
+    }
+
+    public bool IsTimeInRange(float startHour, float endHour)
+    {
+        float currentHour = GetCurrentGameHour();
+        if (startHour <= endHour)
+        {
+            return currentHour >= startHour && currentHour <= endHour;
+        }
+        else
+        {
+            // Handle overnight ranges (e.g., 22:00 to 6:00)
+            return currentHour >= startHour || currentHour <= endHour;
+        }
+    }
+
+    public int GetSeason()
+    {
+        // Returns 0-3 for Spring, Summer, Autumn, Winter (30 days each)
+        return (CurrentDay - 1) / 30 % 4;
+    }
+
+    public string GetSeasonName()
+    {
+        return GetSeason() switch
+        {
+            0 => "Spring",
+            1 => "Summer", 
+            2 => "Autumn",
+            3 => "Winter",
+            _ => "Spring"
+        };
     }
 }
 

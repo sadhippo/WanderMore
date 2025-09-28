@@ -37,17 +37,19 @@
 /processorParam:TextureFormat=Color
 /build:adventurer/homeboywalkingsmall.png
 
-#begin adventurer/homeboywalkingsmall.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
+#begin fonts/04b03.spritefont
+/importer:FontDescriptionImporter
+/processor:LocalizedFontProcessor
 /processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:adventurer/homeboywalkingsmall.png
+/processorParam:TextureFormat=Compressed
+/build:fonts/04b03.spritefont
+
+#begin fonts/Arial.spritefont
+/importer:FontDescriptionImporter
+/processor:FontDescriptionProcessor
+/processorParam:PremultiplyAlpha=True
+/processorParam:TextureFormat=Compressed
+/build:fonts/Arial.spritefont
 
 #begin tilesheet/fantasytilesheet_objects.png
 /importer:TextureImporter
@@ -61,6 +63,30 @@
 /processorParam:TextureFormat=Color
 /build:tilesheet/fantasytilesheet_objects.png
 
+#begin tilesheet/fantasytilesheet_PoI.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:tilesheet/fantasytilesheet_PoI.png
+
+#begin tilesheet/fantasytilesheet_PoIBuildings.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:tilesheet/fantasytilesheet_PoIBuildings.png
+
 #begin tilesheet/fantasytilesheet.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -73,10 +99,27 @@
 /processorParam:TextureFormat=Color
 /build:tilesheet/fantasytilesheet.png
 
-#begin Fonts/DefaultFont.spritefont
-/importer:FontDescriptionImporter
-/processor:FontDescriptionProcessor
+#begin tilesheet/fantasytilesheet_PoI.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
 /processorParam:PremultiplyAlpha=True
-/processorParam:TextureFormat=Compressed
-/build:Fonts/DefaultFont.spritefont
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:tilesheet/fantasytilesheet_PoI.png
+
+#begin tilesheet/fantasytilesheet_PoIBuildings.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:tilesheet/fantasytilesheet_PoIBuildings.png
 

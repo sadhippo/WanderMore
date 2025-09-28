@@ -34,4 +34,7 @@ C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\fantasytilesheet.xnb
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\fantasytilesheet_objects.xnb
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\adventurer\homeboywalkingsmall.xnb
-C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\Fonts\DefaultFont.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\Fonts\04b03.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\Fonts\Arial.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\fantasytilesheet_PoI.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\fantasytilesheet_PoIBuildings.xnb

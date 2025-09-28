@@ -17,6 +17,11 @@ public class Game1 : Game
     private ZoneManager _zoneManager;
     private MiniMap _miniMap;
     private TimeManager _timeManager;
+    private WeatherManager _weatherManager;
+    private WeatherEffects _weatherEffects;
+    private JournalManager _journalManager;
+    private JournalUI _journalUI;
+    private PoIManager _poiManager;
     private UIManager _uiManager;
     
     // Zone transition effects
@@ -60,12 +65,34 @@ public class Game1 : Game
             
             // Initialize time system
             _timeManager = new TimeManager();
-            _timeManager.SetDayNightCycle(1f, .5f); // 5 min day, 3 min night - easily changeable!
+            _timeManager.SetDayNightCycle(1f, .5f); // 1 min day, 30 sec night - easily changeable!
             System.Console.WriteLine("TimeManager created");
             
-            // Initialize UI system
-            _uiManager = new UIManager(GraphicsDevice, _timeManager);
-            System.Console.WriteLine("UIManager created");
+            // Initialize weather system
+            _weatherManager = new WeatherManager(_timeManager, 12345);
+            System.Console.WriteLine("WeatherManager created");
+            
+            // Initialize weather effects
+            _weatherEffects = new WeatherEffects(GraphicsDevice, _camera);
+            _weatherEffects.UpdateScreenBounds(new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight));
+            System.Console.WriteLine("WeatherEffects created");
+            
+            // Initialize journal system
+            _journalManager = new JournalManager(_timeManager);
+            _journalUI = new JournalUI(GraphicsDevice, _journalManager);
+            
+            // Initialize PoI system
+            _poiManager = new PoIManager(_assetManager, _journalManager, 12345);
+            
+            // Subscribe to weather changes for journal tracking
+            _weatherManager.WeatherChanged += (weather) => {
+                _journalManager.OnWeatherChanged(weather, _timeManager.GetSeasonName());
+            };
+            
+            System.Console.WriteLine("Journal and PoI systems created");
+            
+            // Initialize UI system (will be created after zone manager loads)
+            System.Console.WriteLine("UIManager will be created after zone loading");
             
             _previousMouseState = Mouse.GetState();
 
@@ -104,6 +131,14 @@ public class Game1 : Game
             _zoneManager.LoadContent(_assetManager);
             System.Console.WriteLine("ZoneManager content loaded");
             
+            // Set up PoI manager
+            _poiManager.LoadContent();
+            System.Console.WriteLine("PoI content loaded");
+            
+            // Now create UI manager with zone manager reference
+            _uiManager = new UIManager(GraphicsDevice, _timeManager, _zoneManager, _weatherManager);
+            System.Console.WriteLine("UIManager created");
+            
             // Create minimap in top-right corner
             Rectangle minimapArea = new Rectangle(
                 _graphics.PreferredBackBufferWidth - 220, 10, 
@@ -117,8 +152,20 @@ public class Game1 : Game
             _fadeTexture.SetData(new[] { Color.Black });
             System.Console.WriteLine("Fade texture created");
             
-            // UI doesn't need font anymore - uses simple graphics
-            System.Console.WriteLine("UI ready (no font required)");
+            // Load UI font
+            try
+            {
+                var font = Content.Load<SpriteFont>("fonts/Arial");
+                _uiManager.LoadContent(font);
+                _journalUI.LoadContent(font);
+                System.Console.WriteLine("UI font loaded successfully");
+            }
+            catch (Exception ex)
+            {
+                System.Console.WriteLine($"Failed to load font: {ex.Message}");
+                System.Console.WriteLine("UI will use fallback graphics instead of text");
+                // Continue without font - UI will handle null font gracefully
+            }
             
             System.Console.WriteLine("Content loading complete");
         }
@@ -181,8 +228,20 @@ public class Game1 : Game
                 // Update time system
                 _timeManager.Update(gameTime);
                 
+                // Update weather system
+                _weatherManager.Update(gameTime);
+                
+                // Update weather effects
+                _weatherEffects.Update(gameTime, _weatherManager.CurrentWeather, _weatherManager.WeatherIntensity);
+                
+                // Update journal UI
+                _journalUI.Update(gameTime);
+                
+                // Update PoI system
+                _poiManager.Update(_adventurer.Position);
+                
                 // Update adventurer (this may trigger zone changes)
-                _adventurer.Update(gameTime, _zoneManager);
+                _adventurer.Update(gameTime, _zoneManager, _poiManager);
                 
                 // Check for zone changes BEFORE calling zoneManager.Update (which resets the flag)
                 bool zoneChanged = _zoneManager.ZoneChanged;
@@ -202,6 +261,12 @@ public class Game1 : Game
                     _camera.SnapToPosition(_adventurer.Position);
                     
                     _miniMap.OnZoneChanged();
+                    
+                    // Record zone visit in journal
+                    _journalManager.OnZoneEntered(_zoneManager.CurrentZone);
+                    
+                    // Generate PoIs for new zone
+                    _poiManager.GeneratePoIsForZone(_zoneManager.CurrentZone, 32, 32);
                     
                     System.Console.WriteLine($"Zone transition started to: {_zoneManager.CurrentZone.Name}");
                 }
@@ -231,6 +296,9 @@ public class Game1 : Game
                 // Draw zone (terrain and objects)
                 _zoneManager.Draw(_spriteBatch);
                 
+                // Draw PoIs (buildings, NPCs, etc.)
+                _poiManager.Draw(_spriteBatch);
+                
                 // Draw adventurer (foreground)
                 _adventurer.Draw(_spriteBatch);
                 
@@ -248,6 +316,12 @@ public class Game1 : Game
                 // Draw UI (clock, day counter)
                 _uiManager.Draw(_spriteBatch);
                 
+                // Draw weather effects (rain, snow) on top of UI
+                _weatherEffects.Draw(_spriteBatch);
+                
+                // Draw journal if open
+                _journalUI.Draw(_spriteBatch);
+                
                 _spriteBatch.End();
                 
                 // Apply subtle night tint
@@ -261,6 +335,19 @@ public class Game1 : Game
                     // Subtle blue tint for night atmosphere
                     Color nightTint = new Color(100, 120, 180, 60); // Light blue with low alpha
                     _spriteBatch.Draw(_fadeTexture, screenRect, nightTint);
+                    _spriteBatch.End();
+                }
+                
+                // Apply weather effects
+                Color weatherTint = _weatherManager.GetWeatherTint();
+                if (weatherTint != Color.Transparent)
+                {
+                    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
+                    Rectangle screenRect = new Rectangle(0, 0, 
+                        _graphics.PreferredBackBufferWidth, 
+                        _graphics.PreferredBackBufferHeight);
+                    
+                    _spriteBatch.Draw(_fadeTexture, screenRect, weatherTint);
                     _spriteBatch.End();
                 }
                 
@@ -307,6 +394,8 @@ public class Game1 : Game
         _assetManager?.UnloadAssets();
         _miniMap?.Dispose();
         _uiManager?.Dispose();
+        _weatherEffects?.Dispose();
+        _journalUI?.Dispose();
         _fadeTexture?.Dispose();
         base.UnloadContent();
     }
