@@ -32,6 +32,7 @@ public class Game1 : Game
     
     // Input handling
     private MouseState _previousMouseState;
+    private KeyboardState _previousKeyboardState;
 
     public Game1()
     {
@@ -95,6 +96,7 @@ public class Game1 : Game
             System.Console.WriteLine("UIManager will be created after zone loading");
             
             _previousMouseState = Mouse.GetState();
+            _previousKeyboardState = Keyboard.GetState();
 
             base.Initialize();
             System.Console.WriteLine("Game initialization complete");
@@ -157,8 +159,9 @@ public class Game1 : Game
             {
                 var font = Content.Load<SpriteFont>("fonts/Arial");
                 _uiManager.LoadContent(font);
+                _uiManager.LoadUITextures(Content);
                 _journalUI.LoadContent(font);
-                System.Console.WriteLine("UI font loaded successfully");
+                System.Console.WriteLine("UI font and textures loaded successfully");
             }
             catch (Exception ex)
             {
@@ -196,16 +199,29 @@ public class Game1 : Game
                 _camera.Zoom = MathHelper.Clamp(_camera.Zoom - 0.02f, 0.5f, 4f);
             }
 
-            // Handle mouse input for occasional interaction
+            // Handle mouse input for UI and interaction
             var currentMouseState = Mouse.GetState();
             if (currentMouseState.LeftButton == ButtonState.Pressed && 
                 _previousMouseState.LeftButton == ButtonState.Released)
             {
-                // Convert mouse position to world coordinates and influence adventurer
-                Vector2 mouseWorldPos = _camera.ScreenToWorld(new Vector2(currentMouseState.X, currentMouseState.Y));
-                // You can add logic here to influence the adventurer's direction toward the click
+                Vector2 mousePos = new Vector2(currentMouseState.X, currentMouseState.Y);
+                
+                // Check UI clicks first (pause button, etc.)
+                if (!_uiManager.HandleMouseClick(mousePos))
+                {
+                    // If UI didn't handle it, convert to world coordinates for game interaction
+                    Vector2 mouseWorldPos = _camera.ScreenToWorld(mousePos);
+                    // You can add logic here to influence the adventurer's direction toward the click
+                }
             }
             _previousMouseState = currentMouseState;
+
+            // Handle spacebar for pause toggle
+            if (keyboardState.IsKeyDown(Keys.Space) && !_previousKeyboardState.IsKeyDown(Keys.Space))
+            {
+                _uiManager.SetPaused(!_uiManager.IsPaused);
+            }
+            _previousKeyboardState = keyboardState;
 
             // Update transition effects
             if (_isTransitioning)
@@ -225,50 +241,54 @@ public class Game1 : Game
             // Update game systems
             if (_adventurer != null && _zoneManager != null)
             {
-                // Update time system
-                _timeManager.Update(gameTime);
-                
-                // Update weather system
-                _weatherManager.Update(gameTime);
-                
-                // Update weather effects
-                _weatherEffects.Update(gameTime, _weatherManager.CurrentWeather, _weatherManager.WeatherIntensity);
-                
-                // Update journal UI
+                // Always update journal UI (can be opened while paused)
                 _journalUI.Update(gameTime);
                 
-                // Update PoI system
-                _poiManager.Update(_adventurer.Position);
-                
-                // Update adventurer (this may trigger zone changes)
-                _adventurer.Update(gameTime, _zoneManager, _poiManager);
-                
-                // Check for zone changes BEFORE calling zoneManager.Update (which resets the flag)
-                bool zoneChanged = _zoneManager.ZoneChanged;
-                
-                _camera.Follow(_adventurer.Position);
-                _camera.Update(gameTime);
-                _zoneManager.Update(_adventurer.Position);
-                
-                // Handle zone changes after all updates
-                if (zoneChanged && _miniMap != null)
+                // Only update game simulation if not paused
+                if (!_uiManager.IsPaused)
                 {
-                    // Start transition effect
-                    _isTransitioning = true;
-                    _transitionTimer = 0f;
+                    // Update time system
+                    _timeManager.Update(gameTime);
                     
-                    // Snap camera to new position immediately
-                    _camera.SnapToPosition(_adventurer.Position);
+                    // Update weather system
+                    _weatherManager.Update(gameTime);
                     
-                    _miniMap.OnZoneChanged();
+                    // Update weather effects
+                    _weatherEffects.Update(gameTime, _weatherManager.CurrentWeather, _weatherManager.WeatherIntensity);
                     
-                    // Record zone visit in journal
-                    _journalManager.OnZoneEntered(_zoneManager.CurrentZone);
+                    // Update PoI system
+                    _poiManager.Update(_adventurer.Position);
                     
-                    // Generate PoIs for new zone
-                    _poiManager.GeneratePoIsForZone(_zoneManager.CurrentZone, 32, 32);
+                    // Update adventurer (this may trigger zone changes)
+                    _adventurer.Update(gameTime, _zoneManager, _poiManager);
                     
-                    System.Console.WriteLine($"Zone transition started to: {_zoneManager.CurrentZone.Name}");
+                    // Check for zone changes BEFORE calling zoneManager.Update (which resets the flag)
+                    bool zoneChanged = _zoneManager.ZoneChanged;
+                    
+                    _camera.Follow(_adventurer.Position);
+                    _camera.Update(gameTime);
+                    _zoneManager.Update(_adventurer.Position);
+                    
+                    // Handle zone changes after all updates
+                    if (zoneChanged && _miniMap != null)
+                    {
+                        // Start transition effect
+                        _isTransitioning = true;
+                        _transitionTimer = 0f;
+                        
+                        // Snap camera to new position immediately
+                        _camera.SnapToPosition(_adventurer.Position);
+                        
+                        _miniMap.OnZoneChanged();
+                        
+                        // Record zone visit in journal
+                        _journalManager.OnZoneEntered(_zoneManager.CurrentZone);
+                        
+                        // Generate PoIs for new zone
+                        _poiManager.GeneratePoIsForZone(_zoneManager.CurrentZone, 32, 32);
+                        
+                        System.Console.WriteLine($"Zone transition started to: {_zoneManager.CurrentZone.Name}");
+                    }
                 }
             }
 

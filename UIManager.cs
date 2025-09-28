@@ -1,5 +1,6 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
+using Microsoft.Xna.Framework.Content;
 using System;
 
 namespace HiddenHorizons;
@@ -15,6 +16,12 @@ public class UIManager
     private Rectangle _dayCounterArea;
     private Rectangle _zoneNameArea;
     private Rectangle _weatherArea;
+    private Rectangle _pauseButtonArea;
+    
+    // Pause system
+    private bool _isPaused;
+    private Texture2D _uiButtonsTexture;
+    private Rectangle _pauseButtonSource;
 
     public UIManager(GraphicsDevice graphicsDevice, TimeManager timeManager, ZoneManager zoneManager, WeatherManager weatherManager)
     {
@@ -31,11 +38,28 @@ public class UIManager
         _dayCounterArea = new Rectangle(10, 55, 200, 30);
         _zoneNameArea = new Rectangle(10, 90, 250, 35);
         _weatherArea = new Rectangle(10, 130, 220, 30);
+        _pauseButtonArea = new Rectangle(220, 10, 40, 40); // Next to clock
+        
+        // Define pause button sprite source (full image)
+        _pauseButtonSource = new Rectangle(0, 0, 32, 32);
+        _isPaused = false;
     }
 
     public void LoadContent(SpriteFont font)
     {
         _font = font;
+    }
+
+    public void LoadUITextures(ContentManager content)
+    {
+        try
+        {
+            _uiButtonsTexture = content.Load<Texture2D>("ui/pausebutton");
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"Failed to load pause button: {ex.Message}");
+        }
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -114,6 +138,20 @@ public class UIManager
         Color weatherColor = GetWeatherColor(_weatherManager.CurrentWeather);
         spriteBatch.DrawString(_font, weatherText, weatherPosition, weatherColor);
         spriteBatch.DrawString(_font, seasonText, seasonPosition, GetSeasonColor(_timeManager.GetSeason()));
+        
+        // Draw pause button
+        if (_uiButtonsTexture != null)
+        {
+            Color buttonColor = _isPaused ? Color.Red : Color.White;
+            spriteBatch.Draw(_uiButtonsTexture, _pauseButtonArea, buttonColor);
+        }
+        
+        // Draw pause indicator if paused
+        if (_isPaused)
+        {
+            Vector2 pausedTextPos = new Vector2(_pauseButtonArea.X + 50, _pauseButtonArea.Y + 12);
+            spriteBatch.DrawString(_font, "PAUSED", pausedTextPos, Color.Yellow);
+        }
     }
 
     private void DrawTimeIndicators(SpriteBatch spriteBatch)
@@ -165,6 +203,18 @@ public class UIManager
         Rectangle seasonIndicator = new Rectangle(_weatherArea.X + 45, _weatherArea.Y + 8, 25, 15);
         Color seasonColor = GetSeasonColor(_timeManager.GetSeason());
         spriteBatch.Draw(_pixelTexture, seasonIndicator, seasonColor);
+        
+        // Draw pause button (fallback when no texture)
+        if (_uiButtonsTexture != null)
+        {
+            Color buttonColor = _isPaused ? Color.Red : Color.White;
+            spriteBatch.Draw(_uiButtonsTexture, _pauseButtonArea, buttonColor);
+        }
+        else
+        {
+            Color pauseColor = _isPaused ? Color.Red : Color.Green;
+            spriteBatch.Draw(_pixelTexture, _pauseButtonArea, pauseColor);
+        }
     }
 
     private Color GetBiomeColor(BiomeType biomeType)
@@ -243,6 +293,27 @@ public class UIManager
             Color.Yellow : Color.DarkBlue;
         
         spriteBatch.Draw(_pixelTexture, fillArea, progressColor);
+    }
+
+    public bool HandleMouseClick(Vector2 mousePosition)
+    {
+        // Check if pause button was clicked
+        if (_pauseButtonArea.Contains(mousePosition))
+        {
+            _isPaused = !_isPaused;
+            System.Console.WriteLine(_isPaused ? "Game paused" : "Game resumed");
+            return true; // Consumed the click
+        }
+        
+        return false; // Click not handled
+    }
+
+    public bool IsPaused => _isPaused;
+
+    public void SetPaused(bool paused)
+    {
+        _isPaused = paused;
+        System.Console.WriteLine(_isPaused ? "Game paused" : "Game resumed");
     }
 
     public void Dispose()
