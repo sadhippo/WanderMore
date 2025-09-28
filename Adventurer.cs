@@ -20,6 +20,11 @@ public class Adventurer
     private float _directionChangeInterval = 3f; // Change direction every 3 seconds
     private Random _random;
     
+    // Stuck detection
+    private Vector2 _lastPosition;
+    private float _stuckTimer;
+    private float _stuckThreshold = 2f; // Consider stuck after 2 seconds
+    
     // Animation system
     private Dictionary<AnimationType, AnimationData> _animations;
     private AnimationType _currentAnimation;
@@ -106,6 +111,9 @@ public class Adventurer
         // Update animation
         UpdateAnimation(deltaTime);
         
+        // Check if stuck and handle it
+        CheckStuckState(deltaTime);
+        
         // Check for collision and update position
         bool terrainCollision = CheckCollision(newPosition, zoneManager);
         bool poiCollision = poiManager != null && CheckPoICollision(newPosition, poiManager);
@@ -121,7 +129,7 @@ public class Adventurer
             else
             {
                 // Collision detected - bounce off or change direction
-                HandleCollision(zoneManager);
+                HandleCollision(zoneManager, poiManager);
             }
         }
         else
@@ -212,6 +220,56 @@ public class Adventurer
         PlayAnimation(animationType);
     }
 
+    private void CheckStuckState(float deltaTime)
+    {
+        // Check if adventurer has moved significantly
+        float distanceMoved = Vector2.Distance(Position, _lastPosition);
+        
+        if (distanceMoved < 5f) // Less than 5 pixels moved
+        {
+            _stuckTimer += deltaTime;
+            
+            if (_stuckTimer >= _stuckThreshold)
+            {
+                // Force a new direction when stuck
+                ForceNewDirection();
+                _stuckTimer = 0f;
+            }
+        }
+        else
+        {
+            _stuckTimer = 0f; // Reset stuck timer if moving
+        }
+        
+        _lastPosition = Position;
+    }
+
+    private void ForceNewDirection()
+    {
+        // Try to find a completely clear direction
+        for (int attempt = 0; attempt < 16; attempt++)
+        {
+            float angle = _random.NextSingle() * MathHelper.TwoPi;
+            Vector2 testDirection = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+            Vector2 testPosition = Position + testDirection * Speed * 0.3f;
+            
+            // Test if this direction is clear for a longer distance
+            bool isClear = true;
+            for (int step = 1; step <= 3; step++)
+            {
+                Vector2 stepPosition = Position + testDirection * Speed * 0.1f * step;
+                // We'll need to pass the managers here, but for now just change direction
+            }
+            
+            _direction = testDirection;
+            _directionChangeTimer = 0f;
+            _directionChangeInterval = 0.5f; // Short interval after being stuck
+            
+            System.Console.WriteLine("Homeboy got unstuck and found a new path!");
+            break;
+        }
+    }
+
     public Rectangle GetBounds()
     {
         return new Rectangle((int)Position.X, (int)Position.Y, _sourceRectangle.Width, _sourceRectangle.Height);
@@ -256,7 +314,7 @@ public class Adventurer
         return terrainType == TerrainType.Stone || terrainType == TerrainType.Water;
     }
 
-    private void HandleCollision(ZoneManager zoneManager)
+    private void HandleCollision(ZoneManager zoneManager, PoIManager poiManager = null)
     {
         // Try to bounce off the obstacle
         Vector2 originalDirection = _direction;
@@ -276,7 +334,10 @@ public class Adventurer
             _direction = Vector2.Normalize(bounceDir);
             Vector2 testPosition = Position + _direction * Speed * 0.1f; // Small test movement
             
-            if (!CheckCollision(testPosition, zoneManager))
+            bool terrainCollision = CheckCollision(testPosition, zoneManager);
+            bool poiCollision = poiManager != null && CheckPoICollision(testPosition, poiManager);
+            
+            if (!terrainCollision && !poiCollision)
             {
                 // Found a valid direction, reset timer for more natural movement
                 _directionChangeTimer = 0f;
@@ -285,7 +346,25 @@ public class Adventurer
             }
         }
         
-        // If no bounce direction works, pick a completely random direction
+        // If no bounce direction works, try more directions around the obstacle
+        for (int i = 0; i < 8; i++)
+        {
+            float angle = (i / 8f) * MathHelper.TwoPi;
+            _direction = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+            Vector2 testPosition = Position + _direction * Speed * 0.2f; // Slightly larger test movement
+            
+            bool terrainCollision = CheckCollision(testPosition, zoneManager);
+            bool poiCollision = poiManager != null && CheckPoICollision(testPosition, poiManager);
+            
+            if (!terrainCollision && !poiCollision)
+            {
+                _directionChangeTimer = 0f;
+                _directionChangeInterval = 0.5f + (float)_random.NextDouble() * 1f; // Even shorter interval
+                return;
+            }
+        }
+        
+        // Last resort: pick a completely random direction
         ChangeDirection();
     }
 
@@ -294,16 +373,25 @@ public class Adventurer
         // Check collision with PoIs (buildings and large objects)
         var nearbyPoIs = poiManager.GetNearbyPoIs(newPosition, 64f);
         
+        // Make adventurer bounds slightly smaller for more forgiving collision
         Rectangle adventurerBounds = new Rectangle(
-            (int)newPosition.X, (int)newPosition.Y, 32, 32
+            (int)newPosition.X + 4, (int)newPosition.Y + 4, 24, 24
         );
         
         foreach (var poi in nearbyPoIs)
         {
             // Only collide with buildings and large objects
-            if (IsCollidablePoI(poi.Type) && adventurerBounds.Intersects(poi.GetBounds()))
+            if (IsCollidablePoI(poi.Type))
             {
-                return true;
+                // Make PoI bounds slightly smaller too for easier navigation
+                Rectangle poiBounds = new Rectangle(
+                    (int)poi.Position.X + 2, (int)poi.Position.Y + 2, 28, 28
+                );
+                
+                if (adventurerBounds.Intersects(poiBounds))
+                {
+                    return true;
+                }
             }
         }
         
