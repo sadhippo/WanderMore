@@ -3,7 +3,7 @@ using System;
 
 namespace HiddenHorizons;
 
-public class WeatherManager
+public class WeatherManager : ISaveable
 {
     public WeatherType CurrentWeather { get; private set; }
     public float WeatherIntensity { get; private set; } // 0.0 to 1.0
@@ -13,13 +13,15 @@ public class WeatherManager
     
     private TimeManager _timeManager;
     private Random _random;
+    private int _randomSeed;
     private float _weatherChangeTimer;
     private float _nextWeatherChange;
 
     public WeatherManager(TimeManager timeManager, int seed = 0)
     {
         _timeManager = timeManager;
-        _random = seed == 0 ? new Random() : new Random(seed);
+        _randomSeed = seed == 0 ? Environment.TickCount : seed;
+        _random = new Random(_randomSeed);
         
         CurrentWeather = WeatherType.Clear;
         WeatherIntensity = 0f;
@@ -167,6 +169,39 @@ public class WeatherManager
             WeatherType.Cloudy => "Cloudy",
             _ => "Clear"
         };
+    }
+
+    // ISaveable implementation
+    public string SaveKey => "WeatherManager";
+    public int SaveVersion => 1;
+
+    public object GetSaveData()
+    {
+        return new WeatherManagerSaveData
+        {
+            CurrentWeather = CurrentWeather,
+            WeatherIntensity = WeatherIntensity,
+            WeatherChangeTimer = _weatherChangeTimer,
+            NextWeatherChange = _nextWeatherChange,
+            RandomSeed = _randomSeed
+        };
+    }
+
+    public void LoadSaveData(object data)
+    {
+        if (data is WeatherManagerSaveData saveData)
+        {
+            CurrentWeather = saveData.CurrentWeather;
+            WeatherIntensity = saveData.WeatherIntensity;
+            _weatherChangeTimer = saveData.WeatherChangeTimer;
+            _nextWeatherChange = saveData.NextWeatherChange;
+            _randomSeed = saveData.RandomSeed;
+            
+            // Recreate Random with saved seed to maintain deterministic behavior
+            // Note: The Random state cannot be perfectly restored, but using the same seed
+            // will ensure deterministic behavior from this point forward
+            _random = new Random(_randomSeed);
+        }
     }
 }
 

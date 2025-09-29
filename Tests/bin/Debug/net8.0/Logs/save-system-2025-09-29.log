@@ -1,0 +1,35 @@
+﻿2025-09-29 01:07:32.448 INFO     Save system logger initialized. Scope: Global, MinLevel: Info
+2025-09-29 01:07:32.453 INFO     SaveManager initialized. Directory: C:\Users\accoo\AppData\Local\Temp\SaveLoadIntegrationFixTests\89509229-1372-43b9-886d-9bb7432784e4, AutoSave: True
+2025-09-29 01:07:32.458 INFO     Registered saveable system: TimeManager (version 1) | Context: System=TimeManager, SaveVersion=1
+2025-09-29 01:07:32.459 INFO     Registered saveable system: JournalManager (version 1) | Context: System=JournalManager, SaveVersion=1
+2025-09-29 01:07:32.459 INFO     Registered saveable system: ZoneManager (version 1) | Context: System=ZoneManager, SaveVersion=1
+2025-09-29 01:07:32.469 INFO     Registered saveable system: Adventurer (version 1) | Context: System=Adventurer, SaveVersion=1
+2025-09-29 01:07:32.475 INFO     Starting save operation for slot 1 | Context: Slot=1, Op=Save
+2025-09-29 01:07:32.563 INFO     Save operation completed successfully for slot 1. Duration: 83.47ms, Size: 1,217 bytes | Context: Slot=1, Op=Save, System=Adventurer
+2025-09-29 01:08:00.237 INFO     Save system logger initialized. Scope: Global, MinLevel: Info
+2025-09-29 01:08:00.240 INFO     SaveManager initialized. Directory: C:\Users\accoo\AppData\Local\Temp\SaveLoadIntegrationFixTests\74202b88-bc50-4c6e-96be-de01a8b4aac8, AutoSave: True
+2025-09-29 01:08:00.246 INFO     Registered saveable system: TimeManager (version 1) | Context: System=TimeManager, SaveVersion=1
+2025-09-29 01:08:00.246 INFO     Registered saveable system: JournalManager (version 1) | Context: System=JournalManager, SaveVersion=1
+2025-09-29 01:08:00.246 INFO     Registered saveable system: ZoneManager (version 1) | Context: System=ZoneManager, SaveVersion=1
+2025-09-29 01:08:00.247 INFO     Registered saveable system: Adventurer (version 1) | Context: System=Adventurer, SaveVersion=1
+2025-09-29 01:08:00.250 INFO     Starting save operation for slot 2 | Context: Slot=2, Op=Save
+2025-09-29 01:08:00.328 INFO     Save operation completed successfully for slot 2. Duration: 73.62ms, Size: 968 bytes | Context: Slot=2, Op=Save, System=Adventurer
+2025-09-29 01:08:57.982 INFO     Save system logger initialized. Scope: Global, MinLevel: Info
+2025-09-29 01:08:57.986 INFO     SaveManager initialized. Directory: C:\Users\accoo\AppData\Local\Temp\SaveLoadIntegrationFixTests\dcecde2a-289a-4368-a409-0ca3f6cd9a0d, AutoSave: True
+2025-09-29 01:08:57.992 INFO     Registered saveable system: TimeManager (version 1) | Context: System=TimeManager, SaveVersion=1
+2025-09-29 01:08:57.993 INFO     Registered saveable system: JournalManager (version 1) | Context: System=JournalManager, SaveVersion=1
+2025-09-29 01:08:57.993 INFO     Registered saveable system: ZoneManager (version 1) | Context: System=ZoneManager, SaveVersion=1
+2025-09-29 01:08:57.993 INFO     Registered saveable system: Adventurer (version 1) | Context: System=Adventurer, SaveVersion=1
+2025-09-29 01:08:57.999 INFO     Starting save operation for slot 1 | Context: Slot=1, Op=Save
+2025-09-29 01:08:58.075 INFO     Save operation completed successfully for slot 1. Duration: 72.13ms, Size: 1,219 bytes | Context: Slot=1, Op=Save, System=Adventurer
+2025-09-29 01:56:09.270 INFO     Save system logger initialized. Scope: Global, MinLevel: Info
+2025-09-29 01:56:09.274 INFO     SaveManager initialized. Directory: C:\Users\accoo\AppData\Local\Temp\HiddenHorizonsValidationTests\fc39a4d6-33d4-4344-8892-e5fd3e81c91b, AutoSave: True
+2025-09-29 01:56:09.274 INFO     Registered saveable system: Adventurer (version 1) | Context: System=Adventurer, SaveVersion=1
+2025-09-29 01:56:09.275 INFO     Registered saveable system: JournalManager (version 1) | Context: System=JournalManager, SaveVersion=1
+2025-09-29 01:56:09.275 INFO     Registered saveable system: PoIManager (version 1) | Context: System=PoIManager, SaveVersion=1
+2025-09-29 01:56:09.275 INFO     Registered saveable system: TimeManager (version 1) | Context: System=TimeManager, SaveVersion=1
+2025-09-29 01:56:09.275 INFO     Registered saveable system: WeatherManager (version 1) | Context: System=WeatherManager, SaveVersion=1
+2025-09-29 01:56:09.275 INFO     Registered saveable system: ZoneManager (version 1) | Context: System=ZoneManager, SaveVersion=1
+2025-09-29 01:56:09.275 INFO     Registered saveable system: QuestManager (version 1) | Context: System=QuestManager, SaveVersion=1
+2025-09-29 01:56:09.291 INFO     Starting save operation for slot 1 | Context: Slot=1, Op=Save
+2025-09-29 01:56:09.416 INFO     Save operation completed successfully for slot 1. Duration: 121.10ms, Size: 41,988 bytes | Context: Slot=1, Op=Save, System=QuestManager

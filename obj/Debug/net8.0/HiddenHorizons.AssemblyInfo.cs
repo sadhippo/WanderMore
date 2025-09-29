@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("HiddenHorizons")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+6def0a1596aca7f8b2f5d53a0786372ab168edf7")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+987f56f2c038570db8dc8a0a6a577d65b329144f")]
 [assembly: System.Reflection.AssemblyProductAttribute("HiddenHorizons")]
 [assembly: System.Reflection.AssemblyTitleAttribute("HiddenHorizons")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

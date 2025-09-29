@@ -99,30 +99,6 @@
 /processorParam:TextureFormat=Color
 /build:tilesheet/fantasytilesheet.png
 
-#begin tilesheet/fantasytilesheet_PoI.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:tilesheet/fantasytilesheet_PoI.png
-
-#begin tilesheet/fantasytilesheet_PoIBuildings.png
-/importer:TextureImporter
-/processor:TextureProcessor
-/processorParam:ColorKeyColor=255,0,255,255
-/processorParam:ColorKeyEnabled=True
-/processorParam:GenerateMipmaps=False
-/processorParam:PremultiplyAlpha=True
-/processorParam:ResizeToPowerOfTwo=False
-/processorParam:MakeSquare=False
-/processorParam:TextureFormat=Color
-/build:tilesheet/fantasytilesheet_PoIBuildings.png
-
 #begin ui/pausebutton.png
 /importer:TextureImporter
 /processor:TextureProcessor
@@ -134,3 +110,4 @@
 /processorParam:MakeSquare=False
 /processorParam:TextureFormat=Color
 /build:ui/pausebutton.png
+

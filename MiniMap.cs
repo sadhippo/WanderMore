@@ -63,7 +63,7 @@ public class MiniMap
         {
             for (int y = 0; y < zone.Height; y++)
             {
-                if (zone.ExploredTiles[x, y])
+                if (zone.ExploredTiles[x][y])
                 {
                     Vector2 tilePos = mapOffset + new Vector2(x * _scale, y * _scale);
                     Rectangle tileRect = new Rectangle(
@@ -95,7 +95,7 @@ public class MiniMap
             
             if (objTileX >= 0 && objTileX < zone.Width && 
                 objTileY >= 0 && objTileY < zone.Height &&
-                zone.ExploredTiles[objTileX, objTileY])
+                zone.ExploredTiles[objTileX][objTileY])
             {
                 Vector2 objPos = mapOffset + new Vector2(objTileX * _scale, objTileY * _scale);
                 Rectangle objRect = new Rectangle(

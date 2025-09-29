@@ -5,7 +5,7 @@ using System.Linq;
 
 namespace HiddenHorizons;
 
-public class JournalManager
+public class JournalManager : ISaveable
 {
     private List<JournalEntry> _entries;
     private HashSet<string> _visitedZones;
@@ -205,6 +205,77 @@ public class JournalManager
             WeatherEventsRecorded = _entries.Count(e => e.Type == JournalEntryType.WeatherEvent),
             MilestonesReached = _entries.Count(e => e.Type == JournalEntryType.Milestone)
         };
+    }
+
+    // ISaveable implementation
+    public string SaveKey => "JournalManager";
+    public int SaveVersion => 1;
+
+    public object GetSaveData()
+    {
+        return new JournalSaveData
+        {
+            Entries = new List<JournalEntry>(_entries),
+            VisitedZones = new HashSet<string>(_visitedZones),
+            DiscoveredBiomes = new HashSet<string>(_discoveredBiomes),
+            Statistics = GetStatistics(),
+            TotalZonesVisited = _totalZonesVisited,
+            TotalDaysExplored = _totalDaysExplored
+        };
+    }
+
+    public void LoadSaveData(object data)
+    {
+        if (data is not JournalSaveData saveData)
+        {
+            throw new ArgumentException("Invalid save data type for JournalManager", nameof(data));
+        }
+
+        // Clear existing data
+        _entries.Clear();
+        _visitedZones.Clear();
+        _discoveredBiomes.Clear();
+
+        // Load saved data
+        _entries.AddRange(saveData.Entries ?? new List<JournalEntry>());
+        _visitedZones = new HashSet<string>(saveData.VisitedZones ?? new HashSet<string>());
+        _discoveredBiomes = new HashSet<string>(saveData.DiscoveredBiomes ?? new HashSet<string>());
+        _totalZonesVisited = saveData.TotalZonesVisited;
+        _totalDaysExplored = saveData.TotalDaysExplored;
+
+        // Trigger events for restored data to update UI
+        TriggerRestorationEvents();
+    }
+
+    private void TriggerRestorationEvents()
+    {
+        // Trigger events for each discovered zone
+        foreach (var zone in _visitedZones)
+        {
+            // Extract zone name from the zone key format "{zone.Id}_{zone.BiomeType}"
+            var parts = zone.Split('_');
+            if (parts.Length >= 2)
+            {
+                var zoneName = string.Join("_", parts.Take(parts.Length - 1));
+                NewZoneDiscovered?.Invoke(zoneName);
+            }
+        }
+
+        // Trigger events for each discovered biome
+        foreach (var biome in _discoveredBiomes)
+        {
+            if (Enum.TryParse<BiomeType>(biome, out var biomeType))
+            {
+                NewBiomeDiscovered?.Invoke(biomeType);
+            }
+        }
+
+        // Trigger event for the most recent entry to update UI
+        if (_entries.Count > 0)
+        {
+            var mostRecentEntry = _entries.Last();
+            NewEntryAdded?.Invoke(mostRecentEntry);
+        }
     }
 }
 

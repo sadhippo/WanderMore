@@ -6,12 +6,13 @@ using System.Linq;
 
 namespace HiddenHorizons;
 
-public class ZoneManager
+public class ZoneManager : ISaveable
 {
     private Zone _currentZone;
     private Dictionary<string, Zone> _zones;
     private AssetManager _assetManager;
     private Random _random;
+    private int _randomSeed;
     private string _previousZoneId;
 
     public Zone CurrentZone => _currentZone;
@@ -20,7 +21,8 @@ public class ZoneManager
     public ZoneManager(int seed = 0)
     {
         _zones = new Dictionary<string, Zone>();
-        _random = seed == 0 ? new Random() : new Random(seed);
+        _randomSeed = seed == 0 ? Environment.TickCount : seed;
+        _random = new Random(_randomSeed);
         CreateStartingZone();
     }
 
@@ -147,7 +149,11 @@ public class ZoneManager
         {
             zone.Terrain = new TerrainType[zone.Width, zone.Height];
             zone.Objects = new List<WorldObject>();
-            zone.ExploredTiles = new bool[zone.Width, zone.Height];
+            zone.ExploredTiles = new bool[zone.Width][];
+            for (int i = 0; i < zone.Width; i++)
+            {
+                zone.ExploredTiles[i] = new bool[zone.Height];
+            }
 
             System.Console.WriteLine($"Generating terrain for zone {zone.Id} ({zone.Width}x{zone.Height}) - {zone.BiomeType}");
 
@@ -772,6 +778,38 @@ public class ZoneManager
         };
     }
 
+    /// <summary>
+    /// Helper method to clone a jagged boolean array
+    /// </summary>
+    private bool[][] CloneExploredTiles(bool[][] source)
+    {
+        if (source == null) return null;
+        
+        bool[][] clone = new bool[source.Length][];
+        for (int i = 0; i < source.Length; i++)
+        {
+            if (source[i] != null)
+            {
+                clone[i] = new bool[source[i].Length];
+                Array.Copy(source[i], clone[i], source[i].Length);
+            }
+        }
+        return clone;
+    }
+
+    /// <summary>
+    /// Helper method to create a new jagged boolean array with specified dimensions
+    /// </summary>
+    private bool[][] CreateExploredTiles(int width, int height)
+    {
+        bool[][] exploredTiles = new bool[width][];
+        for (int i = 0; i < width; i++)
+        {
+            exploredTiles[i] = new bool[height];
+        }
+        return exploredTiles;
+    }
+
     public void MarkTileExplored(Vector2 worldPosition)
     {
         int tileX = (int)(worldPosition.X / 32);
@@ -779,7 +817,7 @@ public class ZoneManager
         
         if (tileX >= 0 && tileX < _currentZone.Width && tileY >= 0 && tileY < _currentZone.Height)
         {
-            _currentZone.ExploredTiles[tileX, tileY] = true;
+            _currentZone.ExploredTiles[tileX][tileY] = true;
         }
     }
 
@@ -803,7 +841,7 @@ public class ZoneManager
                 if (checkX >= 0 && checkX < _currentZone.Width && 
                     checkY >= 0 && checkY < _currentZone.Height)
                 {
-                    _currentZone.ExploredTiles[checkX, checkY] = true;
+                    _currentZone.ExploredTiles[checkX][checkY] = true;
                 }
             }
         }
@@ -827,6 +865,96 @@ public class ZoneManager
             _assetManager.DrawObject(spriteBatch, obj.Type, obj.Position);
         }
     }
+
+    // ISaveable implementation
+    public string SaveKey => "ZoneManager";
+    public int SaveVersion => 1;
+
+    public object GetSaveData()
+    {
+        var zoneSaveData = new Dictionary<string, ZoneSaveData>();
+        
+        foreach (var kvp in _zones)
+        {
+            var zone = kvp.Value;
+            zoneSaveData[kvp.Key] = new ZoneSaveData
+            {
+                Id = zone.Id,
+                Name = zone.Name,
+                Description = zone.Description,
+                BiomeType = zone.BiomeType,
+                Width = zone.Width,
+                Height = zone.Height,
+                WorldX = zone.WorldX,
+                WorldY = zone.WorldY,
+                Connections = new Dictionary<Direction, string>(zone.Connections),
+                GeneratedConnections = new Dictionary<Direction, bool>(zone.GeneratedConnections),
+                ExploredTiles = zone.ExploredTiles != null ? CloneExploredTiles(zone.ExploredTiles) : CreateExploredTiles(zone.Width, zone.Height)
+            };
+        }
+
+        return new ZoneManagerSaveData
+        {
+            CurrentZoneId = _currentZone?.Id,
+            Zones = zoneSaveData,
+            RandomSeed = _randomSeed
+        };
+    }
+
+    public void LoadSaveData(object data)
+    {
+        if (data is ZoneManagerSaveData saveData)
+        {
+            _randomSeed = saveData.RandomSeed;
+            _random = new Random(_randomSeed);
+            
+            // Clear existing zones
+            _zones.Clear();
+            
+            // Restore zones from save data
+            foreach (var kvp in saveData.Zones)
+            {
+                var zoneSaveData = kvp.Value;
+                var zone = new Zone
+                {
+                    Id = zoneSaveData.Id,
+                    Name = zoneSaveData.Name,
+                    Description = zoneSaveData.Description,
+                    BiomeType = zoneSaveData.BiomeType,
+                    Width = zoneSaveData.Width,
+                    Height = zoneSaveData.Height,
+                    WorldX = zoneSaveData.WorldX,
+                    WorldY = zoneSaveData.WorldY,
+                    Connections = new Dictionary<Direction, string>(zoneSaveData.Connections),
+                    GeneratedConnections = new Dictionary<Direction, bool>(zoneSaveData.GeneratedConnections),
+                    ExploredTiles = zoneSaveData.ExploredTiles != null ? CloneExploredTiles(zoneSaveData.ExploredTiles) : CreateExploredTiles(zoneSaveData.Width, zoneSaveData.Height)
+                };
+                
+                // Regenerate terrain and objects based on zone properties
+                // This maintains consistency while keeping save files smaller
+                // Preserve ExploredTiles before regenerating terrain
+                var preservedExploredTiles = zone.ExploredTiles;
+                if (_assetManager != null)
+                {
+                    GenerateZoneTerrain(zone);
+                    // Restore the preserved ExploredTiles after terrain generation
+                    zone.ExploredTiles = preservedExploredTiles;
+                }
+                
+                _zones[kvp.Key] = zone;
+            }
+            
+            // Set current zone
+            if (!string.IsNullOrEmpty(saveData.CurrentZoneId) && _zones.ContainsKey(saveData.CurrentZoneId))
+            {
+                _currentZone = _zones[saveData.CurrentZoneId];
+            }
+            else if (_zones.Count > 0)
+            {
+                _currentZone = _zones.Values.First();
+            }
+        }
+    }
 }
 
 public class Zone
@@ -839,7 +967,7 @@ public class Zone
     public string Description { get; set; }
     public TerrainType[,] Terrain { get; set; }
     public List<WorldObject> Objects { get; set; }
-    public bool[,] ExploredTiles { get; set; }
+    public bool[][] ExploredTiles { get; set; }
     public Dictionary<Direction, string> Connections { get; set; }
     public Dictionary<Direction, bool> GeneratedConnections { get; set; }
     public int WorldX { get; set; }

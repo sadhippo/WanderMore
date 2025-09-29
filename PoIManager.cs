@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace HiddenHorizons;
 
-public class PoIManager
+public class PoIManager : ISaveable
 {
     private Dictionary<Point, List<PointOfInterest>> _chunkPoIs;
     private List<PointOfInterest> _allPoIs;
@@ -19,6 +19,10 @@ public class PoIManager
     public event Action<PointOfInterest> PoIDiscovered;
     public event Action<PointOfInterest, Adventurer> PoIInteracted;
     public event Action<PointOfInterest> PoIApproached;
+
+    // ISaveable implementation
+    public string SaveKey => "PoIManager";
+    public int SaveVersion => 1;
 
     public PoIManager(AssetManager assetManager, JournalManager journalManager, int seed = 0)
     {
@@ -379,5 +383,108 @@ public class PoIManager
             poi.IsDiscovered && 
             Vector2.Distance(position, poi.Position) <= tolerance
         );
+    }
+
+    public PointOfInterest GetPoIById(Guid id)
+    {
+        return _allPoIs.FirstOrDefault(poi => poi.Id == id);
+    }
+
+    // ISaveable implementation
+    public object GetSaveData()
+    {
+        var saveData = new PoISaveData();
+        
+        // Convert all PoIs to save data format
+        foreach (var poi in _allPoIs)
+        {
+            var poiSaveData = new PointOfInterestSaveData
+            {
+                Id = poi.Id,
+                Type = poi.Type,
+                Position = poi.Position,
+                Name = poi.Name,
+                Description = poi.Description,
+                IsDiscovered = poi.IsDiscovered,
+                IsInteractable = poi.IsInteractable,
+                InteractionRange = poi.InteractionRange,
+                ZoneId = poi.ZoneId,
+                HasBeenInteracted = poi.HasBeenInteracted,
+                LastInteractionTime = poi.LastInteractionTime == default ? null : poi.LastInteractionTime,
+                InteractionCount = poi.InteractionCount,
+                AssociatedQuests = new List<string>(poi.AssociatedQuests),
+                Properties = new Dictionary<string, object>(poi.Properties)
+            };
+            
+            saveData.AllPoIs.Add(poiSaveData);
+        }
+        
+        // Convert chunk mapping to save data format (using Guid instead of PointOfInterest references)
+        foreach (var chunkEntry in _chunkPoIs)
+        {
+            var poiIds = chunkEntry.Value.Select(poi => poi.Id).ToList();
+            saveData.ChunkPoIMapping[chunkEntry.Key] = poiIds;
+        }
+        
+        return saveData;
+    }
+
+    public void LoadSaveData(object data)
+    {
+        if (data is not PoISaveData saveData)
+        {
+            System.Console.WriteLine("Warning: Invalid PoI save data format");
+            return;
+        }
+        
+        // Clear existing data
+        _allPoIs.Clear();
+        _chunkPoIs.Clear();
+        
+        // Restore PoIs from save data
+        foreach (var poiSaveData in saveData.AllPoIs)
+        {
+            var poi = new PointOfInterest
+            {
+                Id = poiSaveData.Id,
+                Type = poiSaveData.Type,
+                Position = poiSaveData.Position,
+                Name = poiSaveData.Name,
+                Description = poiSaveData.Description,
+                IsDiscovered = poiSaveData.IsDiscovered,
+                IsInteractable = poiSaveData.IsInteractable,
+                InteractionRange = poiSaveData.InteractionRange,
+                ZoneId = poiSaveData.ZoneId,
+                HasBeenInteracted = poiSaveData.HasBeenInteracted,
+                LastInteractionTime = poiSaveData.LastInteractionTime ?? default,
+                InteractionCount = poiSaveData.InteractionCount,
+                AssociatedQuests = new List<string>(poiSaveData.AssociatedQuests),
+                Properties = new Dictionary<string, object>(poiSaveData.Properties)
+            };
+            
+            _allPoIs.Add(poi);
+        }
+        
+        // Restore chunk mapping
+        foreach (var chunkEntry in saveData.ChunkPoIMapping)
+        {
+            var poisInChunk = new List<PointOfInterest>();
+            
+            foreach (var poiId in chunkEntry.Value)
+            {
+                var poi = _allPoIs.FirstOrDefault(p => p.Id == poiId);
+                if (poi != null)
+                {
+                    poisInChunk.Add(poi);
+                }
+            }
+            
+            if (poisInChunk.Count > 0)
+            {
+                _chunkPoIs[chunkEntry.Key] = poisInChunk;
+            }
+        }
+        
+        System.Console.WriteLine($"Loaded {_allPoIs.Count} PoIs from save data");
     }
 }

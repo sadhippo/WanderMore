@@ -3,7 +3,7 @@ using System;
 
 namespace HiddenHorizons;
 
-public class TimeManager
+public class TimeManager : ISaveable
 {
     // Configurable timing (in seconds)
     public float DayDuration { get; set; } = 300f;   // 5 minutes
@@ -228,6 +228,42 @@ public class TimeManager
             3 => "Winter",
             _ => "Spring"
         };
+    }
+
+    // ISaveable implementation
+    public string SaveKey => "TimeManager";
+    public int SaveVersion => 1;
+
+    public object GetSaveData()
+    {
+        return new TimeManagerSaveData
+        {
+            CurrentTime = CurrentTime,
+            CurrentTimeOfDay = CurrentTimeOfDay,
+            DayProgress = DayProgress,
+            CurrentDay = CurrentDay,
+            DayDuration = DayDuration,
+            NightDuration = NightDuration
+        };
+    }
+
+    public void LoadSaveData(object data)
+    {
+        if (data is TimeManagerSaveData saveData)
+        {
+            CurrentTime = saveData.CurrentTime;
+            CurrentTimeOfDay = saveData.CurrentTimeOfDay;
+            DayProgress = saveData.DayProgress;
+            CurrentDay = saveData.CurrentDay;
+            DayDuration = saveData.DayDuration;
+            NightDuration = saveData.NightDuration;
+            
+            // Recalculate derived values
+            _totalCycleTime = DayDuration + NightDuration;
+            _previousTimeOfDay = CurrentTimeOfDay;
+            _lastHourCheck = GetCurrentGameHour();
+            _lastWeekCheck = CurrentDay / 7;
+        }
     }
 }
 

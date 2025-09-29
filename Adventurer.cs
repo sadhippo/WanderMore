@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace HiddenHorizons;
 
-public class Adventurer
+public class Adventurer : ISaveable
 {
     public Vector2 Position { get; set; }
     public Vector2 Velocity { get; set; }
@@ -33,6 +33,10 @@ public class Adventurer
     private PointOfInterest _lastInteractionPoI;
     private float _interactionCooldownTimer;
     private float _interactionCooldownDuration = 5f; // 5 seconds before can interact with same PoI again
+    
+    // Save/Load support for PoI references
+    private Guid? _currentInteractionPoIId;
+    private Guid? _lastInteractionPoIId;
     
     // Animation system
     private Dictionary<AnimationType, AnimationData> _animations;
@@ -704,6 +708,103 @@ public class Adventurer
             _ => false // NPCs and animals don't block movement
         };
     }
+
+    #region ISaveable Implementation
+
+    public string SaveKey => "Adventurer";
+    public int SaveVersion => 1;
+
+    public object GetSaveData()
+    {
+        System.Console.WriteLine($"Saving Adventurer data: Position={Position}, Speed={Speed}");
+        return new AdventurerSaveData
+        {
+            // Position and movement state
+            Position = Position,
+            Velocity = Velocity,
+            Direction = _direction,
+            Speed = Speed,
+            DirectionChangeTimer = _directionChangeTimer,
+            DirectionChangeInterval = _directionChangeInterval,
+            
+            // Interaction state
+            IsInteracting = _isInteracting,
+            InteractionTimer = _interactionTimer,
+            InteractionDuration = _interactionDuration,
+            CurrentInteractionPoIId = _currentInteractionPoI?.Id ?? _currentInteractionPoIId,
+            LastInteractionPoIId = _lastInteractionPoI?.Id ?? _lastInteractionPoIId,
+            InteractionCooldownTimer = _interactionCooldownTimer,
+            
+            // Animation state
+            CurrentAnimation = _currentAnimation,
+            CurrentFrame = _currentFrame,
+            AnimationTimer = _animationTimer,
+            IsMoving = _isMoving,
+            
+            // Stuck detection state
+            LastPosition = _lastPosition,
+            StuckTimer = _stuckTimer
+        };
+    }
+
+    public void LoadSaveData(object data)
+    {
+        if (data is AdventurerSaveData saveData)
+        {
+            System.Console.WriteLine($"Loading Adventurer data: Position={saveData.Position}, Speed={saveData.Speed}");
+            // Position and movement state
+            Position = saveData.Position;
+            Velocity = saveData.Velocity;
+            _direction = saveData.Direction;
+            Speed = saveData.Speed;
+            _directionChangeTimer = saveData.DirectionChangeTimer;
+            _directionChangeInterval = saveData.DirectionChangeInterval;
+            
+            // Interaction state
+            _isInteracting = saveData.IsInteracting;
+            _interactionTimer = saveData.InteractionTimer;
+            _interactionDuration = saveData.InteractionDuration;
+            _interactionCooldownTimer = saveData.InteractionCooldownTimer;
+            
+            // Note: PoI references will be restored by the PoIManager after loading
+            // We store the IDs and will resolve them later
+            _currentInteractionPoIId = saveData.CurrentInteractionPoIId;
+            _lastInteractionPoIId = saveData.LastInteractionPoIId;
+            
+            // Animation state
+            _currentAnimation = saveData.CurrentAnimation;
+            _currentFrame = saveData.CurrentFrame;
+            _animationTimer = saveData.AnimationTimer;
+            _isMoving = saveData.IsMoving;
+            
+            // Stuck detection state
+            _lastPosition = saveData.LastPosition;
+            _stuckTimer = saveData.StuckTimer;
+        }
+        else
+        {
+            System.Console.WriteLine($"Adventurer LoadSaveData received wrong type: {data?.GetType()?.Name ?? "null"}");
+        }
+    }
+
+    /// <summary>
+    /// Resolves PoI references after loading. Should be called by the game after PoIManager is loaded.
+    /// </summary>
+    /// <param name="poiManager">The PoI manager to resolve references from</param>
+    public void ResolvePoIReferences(PoIManager poiManager)
+    {
+        if (_currentInteractionPoIId.HasValue)
+        {
+            _currentInteractionPoI = poiManager.GetPoIById(_currentInteractionPoIId.Value);
+        }
+        
+        if (_lastInteractionPoIId.HasValue)
+        {
+            _lastInteractionPoI = poiManager.GetPoIById(_lastInteractionPoIId.Value);
+        }
+    }
+
+    #endregion
 }
 
 public enum AnimationType
