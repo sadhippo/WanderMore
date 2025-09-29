@@ -130,7 +130,7 @@ public class PoIManager
     private int CalculatePoICount(Zone zone)
     {
         // Base count varies by biome and zone size
-        float baseCount = (zone.Width * zone.Height) / 400f; // Roughly 1 PoI per 400 tiles
+        float baseCount = (zone.Width * zone.Height) / 100f; // Roughly 1 PoI per 100 tiles
         
         float biomeMultiplier = zone.BiomeType switch
         {
@@ -154,7 +154,7 @@ public class PoIManager
         
         var poiType = availableTypes[_random.Next(availableTypes.Count)];
         
-        // Find valid position (not on water or stone)
+        // Find valid position (not on water, stone, or existing objects)
         Vector2 position;
         int attempts = 0;
         do
@@ -164,9 +164,13 @@ public class PoIManager
             position = new Vector2(x * tileSize, y * tileSize);
             attempts++;
         }
-        while (attempts < 50 && !IsValidTerrainForPoI(zone, (int)(position.X / tileSize), (int)(position.Y / tileSize)));
+        while (attempts < 100 && !IsValidTerrainForPoI(zone, (int)(position.X / tileSize), (int)(position.Y / tileSize)));
         
-        if (attempts >= 50) return null; // Couldn't find valid position
+        if (attempts >= 100) 
+        {
+            System.Console.WriteLine($"Warning: Could not find valid position for {poiType} after 100 attempts in zone {zone.Name}");
+            return null; // Couldn't find valid position
+        }
         
         return new PointOfInterest
         {
@@ -225,7 +229,24 @@ public class PoIManager
             return false;
             
         var terrain = zone.Terrain[tileX, tileY];
-        return terrain == TerrainType.Grass || terrain == TerrainType.Dirt;
+        
+        // Only allow PoIs on grass or dirt terrain
+        if (terrain != TerrainType.Grass && terrain != TerrainType.Dirt)
+            return false;
+        
+        // Check if there are any objects at this position (trees, bushes, etc.)
+        Vector2 tilePosition = new Vector2(tileX * 32, tileY * 32);
+        
+        foreach (var obj in zone.Objects)
+        {
+            // Check if any object is at this exact tile position
+            if (Vector2.Distance(obj.Position, tilePosition) < 16f) // Half a tile tolerance
+            {
+                return false; // Position is occupied by an object
+            }
+        }
+        
+        return true; // Position is clear
     }
 
     private bool IsValidPoIPlacement(PointOfInterest newPoI, Zone zone, List<PointOfInterest> existingPoIs)

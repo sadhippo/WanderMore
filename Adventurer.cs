@@ -23,7 +23,16 @@ public class Adventurer
     // Stuck detection
     private Vector2 _lastPosition;
     private float _stuckTimer;
-    private float _stuckThreshold = 2f; // Consider stuck after 2 seconds
+    private float _stuckThreshold = 2f; // Consider stuck after 2 seconds (increased due to interaction pauses)
+    
+    // PoI interaction system
+    private bool _isInteracting;
+    private float _interactionTimer;
+    private float _interactionDuration;
+    private PointOfInterest _currentInteractionPoI;
+    private PointOfInterest _lastInteractionPoI;
+    private float _interactionCooldownTimer;
+    private float _interactionCooldownDuration = 5f; // 5 seconds before can interact with same PoI again
     
     // Animation system
     private Dictionary<AnimationType, AnimationData> _animations;
@@ -91,6 +100,44 @@ public class Adventurer
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
         
+        // Update interaction cooldown
+        if (_interactionCooldownTimer > 0)
+        {
+            _interactionCooldownTimer -= deltaTime;
+        }
+        
+        // Handle PoI interaction
+        if (_isInteracting)
+        {
+            _interactionTimer += deltaTime;
+            
+            if (_interactionTimer >= _interactionDuration)
+            {
+                // Finish interaction
+                _lastInteractionPoI = _currentInteractionPoI;
+                _interactionCooldownTimer = _interactionCooldownDuration;
+                _isInteracting = false;
+                _interactionTimer = 0f;
+                
+                // Move away from the PoI after interaction
+                if (poiManager != null)
+                {
+                    MoveAwayFromPoI();
+                }
+                
+                _currentInteractionPoI = null; // Clear after moving away
+                System.Console.WriteLine("Homeboy finished interacting and is moving on!");
+            }
+            else
+            {
+                // Stay still during interaction
+                Velocity = Vector2.Zero;
+                _isMoving = false;
+                UpdateAnimation(deltaTime);
+                return; // Skip movement logic while interacting
+            }
+        }
+        
         // Update direction change timer
         _directionChangeTimer += deltaTime;
         
@@ -112,7 +159,7 @@ public class Adventurer
         UpdateAnimation(deltaTime);
         
         // Check if stuck and handle it
-        CheckStuckState(deltaTime);
+        CheckStuckState(deltaTime, zoneManager, poiManager);
         
         // Check for collision and update position
         bool terrainCollision = CheckCollision(newPosition, zoneManager);
@@ -126,9 +173,23 @@ public class Adventurer
                 // Successfully transitioned to new zone
                 Position = transitionPosition;
             }
+            else if (poiCollision && poiManager != null)
+            {
+                // Check if we should interact with a PoI
+                var nearbyPoI = GetNearestInteractablePoI(poiManager);
+                if (nearbyPoI != null && !_isInteracting)
+                {
+                    StartInteraction(nearbyPoI);
+                }
+                else
+                {
+                    // No interaction or already interacting - handle as normal collision
+                    HandleCollision(zoneManager, poiManager);
+                }
+            }
             else
             {
-                // Collision detected - bounce off or change direction
+                // Terrain collision - bounce off or change direction
                 HandleCollision(zoneManager, poiManager);
             }
         }
@@ -220,19 +281,27 @@ public class Adventurer
         PlayAnimation(animationType);
     }
 
-    private void CheckStuckState(float deltaTime)
+    private void CheckStuckState(float deltaTime, ZoneManager zoneManager, PoIManager poiManager)
     {
+        // Don't check for stuck state while interacting with PoIs
+        if (_isInteracting)
+        {
+            _stuckTimer = 0f; // Reset stuck timer during interactions
+            _lastPosition = Position;
+            return;
+        }
+        
         // Check if adventurer has moved significantly
         float distanceMoved = Vector2.Distance(Position, _lastPosition);
         
-        if (distanceMoved < 5f) // Less than 5 pixels moved
+        if (distanceMoved < 3f) // Less than 3 pixels moved (more sensitive)
         {
             _stuckTimer += deltaTime;
             
             if (_stuckTimer >= _stuckThreshold)
             {
                 // Force a new direction when stuck
-                ForceNewDirection();
+                ForceNewDirection(zoneManager, poiManager);
                 _stuckTimer = 0f;
             }
         }
@@ -244,30 +313,243 @@ public class Adventurer
         _lastPosition = Position;
     }
 
-    private void ForceNewDirection()
+    private void ForceNewDirection(ZoneManager zoneManager = null, PoIManager poiManager = null)
     {
+        System.Console.WriteLine("Homeboy is stuck! Trying to find a new path...");
+        
         // Try to find a completely clear direction
-        for (int attempt = 0; attempt < 16; attempt++)
+        for (int attempt = 0; attempt < 24; attempt++)
         {
             float angle = _random.NextSingle() * MathHelper.TwoPi;
             Vector2 testDirection = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
-            Vector2 testPosition = Position + testDirection * Speed * 0.3f;
             
             // Test if this direction is clear for a longer distance
             bool isClear = true;
-            for (int step = 1; step <= 3; step++)
+            for (int step = 1; step <= 5; step++)
             {
-                Vector2 stepPosition = Position + testDirection * Speed * 0.1f * step;
-                // We'll need to pass the managers here, but for now just change direction
+                Vector2 stepPosition = Position + testDirection * Speed * 0.2f * step;
+                
+                // Check terrain collision
+                if (zoneManager != null && CheckCollision(stepPosition, zoneManager))
+                {
+                    isClear = false;
+                    break;
+                }
+                
+                // Check PoI collision
+                if (poiManager != null && CheckPoICollision(stepPosition, poiManager))
+                {
+                    isClear = false;
+                    break;
+                }
             }
             
-            _direction = testDirection;
-            _directionChangeTimer = 0f;
-            _directionChangeInterval = 0.5f; // Short interval after being stuck
-            
-            System.Console.WriteLine("Homeboy got unstuck and found a new path!");
-            break;
+            if (isClear)
+            {
+                _direction = testDirection;
+                _directionChangeTimer = 0f;
+                _directionChangeInterval = 0.3f; // Short interval after being stuck
+                
+                System.Console.WriteLine("Homeboy found a clear path and got unstuck!");
+                return;
+            }
         }
+        
+        // If still no clear path, try moving away from the nearest obstacle
+        Vector2 escapeDirection = FindEscapeDirection(zoneManager, poiManager);
+        _direction = escapeDirection;
+        _directionChangeTimer = 0f;
+        _directionChangeInterval = 0.2f;
+        
+        System.Console.WriteLine("Homeboy is trying to escape from obstacles!");
+    }
+
+    private Vector2 FindEscapeDirection(ZoneManager zoneManager, PoIManager poiManager)
+    {
+        // Find the direction away from the nearest obstacles
+        Vector2 escapeDirection = Vector2.Zero;
+        
+        // Check for nearby PoIs and move away from them
+        if (poiManager != null)
+        {
+            var nearbyPoIs = poiManager.GetNearbyPoIs(Position, 100f);
+            foreach (var poi in nearbyPoIs)
+            {
+                if (IsCollidablePoI(poi.Type))
+                {
+                    Vector2 awayFromPoI = Position - poi.Position;
+                    if (awayFromPoI.Length() > 0)
+                    {
+                        awayFromPoI.Normalize();
+                        escapeDirection += awayFromPoI;
+                    }
+                }
+            }
+        }
+        
+        // If no clear escape direction from PoIs, try random directions
+        if (escapeDirection.Length() < 0.1f)
+        {
+            float angle = _random.NextSingle() * MathHelper.TwoPi;
+            escapeDirection = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+        }
+        else
+        {
+            escapeDirection.Normalize();
+        }
+        
+        return escapeDirection;
+    }
+
+    private void MoveAwayFromPoI()
+    {
+        if (_currentInteractionPoI != null)
+        {
+            // Calculate direction away from the PoI
+            Vector2 awayDirection = Position - _currentInteractionPoI.Position;
+            if (awayDirection.Length() > 0)
+            {
+                awayDirection.Normalize();
+                
+                // Add some randomness to avoid getting stuck in a straight line
+                float randomAngle = (_random.NextSingle() - 0.5f) * MathHelper.PiOver2; // ±45 degrees
+                Matrix rotation = Matrix.CreateRotationZ(randomAngle);
+                awayDirection = Vector2.Transform(awayDirection, rotation);
+                awayDirection.Normalize();
+                
+                _direction = awayDirection;
+                _directionChangeTimer = 0f;
+                _directionChangeInterval = 2f + _random.NextSingle() * 3f; // Longer interval after interaction
+                
+                System.Console.WriteLine($"Homeboy is moving away from {_currentInteractionPoI.Type} in direction {_direction}");
+            }
+            else
+            {
+                // If we're exactly on top of the PoI, pick a random direction
+                float angle = _random.NextSingle() * MathHelper.TwoPi;
+                _direction = new Vector2(MathF.Cos(angle), MathF.Sin(angle));
+                _directionChangeTimer = 0f;
+                _directionChangeInterval = 2f + _random.NextSingle() * 3f;
+                
+                System.Console.WriteLine($"Homeboy was on top of {_currentInteractionPoI.Type}, picking random direction");
+            }
+        }
+    }
+
+    private void StartInteraction(PointOfInterest poi)
+    {
+        _isInteracting = true;
+        _interactionTimer = 0f;
+        _interactionDuration = 2f + _random.NextSingle() * 2f; // 2-4 seconds interaction
+        _currentInteractionPoI = poi;
+        
+        string interactionType = GetInteractionDescription(poi.Type);
+        System.Console.WriteLine($"Homeboy is {interactionType} for {_interactionDuration:F1} seconds!");
+    }
+
+    private string GetInteractionDescription(PoIType poiType)
+    {
+        return poiType switch
+        {
+            // Buildings
+            PoIType.Inn => "having a drink at the inn",
+            PoIType.Cottage => "visiting the cottage",
+            PoIType.Farmhouse => "checking out the farmhouse",
+            PoIType.Castle => "admiring the castle",
+            PoIType.Chapel => "praying at the chapel",
+            PoIType.Hut => "exploring the hut",
+            PoIType.Mine => "investigating the mine",
+            
+            // NPCs
+            PoIType.Ranger => "chatting with the ranger",
+            PoIType.Priest => "speaking with the priest",
+            PoIType.Warrior => "talking to the warrior",
+            PoIType.Scholar => "learning from the scholar",
+            PoIType.Hermit => "visiting the hermit",
+            PoIType.Adventurer => "meeting a fellow adventurer",
+            PoIType.Mermaid => "watching the mermaid",
+            
+            // Animals
+            PoIType.Cat => "petting the cat",
+            PoIType.Dog => "playing with the dog",
+            PoIType.Unicorn => "admiring the unicorn",
+            PoIType.Sheep => "watching the sheep",
+            PoIType.Chicken => "observing the chickens",
+            PoIType.Pig => "looking at the pig",
+            PoIType.Deer => "watching the deer",
+            
+            _ => "examining something interesting"
+        };
+    }
+
+    private PointOfInterest GetNearestInteractablePoI(PoIManager poiManager)
+    {
+        var nearbyPoIs = poiManager.GetNearbyPoIs(Position, 40f);
+        PointOfInterest nearest = null;
+        float nearestDistance = float.MaxValue;
+        
+        foreach (var poi in nearbyPoIs)
+        {
+            // Only interact with certain types of PoIs
+            if (IsInteractablePoI(poi.Type))
+            {
+                // Skip if this is the same PoI we just interacted with and cooldown is active
+                if (_lastInteractionPoI != null && poi.Id == _lastInteractionPoI.Id && _interactionCooldownTimer > 0)
+                {
+                    continue;
+                }
+                
+                float distance = Vector2.Distance(Position, poi.Position);
+                if (distance < nearestDistance)
+                {
+                    nearest = poi;
+                    nearestDistance = distance;
+                }
+            }
+        }
+        
+        return nearest;
+    }
+
+    private bool IsInteractablePoI(PoIType poiType)
+    {
+        return poiType switch
+        {
+            // Buildings
+            PoIType.Inn => true,
+            PoIType.Cottage => true,
+            PoIType.Farmhouse => true,
+            PoIType.Castle => true,
+            PoIType.Chapel => true,
+            PoIType.Hut => true,
+            PoIType.Mine => true,
+            
+            // NPCs
+            PoIType.Ranger => true,
+            PoIType.Priest => true,
+            PoIType.Warrior => true,
+            PoIType.Scholar => true,
+            PoIType.Hermit => true,
+            PoIType.Adventurer => true,
+            PoIType.Mermaid => true,
+            
+            // Animals
+            PoIType.Cat => true,
+            PoIType.Dog => true,
+            PoIType.Unicorn => true,
+            PoIType.Sheep => true,
+            PoIType.Chicken => true,
+            PoIType.Pig => true,
+            PoIType.Deer => true,
+            
+            // Don't interact with monsters or dangerous things
+            PoIType.Skeleton => false,
+            PoIType.Dragon => false,
+            PoIType.Minotaur => false,
+            PoIType.Golem => false,
+            
+            _ => false
+        };
     }
 
     public Rectangle GetBounds()
@@ -316,6 +598,19 @@ public class Adventurer
 
     private void HandleCollision(ZoneManager zoneManager, PoIManager poiManager = null)
     {
+        // Debug: Check what we're colliding with
+        if (poiManager != null)
+        {
+            var nearbyPoIs = poiManager.GetNearbyPoIs(Position, 50f);
+            foreach (var poi in nearbyPoIs)
+            {
+                if (IsCollidablePoI(poi.Type) && Vector2.Distance(Position, poi.Position) < 40f)
+                {
+                    System.Console.WriteLine($"Homeboy collided with {poi.Type} at distance {Vector2.Distance(Position, poi.Position):F1}");
+                }
+            }
+        }
+        
         // Try to bounce off the obstacle
         Vector2 originalDirection = _direction;
         
