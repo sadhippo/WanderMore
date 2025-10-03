@@ -20,6 +20,12 @@ public class Camera
         Position = Vector2.Zero;
         _targetPosition = Vector2.Zero;
     }
+    
+    public void UpdateViewport(Viewport viewport)
+    {
+        _viewport = viewport;
+        Origin = new Vector2(viewport.Width / 2f, viewport.Height / 2f);
+    }
 
     public void Follow(Vector2 targetPosition)
     {

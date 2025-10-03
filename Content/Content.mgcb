@@ -49,6 +49,18 @@
 /processorParam:TextureFormat=Color
 /build:adventurer/homeboywalkingsmall.png
 
+#begin adventurer/torchboy_small.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:adventurer/torchboy_small.png
+
 #begin fonts/04b03.spritefont
 /importer:FontDescriptionImporter
 /processor:LocalizedFontProcessor
@@ -123,3 +135,26 @@
 /processorParam:TextureFormat=Color
 /build:ui/pausebutton.png
 
+#begin sounds/Steps_dirt-01.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Steps_dirt-01.ogg
+
+#begin sounds/Steps_dirt-02.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Steps_dirt-02.ogg
+
+#begin sounds/Steps_dirt-03.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Steps_dirt-03.ogg
+
+#begin sounds/Steps_dirt-04.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Steps_dirt-04.ogg

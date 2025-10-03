@@ -37,83 +37,60 @@ namespace HiddenHorizons
                 // Fallback to placeholder system
                 CreatePlaceholderTilesheets();
             }
-            //load objects
+            // Load objects tilesheet
             try
             {
                 var fantasySheetobjects = _content.Load<Texture2D>("tilesheet/fantasytilesheet_objects");
-                _tilesheetManager.LoadTilesheet("fantasyObjects", fantasySheetobjects, 32, 32); // 16x16 tiles based on your coordinates
+                _tilesheetManager.LoadTilesheet("fantasyObjects", fantasySheetobjects, 32, 32);
                 
-                // Define specific tiles from your fantasy sheet
+                // Define specific object tiles
                 DefineObjectTiles();
             }
             catch
             {
-                // Fallback to placeholder system
-                CreatePlaceholderTilesheets();
+                // Ignore if objects sheet is missing
             }
-            // Load adventurer sprites
+
+            // Load adventurer sprites (independent loads; only missing ones get placeholders)
+            bool loadedIdle = false, loadedWalk = false, loadedSleep = false;
+            // Idle: try homeboy, then homeboysmall
+            try { _individualTextures["adventurer"] = _content.Load<Texture2D>("adventurer/homeboy"); loadedIdle = true; } catch {
+                try { _individualTextures["adventurer"] = _content.Load<Texture2D>("adventurer/homeboysmall"); loadedIdle = true; } catch { }
+            }
+            // Walking: try small, then non-small
+            try { _individualTextures["adventurer_walking"] = _content.Load<Texture2D>("adventurer/homeboywalkingsmall"); loadedWalk = true; } catch {
+                try { _individualTextures["adventurer_walking"] = _content.Load<Texture2D>("adventurer/homeboywalking"); loadedWalk = true; } catch { }
+            }
+            try { _individualTextures["adventurer_sleeping"] = _content.Load<Texture2D>("adventurer/homeboysleeping_small"); loadedSleep = true; } catch { }
+
+            // Create placeholders only for the textures that failed to load
+            var gdSvc = _content.ServiceProvider.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
+            var gd = gdSvc?.GraphicsDevice;
+            if (gd != null)
+            {
+                if (!loadedIdle)
+                {
+                    _individualTextures["adventurer"] = CreateColoredTexture(gd, 32, 32, Color.Blue);
+                }
+                if (!loadedWalk)
+                {
+                    // 3 frames vertical as before (32x96) or horizontal (96x32)? Originals are 3 horizontal 96x32? Our walking uses horizontal 3 frames at 32x32 so width=96, height=32
+                    _individualTextures["adventurer_walking"] = CreateColoredTexture(gd, 96, 32, Color.DarkBlue);
+                }
+                if (!loadedSleep)
+                {
+                    _individualTextures["adventurer_sleeping"] = CreateColoredTexture(gd, 128, 32, Color.Purple);
+                }
+            }
+
+            // Load torch sprite separately so a missing torch does NOT force fallback
             try
             {
-                var adventurerTexture = _content.Load<Texture2D>("adventurer/homeboy");
-                _individualTextures["adventurer"] = adventurerTexture;
-                
-                var walkingTexture = _content.Load<Texture2D>("adventurer/homeboywalkingsmall");
-                _individualTextures["adventurer_walking"] = walkingTexture;
-                
-                var sleepingTexture = _content.Load<Texture2D>("adventurer/homeboysleeping_small");
-                _individualTextures["adventurer_sleeping"] = sleepingTexture;
+                var torchTexture = _content.Load<Texture2D>("adventurer/torchboy_small");
+                _individualTextures["adventurer_torch"] = torchTexture;
+                System.Console.WriteLine("[ASSETS] Torchboy texture loaded");
             }
-            catch
-            {
-                // Create placeholder adventurer if loading fails
-                CreatePlaceholderAdventurer();
-            }
-        }
-
-        private void DefineTerrainTiles()
-        {
-            _tilesheetManager.DefineTile("grass", "fantasy", 4, 11);
-            _tilesheetManager.DefineTile("water", "fantasy", 4, 14);
-            _tilesheetManager.DefineTile("dirt",  "fantasy", 5, 11);
-            _tilesheetManager.DefineTile("stone", "fantasy", 6, 11);
-        }
-
-        private void DefineObjectTiles()
-        {
-            _tilesheetManager.DefineTile("single_tree", "fantasyObjects", 4, 5);
-            _tilesheetManager.DefineTile("double_tree", "fantasyObjects", 4, 6);
-            _tilesheetManager.DefineTile("rock",        "fantasyObjects", 4, 10);
-            _tilesheetManager.DefineTile("plant",       "fantasyObjects", 4, 8);
-            _tilesheetManager.DefineTile("bush",        "fantasyObjects", 8, 9);
-        }
-
-
-        private void CreatePlaceholderAdventurer()
-        {
-            var graphicsDevice = _content.ServiceProvider.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
-            
-            if (graphicsDevice?.GraphicsDevice != null)
-            {
-                _individualTextures["adventurer"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 32, 32, Color.Blue);
-                _individualTextures["adventurer_walking"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 32, 96, Color.DarkBlue);
-                _individualTextures["adventurer_sleeping"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 128, 32, Color.Purple); // 4 frames horizontal
-            }
-        }
-
-        private void LoadAdditionalTilesheets()
-        {
-            // If you get more tilesheets for other biomes, load them here
-            try
-            {
-                // Example for future expansion
-                // var forestSheet = _content.Load<Texture2D>("Tilesheets/ForestTilesheet");
-                // _tilesheetManager.LoadTilesheet("forest", forestSheet, 32, 32);
-                // DefineTilesFromForestSheet();
-            }
-            catch
-            {
-                // Handle missing sheets gracefully
-            }
+            catch { System.Console.WriteLine("[ASSETS] Torchboy texture not found (optional)"); }
         }
 
         private void CreatePlaceholderTilesheets()
@@ -254,6 +231,36 @@ namespace HiddenHorizons
         public Texture2D GetObjectTexture(ObjectType objectType)
         {
             return _tilesheetManager.GetSheet("fantasy"); // Returns the whole sheet - not ideal but compatible
+        }
+
+        // Restored helper methods referenced by LoadAssets
+        private void DefineTerrainTiles()
+        {
+            _tilesheetManager.DefineTile("grass", "fantasy", 4, 11);
+            _tilesheetManager.DefineTile("water", "fantasy", 4, 14);
+            _tilesheetManager.DefineTile("dirt",  "fantasy", 5, 11);
+            _tilesheetManager.DefineTile("stone", "fantasy", 6, 11);
+        }
+
+        private void DefineObjectTiles()
+        {
+            _tilesheetManager.DefineTile("single_tree", "fantasyObjects", 4, 5);
+            _tilesheetManager.DefineTile("double_tree", "fantasyObjects", 4, 6);
+            _tilesheetManager.DefineTile("rock",        "fantasyObjects", 4, 10);
+            _tilesheetManager.DefineTile("plant",       "fantasyObjects", 4, 8);
+            _tilesheetManager.DefineTile("bush",        "fantasyObjects", 8, 9);
+        }
+
+        private void CreatePlaceholderAdventurer()
+        {
+            var graphicsDevice = _content.ServiceProvider.GetService(typeof(IGraphicsDeviceService)) as IGraphicsDeviceService;
+            if (graphicsDevice?.GraphicsDevice != null)
+            {
+                _individualTextures["adventurer"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 32, 32, Color.Blue);
+                _individualTextures["adventurer_walking"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 32, 96, Color.DarkBlue);
+                _individualTextures["adventurer_sleeping"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 128, 32, Color.Purple); // 4 frames horizontal
+                _individualTextures["adventurer_torch"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 128, 32, Color.Orange); // 4 frames horizontal
+            }
         }
     }
 }

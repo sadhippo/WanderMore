@@ -14,8 +14,11 @@ public class Adventurer
     public bool IsSleeping => _isSleeping;
     
     private Texture2D _idleTexture;
-    private Texture2D _walkingTexture;
+    private Texture2D _walkingTexture; // legacy ref
     private Texture2D _sleepingTexture;
+    private Texture2D _walkingTextureDay;
+    private Texture2D _walkingTextureNight;
+    private bool _isNightMode;
     private Vector2 _direction;
     private float _directionChangeTimer;
     private float _directionChangeInterval = 3f; // Change direction every 3 seconds
@@ -40,8 +43,6 @@ public class Adventurer
     private PointOfInterest _lastInteractionPoI;
     private float _interactionCooldownTimer;
     private float _interactionCooldownDuration = 5f; // 5 seconds before can interact with same PoI again
-    private Rectangle _sourceRectangle;
-    
     // Pathfinding system
     private PathfindingManager _pathfindingManager;
     private bool _isPathfinding;
@@ -49,10 +50,23 @@ public class Adventurer
     // Stats system integration
     private StatsManager _statsManager;
     
+    // Audio system integration
+    private AudioManager _audioManager;
+    private float _footstepTimer;
+    private const float FOOTSTEP_INTERVAL = 0.6f; // Play footstep every 0.6 seconds while walking (relaxed pace)
+    
+    // Lighting system
+    private LightingManager _lightingManager;
+    private Light _lanternLight;
+    private const float LANTERN_NORMAL_INTENSITY = 1.0f; // Higher intensity for alpha blending
+    private const float LANTERN_NORMAL_RADIUS = 180f; // Good visibility radius
+    private const float CAMPFIRE_INTENSITY = 1.5f; // Brighter when sleeping (campfire)
+    private const float CAMPFIRE_RADIUS = 240f; // Larger radius for campfire
+    
     // Sleeping system
     private bool _isSleeping;
     private float _sleepTimer;
-    private const float SLEEP_DURATION = 60f; // 1 minute to fully rest (faster for testing)
+    private const float SLEEP_DURATION = 30f; // Sleep for 30 seconds
     private const float TIREDNESS_THRESHOLD = 50f; // Start sleeping when tiredness drops below 50 (higher for testing)
     
     // Animation system
@@ -61,6 +75,7 @@ public class Adventurer
     private int _currentFrame;
     private float _animationTimer;
     private bool _isMoving;
+    private Rectangle _sourceRectangle;
 
     public Adventurer(Vector2 startPosition)
     {
@@ -74,16 +89,68 @@ public class Adventurer
         _isPathfinding = false;
         System.Console.WriteLine("[ADVENTURER] Pathfinding system initialized");
     }
+
+    public void LoadTorchTexture(Texture2D torchTexture)
+    {
+        _walkingTextureNight = torchTexture;
+        // Refresh animations to pick the correct texture if already in night mode
+        SetupAnimations();
+    }
+
+    public void SetNightMode(bool isNight)
+    {
+        if (_isNightMode == isNight) return;
+        _isNightMode = isNight;
+        
+        System.Console.WriteLine($"[ADVENTURER] Night mode changed to: {isNight}, Night texture available: {_walkingTextureNight != null}");
+        
+        // Swap walking texture in-place to avoid rebuilding everything
+        if (_animations != null && _animations.ContainsKey(AnimationType.Walking))
+        {
+            var anim = _animations[AnimationType.Walking];
+            anim.Texture = (_isNightMode && _walkingTextureNight != null) ? _walkingTextureNight : _walkingTextureDay;
+            // Update frame count dynamically (torchboy_small has 4 frames, day walking has 3)
+            if (anim.Texture != null)
+            {
+                anim.FrameCount = Math.Max(1, anim.Texture.Width / 32);
+                System.Console.WriteLine($"[ADVENTURER] Walking animation updated: FrameCount={anim.FrameCount}, TextureWidth={anim.Texture.Width}");
+            }
+            _animations[AnimationType.Walking] = anim;
+        }
+    }
     
     public void SetStatsManager(StatsManager statsManager)
     {
         _statsManager = statsManager;
+    }
+    
+    public void SetAudioManager(AudioManager audioManager)
+    {
+        _audioManager = audioManager;
+        System.Console.WriteLine("[ADVENTURER] AudioManager connected");
+    }
+    
+    public void SetLightingManager(LightingManager lightingManager)
+    {
+        _lightingManager = lightingManager;
+        
+        // Create and add the adventurer's lantern light
+        if (_lightingManager != null)
+        {
+            _lanternLight = _lightingManager.AddLight(Position, LightPresets.Lantern, LANTERN_NORMAL_RADIUS, LANTERN_NORMAL_INTENSITY);
+            System.Console.WriteLine($"[ADVENTURER] Lantern light created: Radius={LANTERN_NORMAL_RADIUS}, Intensity={LANTERN_NORMAL_INTENSITY}, Enabled={_lanternLight?.Enabled}");
+        }
+        else
+        {
+            System.Console.WriteLine("[ADVENTURER] WARNING: LightingManager is null!");
+        }
     }
 
     public void LoadContent(Texture2D idleTexture, Texture2D walkingTexture)
     {
         _idleTexture = idleTexture;
         _walkingTexture = walkingTexture;
+        _walkingTextureDay = walkingTexture;
         
         // Try to load sleeping texture separately
         // This will be handled by a separate method
@@ -118,8 +185,8 @@ public class Adventurer
             },
             [AnimationType.Walking] = new AnimationData
             {
-                Texture = _walkingTexture,
-                FrameCount = 3,
+                Texture = (_isNightMode && _walkingTextureNight != null) ? _walkingTextureNight : _walkingTextureDay,
+                FrameCount = ((_isNightMode && _walkingTextureNight != null) ? _walkingTextureNight.Width : _walkingTextureDay?.Width ?? 32) / 32,
                 FrameTime = 0.2f, // 200ms per frame
                 IsLooping = true,
                 FrameWidth = 32,
@@ -155,6 +222,12 @@ public class Adventurer
     public void Update(GameTime gameTime, ZoneManager zoneManager, PoIManager poiManager = null, QuestManager questManager = null)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        
+        // Update lantern light position
+        if (_lanternLight != null)
+        {
+            _lanternLight.Position = Position + new Vector2(16, 16); // Center of sprite
+        }
         
         // Update collision reset timer
         _collisionResetTimer += deltaTime;
@@ -287,6 +360,22 @@ public class Adventurer
         // Check if we're moving (for animation)
         _isMoving = Velocity.Length() > 0.1f;
         
+        // Update footstep timer and play sounds
+        if (_isMoving && _audioManager != null)
+        {
+            _footstepTimer += deltaTime;
+            if (_footstepTimer >= FOOTSTEP_INTERVAL)
+            {
+                _audioManager.PlayFootstep(0.6f); // Slightly quieter than max volume
+                _footstepTimer = 0f;
+            }
+        }
+        else
+        {
+            // Reset timer when not moving
+            _footstepTimer = 0f;
+        }
+        
         // Update animation
         UpdateAnimation(deltaTime);
         
@@ -413,6 +502,16 @@ public class Adventurer
         Velocity = Vector2.Zero;
         _direction = Vector2.Zero;
         
+        // Make lantern brighter and larger (campfire effect)
+        if (_lanternLight != null)
+        {
+            _lanternLight.Intensity = CAMPFIRE_INTENSITY;
+            _lanternLight.Radius = CAMPFIRE_RADIUS;
+            _lanternLight.Color = LightPresets.Campfire; // Warmer campfire color
+            _lanternLight.Flickers = true; // Add flickering for campfire effect
+            System.Console.WriteLine("[ADVENTURER] Campfire lit - settling in for sleep");
+        }
+        
         // Animation will be handled by UpdateAnimation method
         
         System.Console.WriteLine("[ADVENTURER] Started sleeping - too tired to continue");
@@ -428,6 +527,16 @@ public class Adventurer
     {
         _isSleeping = false;
         _sleepTimer = 0f;
+        
+        // Restore lantern to normal settings when waking up
+        if (_lanternLight != null)
+        {
+            _lanternLight.Intensity = LANTERN_NORMAL_INTENSITY;
+            _lanternLight.Radius = LANTERN_NORMAL_RADIUS;
+            _lanternLight.Color = LightPresets.Lantern; // Back to lantern color
+            _lanternLight.Flickers = false; // Stop flickering
+            System.Console.WriteLine("[ADVENTURER] Campfire extinguished, lantern restored");
+        }
         
         // Animation will be handled by UpdateAnimation method
         
@@ -465,6 +574,7 @@ public class Adventurer
             targetAnimation = _isMoving ? AnimationType.Walking : AnimationType.Idle;
         }
         
+        // Only switch animation if it changed
         PlayAnimation(targetAnimation);
         
         // Update current animation

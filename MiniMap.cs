@@ -30,6 +30,12 @@ public class MiniMap
         UpdateScale();
     }
 
+    public void UpdateArea(Rectangle newArea)
+    {
+        _mapArea = newArea;
+        UpdateScale();
+    }
+
     private void UpdateScale()
     {
         if (_zoneManager.CurrentZone != null)

@@ -1,4 +1,4 @@
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -14,6 +14,7 @@ public class Game1 : Game
     
     // Game systems
     private AssetManager _assetManager;
+    private AudioManager _audioManager;
     private Adventurer _adventurer;
     private Camera _camera;
     private ZoneManager _zoneManager;
@@ -28,6 +29,13 @@ public class Game1 : Game
     private UIManager _uiManager;
     private StatsManager _statsManager;
     private StatsPage _statsPage;
+    private LightingManager _lightingManager;
+    
+    // Virtual resolution system
+    private VirtualResolution _virtualResolution;
+    
+    // Render targets for lighting
+    private RenderTarget2D _sceneRenderTarget;
     
     // Zone transition effects
     private bool _isTransitioning;
@@ -48,7 +56,7 @@ public class Game1 : Game
         Content.RootDirectory = "Content";
         IsMouseVisible = true;
         
-        // Set window size for comfortable viewing
+        // Initial window size - will be managed by VirtualResolution
         _graphics.PreferredBackBufferWidth = 1024;
         _graphics.PreferredBackBufferHeight = 768;
     }
@@ -59,6 +67,10 @@ public class Game1 : Game
         {
             System.Console.WriteLine("Initializing game systems...");
             
+            // Initialize virtual resolution system
+            _virtualResolution = new VirtualResolution(_graphics, GraphicsDevice, this, 1024, 768);
+            System.Console.WriteLine("VirtualResolution created");
+            
             // Initialize PoI tracking
             _approachedPoIs = new HashSet<Guid>();
             
@@ -66,10 +78,13 @@ public class Game1 : Game
             _assetManager = new AssetManager(Content);
             System.Console.WriteLine("AssetManager created");
             
+            _audioManager = new AudioManager(Content);
+            System.Console.WriteLine("AudioManager created");
+            
             _adventurer = new Adventurer(new Vector2(1000, 1000)); // Start in center of first zone
             System.Console.WriteLine("Adventurer created");
             
-            _camera = new Camera(GraphicsDevice.Viewport);
+            _camera = new Camera(_virtualResolution.GetVirtualViewport());
             System.Console.WriteLine("Camera created");
             
             _zoneManager = new ZoneManager(12345); // Fixed seed for consistent zones
@@ -86,7 +101,7 @@ public class Game1 : Game
             
             // Initialize weather effects
             _weatherEffects = new WeatherEffects(GraphicsDevice, _camera);
-            _weatherEffects.UpdateScreenBounds(new Rectangle(0, 0, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight));
+            _weatherEffects.UpdateScreenBounds(new Rectangle(0, 0, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight));
             System.Console.WriteLine("WeatherEffects created");
             
             // Initialize journal system
@@ -121,7 +136,13 @@ public class Game1 : Game
             _statsManager = new StatsManager();
             _statsManager.Initialize(_timeManager, _weatherManager, _questManager, _poiManager, _journalManager);
             _adventurer.SetStatsManager(_statsManager);
+            _adventurer.SetAudioManager(_audioManager);
             System.Console.WriteLine("StatsManager created and initialized");
+            
+            // Initialize lighting system
+            _lightingManager = new LightingManager(GraphicsDevice, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
+            _adventurer.SetLightingManager(_lightingManager);
+            System.Console.WriteLine("LightingManager created and connected to adventurer");
             
             // Subscribe to weather changes for journal tracking
             _weatherManager.WeatherChanged += (weather) => {
@@ -156,9 +177,21 @@ public class Game1 : Game
             _spriteBatch = new SpriteBatch(GraphicsDevice);
             System.Console.WriteLine("SpriteBatch created");
             
+            // Create render target for scene (for multiply lighting) - use virtual resolution
+            _sceneRenderTarget = new RenderTarget2D(
+                GraphicsDevice,
+                _virtualResolution.VirtualWidth,
+                _virtualResolution.VirtualHeight
+            );
+            System.Console.WriteLine("Scene render target created");
+            
             // Load all assets
             _assetManager.LoadAssets();
             System.Console.WriteLine("Assets loaded");
+            
+            // Load audio assets
+            _audioManager.LoadSounds();
+            System.Console.WriteLine("Audio loaded");
             
             // Load journal entry data
             JournalEntryData.Instance.LoadContent(Content);
@@ -169,6 +202,18 @@ public class Game1 : Game
                 _assetManager.GetTexture("adventurer"), 
                 _assetManager.GetTexture("adventurer_walking")
             );
+            // Optional: sleeping animation if available
+            var sleepingTex = _assetManager.GetTexture("adventurer_sleeping");
+            if (sleepingTex != null)
+            {
+                _adventurer.LoadSleepingTexture(sleepingTex);
+            }
+            // Torch sprite for night
+            var torchTex = _assetManager.GetTexture("adventurer_torch");
+            if (torchTex != null)
+            {
+                _adventurer.LoadTorchTexture(torchTex);
+            }
             
             // Load sleeping texture separately if available
             var sleepingTexture = _assetManager.GetTexture("adventurer_sleeping");
@@ -192,16 +237,16 @@ public class Game1 : Game
             
             // Now create UI manager with zone manager reference
             _uiManager = new UIManager(GraphicsDevice, _timeManager, _zoneManager, _weatherManager, _statsManager, _journalManager);
-            _uiManager.UpdateScreenSize(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            _uiManager.UpdateScreenSize(_virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
             System.Console.WriteLine("UIManager created");
             
             // Create stats page
-            _statsPage = new StatsPage(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            _statsPage = new StatsPage(GraphicsDevice, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
             System.Console.WriteLine("StatsPage created");
             
             // Create minimap in top-right corner
             Rectangle minimapArea = new Rectangle(
-                _graphics.PreferredBackBufferWidth - 220, 10, 
+                _virtualResolution.VirtualWidth - 220, 10, 
                 200, 200
             );
             _miniMap = new MiniMap(GraphicsDevice, minimapArea, _zoneManager);
@@ -264,18 +309,20 @@ public class Game1 : Game
                 _previousMouseState.LeftButton == ButtonState.Released)
             {
                 Vector2 mousePos = new Vector2(currentMouseState.X, currentMouseState.Y);
+                // Convert screen coordinates to virtual coordinates
+                Vector2 virtualMousePos = _virtualResolution.ScreenToVirtual(mousePos);
                 
                 // Check UI clicks first (pause button, etc.)
-                if (!_uiManager.HandleMouseClick(mousePos))
+                if (!_uiManager.HandleMouseClick(virtualMousePos))
                 {
                     // If UI didn't handle it, convert to world coordinates for game interaction
-                    Vector2 mouseWorldPos = _camera.ScreenToWorld(mousePos);
+                    Vector2 mouseWorldPos = _camera.ScreenToWorld(virtualMousePos);
                     // You can add logic here to influence the adventurer's direction toward the click
                 }
             }
             
             // Handle mouse hover for tooltips
-            Vector2 currentMousePos = new Vector2(currentMouseState.X, currentMouseState.Y);
+            Vector2 currentMousePos = _virtualResolution.ScreenToVirtual(new Vector2(currentMouseState.X, currentMouseState.Y));
             _uiManager.HandleMouseHover(currentMousePos, out string tooltip);
             
             _previousMouseState = currentMouseState;
@@ -313,6 +360,43 @@ public class Game1 : Game
                 _statsPage?.Toggle();
             }
             
+            // Handle R key for aspect ratio toggle
+            if (keyboardState.IsKeyDown(Keys.R) && !_previousKeyboardState.IsKeyDown(Keys.R))
+            {
+                var newMode = _virtualResolution.CurrentMode == AspectRatioMode.Regular 
+                    ? AspectRatioMode.TikTok 
+                    : AspectRatioMode.Regular;
+                    
+                _virtualResolution.SetAspectRatioMode(newMode);
+                
+                // Update systems that depend on screen size
+                _weatherEffects.UpdateScreenBounds(new Rectangle(0, 0, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight));
+                _uiManager.UpdateScreenSize(_virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
+                _camera.UpdateViewport(_virtualResolution.GetVirtualViewport());
+                
+                // Update minimap position for new aspect ratio
+                Rectangle newMinimapArea = new Rectangle(
+                    _virtualResolution.VirtualWidth - 220, 10, 
+                    200, 200
+                );
+                _miniMap?.UpdateArea(newMinimapArea);
+                
+                // Recreate render targets with new size
+                _sceneRenderTarget?.Dispose();
+                _sceneRenderTarget = new RenderTarget2D(
+                    GraphicsDevice,
+                    _virtualResolution.VirtualWidth,
+                    _virtualResolution.VirtualHeight
+                );
+                
+                // Update lighting manager
+                _lightingManager?.Dispose();
+                _lightingManager = new LightingManager(GraphicsDevice, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
+                _adventurer.SetLightingManager(_lightingManager);
+                
+                System.Console.WriteLine($"Switched to {newMode} mode ({_virtualResolution.ScreenWidth}x{_virtualResolution.ScreenHeight})");
+            }
+            
             _previousKeyboardState = keyboardState;
 
             // Update transition effects
@@ -342,6 +426,8 @@ public class Game1 : Game
                 {
                     // Update time system
                     _timeManager.Update(gameTime);
+                    // Toggle adventurer night mode for torch sprite
+                    _adventurer.SetNightMode(_timeManager.CurrentTimeOfDay == TimeOfDay.Night);
                     
                     // Update weather system
                     _weatherManager.Update(gameTime);
@@ -355,13 +441,36 @@ public class Game1 : Game
                     // Update stats system
                     _statsManager.Update(gameTime);
                     
+                    // Update audio system
+                    _audioManager?.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+                    
+                    // Update lighting system
+                    if (_lightingManager != null)
+                    {
+                        // Set ambient light based on time of day
+                        if (_timeManager.CurrentTimeOfDay == TimeOfDay.Night)
+                        {
+                            // Dark ambient for multiply lighting (lightmap background color)
+                            // This is what unlit areas will be multiplied by
+                            _lightingManager.AmbientColor = new Color(15, 20, 40); // Dark blue for night
+                        }
+                        else
+                        {
+                            _lightingManager.AmbientColor = Color.White; // Full brightness during day
+                        }
+                        
+                        _lightingManager.Update(gameTime);
+                    }
+                    else
+                    {
+                        System.Console.WriteLine("[GAME1] WARNING: LightingManager is null in Update!");
+                    }
+                    
                     // Update UI manager (for ticker animations)
                     _uiManager.Update(gameTime);
                     
                     // Update adventurer (this may trigger zone changes)
                     _adventurer.Update(gameTime, _zoneManager, _poiManager, _questManager);
-                    
-                    // Check for zone changes BEFORE calling zoneManager.Update (which resets the flag)
                     bool zoneChanged = _zoneManager.ZoneChanged;
                     
                     _camera.Follow(_adventurer.Position);
@@ -410,11 +519,19 @@ public class Game1 : Game
     {
         try
         {
-            // Clear with navy blue background for areas outside zones
-            GraphicsDevice.Clear(new Color(32, 26, 52)); // #201A34
-
             if (_spriteBatch != null && _zoneManager != null && _adventurer != null)
             {
+                // Begin drawing to virtual resolution
+                _virtualResolution.BeginVirtualDraw();
+                
+                // STEP 1: Render scene to texture (at night) or directly to virtual target (during day)
+                if (_timeManager.CurrentTimeOfDay == TimeOfDay.Night)
+                {
+                    // Render scene to texture for multiply lighting
+                    GraphicsDevice.SetRenderTarget(_sceneRenderTarget);
+                    GraphicsDevice.Clear(Color.Black); // Clear to black
+                }
+                
                 // Draw world with camera transform
                 _spriteBatch.Begin(transformMatrix: _camera.GetTransformMatrix(), samplerState: SamplerState.PointClamp);
                 
@@ -428,6 +545,43 @@ public class Game1 : Game
                 _adventurer.Draw(_spriteBatch);
                 
                 _spriteBatch.End();
+                
+                // STEP 2: At night, render lightmap and multiply with scene
+                if (_timeManager.CurrentTimeOfDay == TimeOfDay.Night && _lightingManager != null)
+                {
+                    // Render lightmap (black background + white/orange lights)
+                    _lightingManager.BeginLightMap(_camera);
+                    _lightingManager.DrawLights(_spriteBatch, _camera);
+                    _lightingManager.EndLightMap();
+                    
+                    // Switch back to virtual render target (we're already in virtual draw mode)
+                    _virtualResolution.BeginVirtualDraw();
+                    
+                    // STEP 3: Multiply scene × lightmap
+                    var multiplyBlend = new BlendState
+                    {
+                        ColorBlendFunction = BlendFunction.Add,
+                        ColorSourceBlend = Blend.DestinationColor,  // Scene color
+                        ColorDestinationBlend = Blend.Zero,
+                        AlphaBlendFunction = BlendFunction.Add,
+                        AlphaSourceBlend = Blend.One,
+                        AlphaDestinationBlend = Blend.Zero
+                    };
+                    
+                    // Draw scene to virtual target
+                    _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp);
+                    _spriteBatch.Draw(_sceneRenderTarget, Vector2.Zero, Color.White);
+                    _spriteBatch.End();
+                    
+                    // Multiply with lightmap
+                    _spriteBatch.Begin(SpriteSortMode.Immediate, multiplyBlend, SamplerState.LinearClamp);
+                    _spriteBatch.Draw(
+                        _lightingManager.GetLightMap(),
+                        new Rectangle(0, 0, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight),
+                        Color.White
+                    );
+                    _spriteBatch.End();
+                }
 
                 // Draw UI elements without camera transform
                 _spriteBatch.Begin(samplerState: SamplerState.PointClamp);
@@ -455,30 +609,16 @@ public class Game1 : Game
                 
                 _spriteBatch.End();
                 
-                // Apply subtle night tint
-                if (_timeManager.CurrentTimeOfDay == TimeOfDay.Night)
-                {
-                    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
-                    Rectangle screenRect = new Rectangle(0, 0, 
-                        _graphics.PreferredBackBufferWidth, 
-                        _graphics.PreferredBackBufferHeight);
-                    
-                    // Subtle blue tint for night atmosphere
-                    Color nightTint = new Color(100, 120, 180, 60); // Light blue with low alpha
-                    _spriteBatch.Draw(_fadeTexture, screenRect, nightTint);
-                    _spriteBatch.End();
-                }
-                
                 // Apply weather effects
                 Color weatherTint = _weatherManager.GetWeatherTint();
                 if (weatherTint != Color.Transparent)
                 {
                     _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
-                    Rectangle screenRect = new Rectangle(0, 0, 
-                        _graphics.PreferredBackBufferWidth, 
-                        _graphics.PreferredBackBufferHeight);
+                    Rectangle virtualRect = new Rectangle(0, 0, 
+                        _virtualResolution.VirtualWidth, 
+                        _virtualResolution.VirtualHeight);
                     
-                    _spriteBatch.Draw(_fadeTexture, screenRect, weatherTint);
+                    _spriteBatch.Draw(_fadeTexture, virtualRect, weatherTint);
                     _spriteBatch.End();
                 }
                 
@@ -502,13 +642,19 @@ public class Game1 : Game
                         alpha = (1f - progress) * 2f;
                     }
                     
-                    Rectangle screenRect = new Rectangle(0, 0, 
-                        _graphics.PreferredBackBufferWidth, 
-                        _graphics.PreferredBackBufferHeight);
+                    Rectangle virtualRect = new Rectangle(0, 0, 
+                        _virtualResolution.VirtualWidth, 
+                        _virtualResolution.VirtualHeight);
                     
-                    _spriteBatch.Draw(_fadeTexture, screenRect, Color.Black * alpha);
+                    _spriteBatch.Draw(_fadeTexture, virtualRect, Color.Black * alpha);
                     _spriteBatch.End();
                 }
+                
+                // End virtual drawing
+                _virtualResolution.EndVirtualDraw();
+                
+                // Draw virtual resolution to actual screen
+                _virtualResolution.DrawVirtualToScreen(_spriteBatch);
             }
 
             base.Draw(gameTime);
@@ -523,12 +669,16 @@ public class Game1 : Game
     protected override void UnloadContent()
     {
         _assetManager?.UnloadAssets();
+        _audioManager?.Dispose();
         _miniMap?.Dispose();
         _uiManager?.Dispose();
         _weatherEffects?.Dispose();
         _journalUI?.Dispose();
         _statsPage?.Dispose();
         _statsManager?.Dispose();
+        _lightingManager?.Dispose();
+        _virtualResolution?.Dispose();
+        _sceneRenderTarget?.Dispose();
         _fadeTexture?.Dispose();
         base.UnloadContent();
     }
