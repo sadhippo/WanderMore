@@ -1,7 +1,9 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace HiddenHorizons;
 
@@ -22,10 +24,16 @@ public class Game1 : Game
     private JournalManager _journalManager;
     private JournalUI _journalUI;
     private PoIManager _poiManager;
+    private QuestManager _questManager;
     private UIManager _uiManager;
+    private StatsManager _statsManager;
+    private StatsPage _statsPage;
     
     // Zone transition effects
     private bool _isTransitioning;
+    
+    // PoI tracking
+    private HashSet<Guid> _approachedPoIs;
     private float _transitionTimer;
     private float _transitionDuration = 0.5f; // 0.5 seconds
     private Texture2D _fadeTexture;
@@ -50,6 +58,9 @@ public class Game1 : Game
         try
         {
             System.Console.WriteLine("Initializing game systems...");
+            
+            // Initialize PoI tracking
+            _approachedPoIs = new HashSet<Guid>();
             
             // Initialize game systems
             _assetManager = new AssetManager(Content);
@@ -84,6 +95,33 @@ public class Game1 : Game
             
             // Initialize PoI system
             _poiManager = new PoIManager(_assetManager, _journalManager, 12345);
+            
+            // Subscribe to PoI events for journal entries
+            _poiManager.PoIDiscovered += (poi) => {
+                _journalManager.OnSpecialEvent($"Discovered {poi.Name}", poi.Description);
+            };
+            
+            _poiManager.PoIInteracted += (poi, adventurer) => {
+                _journalManager.OnSpecialEvent($"Interacted with {poi.Name}", $"Met with {poi.Name} - {poi.Description}");
+            };
+            
+            _poiManager.PoIApproached += (poi) => {
+                // Only add journal entry on first approach to avoid spam
+                if (!_approachedPoIs.Contains(poi.Id))
+                {
+                    _approachedPoIs.Add(poi.Id);
+                    _journalManager.OnSpecialEvent($"Approached {poi.Name}", $"Came across {poi.Name} - {poi.Description}");
+                }
+            };
+            
+            // Initialize quest system
+            _questManager = new QuestManager(_journalManager, _weatherManager, _poiManager, _timeManager);
+            
+            // Initialize stats system
+            _statsManager = new StatsManager();
+            _statsManager.Initialize(_timeManager, _weatherManager, _questManager, _poiManager, _journalManager);
+            _adventurer.SetStatsManager(_statsManager);
+            System.Console.WriteLine("StatsManager created and initialized");
             
             // Subscribe to weather changes for journal tracking
             _weatherManager.WeatherChanged += (weather) => {
@@ -122,24 +160,44 @@ public class Game1 : Game
             _assetManager.LoadAssets();
             System.Console.WriteLine("Assets loaded");
             
+            // Load journal entry data
+            JournalEntryData.Instance.LoadContent(Content);
+            System.Console.WriteLine("Journal entry data loaded");
+            
             // Set up adventurer sprites
             _adventurer.LoadContent(
                 _assetManager.GetTexture("adventurer"), 
                 _assetManager.GetTexture("adventurer_walking")
             );
+            
+            // Load sleeping texture separately if available
+            var sleepingTexture = _assetManager.GetTexture("adventurer_sleeping");
+            if (sleepingTexture != null)
+            {
+                _adventurer.LoadSleepingTexture(sleepingTexture);
+            }
             System.Console.WriteLine("Adventurer content loaded");
             
             // Set up zone manager
-            _zoneManager.LoadContent(_assetManager);
+            _zoneManager.LoadContent(_assetManager, _poiManager);
             System.Console.WriteLine("ZoneManager content loaded");
             
             // Set up PoI manager
             _poiManager.LoadContent();
             System.Console.WriteLine("PoI content loaded");
             
+            // Initialize PoIManager with the starting zone
+            _poiManager.SetCurrentZone(_zoneManager.CurrentZone.Id);
+            System.Console.WriteLine($"PoIManager initialized with starting zone: {_zoneManager.CurrentZone.Id}");
+            
             // Now create UI manager with zone manager reference
-            _uiManager = new UIManager(GraphicsDevice, _timeManager, _zoneManager, _weatherManager);
+            _uiManager = new UIManager(GraphicsDevice, _timeManager, _zoneManager, _weatherManager, _statsManager, _journalManager);
+            _uiManager.UpdateScreenSize(_graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
             System.Console.WriteLine("UIManager created");
+            
+            // Create stats page
+            _statsPage = new StatsPage(GraphicsDevice, _graphics.PreferredBackBufferWidth, _graphics.PreferredBackBufferHeight);
+            System.Console.WriteLine("StatsPage created");
             
             // Create minimap in top-right corner
             Rectangle minimapArea = new Rectangle(
@@ -161,6 +219,7 @@ public class Game1 : Game
                 _uiManager.LoadContent(font);
                 _uiManager.LoadUITextures(Content);
                 _journalUI.LoadContent(font);
+                _statsPage.LoadContent(font);
                 System.Console.WriteLine("UI font and textures loaded successfully");
             }
             catch (Exception ex)
@@ -214,6 +273,11 @@ public class Game1 : Game
                     // You can add logic here to influence the adventurer's direction toward the click
                 }
             }
+            
+            // Handle mouse hover for tooltips
+            Vector2 currentMousePos = new Vector2(currentMouseState.X, currentMouseState.Y);
+            _uiManager.HandleMouseHover(currentMousePos, out string tooltip);
+            
             _previousMouseState = currentMouseState;
 
             // Handle spacebar for pause toggle
@@ -221,6 +285,34 @@ public class Game1 : Game
             {
                 _uiManager.SetPaused(!_uiManager.IsPaused);
             }
+            
+            // Handle P key for pathfinding status
+            if (keyboardState.IsKeyDown(Keys.P) && !_previousKeyboardState.IsKeyDown(Keys.P))
+            {
+                System.Console.WriteLine("[DEBUG] P key pressed!");
+                System.Console.WriteLine($"[PATHFINDING TEST] Current Status: {_adventurer.GetPathfindingStatus()}");
+                System.Console.WriteLine($"[PATHFINDING TEST] Position: {_adventurer.Position}");
+                System.Console.WriteLine($"[PATHFINDING TEST] Current Zone: {_zoneManager.CurrentZone.Name} ({_zoneManager.CurrentZone.BiomeType})");
+                
+                // Print nearby PoIs for testing
+                var nearbyPoIs = _poiManager.GetNearbyPoIs(_adventurer.Position, 200f, _zoneManager.CurrentZone?.Id);
+                System.Console.WriteLine($"[PATHFINDING TEST] Nearby PoIs ({nearbyPoIs.Count}):");
+                foreach (var poi in nearbyPoIs.Take(5)) // Show first 5
+                {
+                    float distance = Vector2.Distance(_adventurer.Position, poi.Position);
+                    System.Console.WriteLine($"  - {poi.Type} at distance {distance:F1}");
+                }
+                
+                // Print quest status
+                _questManager.PrintQuestStatus();
+            }
+            
+            // Handle S key for stats page toggle
+            if (keyboardState.IsKeyDown(Keys.S) && !_previousKeyboardState.IsKeyDown(Keys.S))
+            {
+                _statsPage?.Toggle();
+            }
+            
             _previousKeyboardState = keyboardState;
 
             // Update transition effects
@@ -241,8 +333,9 @@ public class Game1 : Game
             // Update game systems
             if (_adventurer != null && _zoneManager != null)
             {
-                // Always update journal UI (can be opened while paused)
+                // Always update journal UI and stats page (can be opened while paused)
                 _journalUI.Update(gameTime);
+                _statsPage.Update(gameTime);
                 
                 // Only update game simulation if not paused
                 if (!_uiManager.IsPaused)
@@ -257,10 +350,16 @@ public class Game1 : Game
                     _weatherEffects.Update(gameTime, _weatherManager.CurrentWeather, _weatherManager.WeatherIntensity);
                     
                     // Update PoI system
-                    _poiManager.Update(_adventurer.Position);
+                    _poiManager.Update(_adventurer.Position, 32f, _zoneManager.CurrentZone?.Id);
+                    
+                    // Update stats system
+                    _statsManager.Update(gameTime);
+                    
+                    // Update UI manager (for ticker animations)
+                    _uiManager.Update(gameTime);
                     
                     // Update adventurer (this may trigger zone changes)
-                    _adventurer.Update(gameTime, _zoneManager, _poiManager);
+                    _adventurer.Update(gameTime, _zoneManager, _poiManager, _questManager);
                     
                     // Check for zone changes BEFORE calling zoneManager.Update (which resets the flag)
                     bool zoneChanged = _zoneManager.ZoneChanged;
@@ -281,11 +380,17 @@ public class Game1 : Game
                         
                         _miniMap.OnZoneChanged();
                         
+                        // Update PoIManager with new zone
+                        _poiManager.SetCurrentZone(_zoneManager.CurrentZone.Id);
+                        
                         // Record zone visit in journal
                         _journalManager.OnZoneEntered(_zoneManager.CurrentZone);
                         
-                        // Generate PoIs for new zone
-                        _poiManager.GeneratePoIsForZone(_zoneManager.CurrentZone, 32, 32);
+                        // Check quest objectives for zone exploration
+                        _questManager.OnZoneEntered(_zoneManager.CurrentZone);
+                        
+                        // Update stats for zone exploration
+                        _statsManager.OnZoneEntered(_zoneManager.CurrentZone);
                         
                         System.Console.WriteLine($"Zone transition started to: {_zoneManager.CurrentZone.Name}");
                     }
@@ -317,7 +422,7 @@ public class Game1 : Game
                 _zoneManager.Draw(_spriteBatch);
                 
                 // Draw PoIs (buildings, NPCs, etc.)
-                _poiManager.Draw(_spriteBatch);
+                _poiManager.Draw(_spriteBatch, _zoneManager.CurrentZone?.Id);
                 
                 // Draw adventurer (foreground)
                 _adventurer.Draw(_spriteBatch);
@@ -341,6 +446,12 @@ public class Game1 : Game
                 
                 // Draw journal if open
                 _journalUI.Draw(_spriteBatch);
+                
+                // Draw stats page if open
+                if (_statsPage != null && _statsManager != null)
+                {
+                    _statsPage.Draw(_spriteBatch, _statsManager.CurrentStats);
+                }
                 
                 _spriteBatch.End();
                 
@@ -416,6 +527,8 @@ public class Game1 : Game
         _uiManager?.Dispose();
         _weatherEffects?.Dispose();
         _journalUI?.Dispose();
+        _statsPage?.Dispose();
+        _statsManager?.Dispose();
         _fadeTexture?.Dispose();
         base.UnloadContent();
     }

@@ -1,0 +1,366 @@
+{
+  "levelUp": {
+    "titles": [
+      "Level {level} Achieved!",
+      "New Level Reached!",
+      "Experience Milestone!",
+      "Growing Stronger!"
+    ],
+    "messages": [
+      "I've reached a new level of expertise! Level {level} - I feel more capable than ever.",
+      "My skills as an adventurer continue to grow. Level {level} brings new confidence!",
+      "All this experience is paying off. I've reached level {level} and feel truly seasoned.",
+      "Level {level}! The knowledge I've gained from my travels is invaluable.",
+      "I can feel myself becoming more skilled with each adventure. Level {level} achieved!",
+      "My expertise grows with every quest. Level {level} - I'm becoming quite the adventurer!",
+      "The challenges I've faced have made me stronger. Welcome to level {level}!",
+      "Level {level} reached! I'm proud of how far I've come on this journey."
+    ]
+  },
+  "experienceMilestone": {
+    "titles": [
+      "Learning and Growing",
+      "Experience Gained",
+      "Knowledge Acquired",
+      "Skills Developing",
+      "Wisdom Earned",
+      "Progress Made"
+    ],
+    "messages": [
+      "I've learned so much from my adventures! My experience continues to grow with each quest completed.",
+      "Every challenge teaches me something new. I can feel my skills improving day by day.",
+      "The wisdom gained from exploration is beyond measure. Each step makes me wiser.",
+      "My understanding of this world deepens with every discovery I make.",
+      "Experience is the best teacher, and I'm certainly getting plenty of lessons out here!",
+      "I'm becoming more knowledgeable about survival and exploration with each passing day.",
+      "Each new experience adds to my growing expertise as an adventurer.",
+      "The knowledge I'm gaining will serve me well in future adventures.",
+      "I can feel myself becoming more capable with every challenge I overcome.",
+      "My skills are sharpening with each new experience I encounter."
+    ]
+  },
+  "hunger": {
+    "low": {
+      "titles": [
+        "Getting Hungry",
+        "Need for Sustenance",
+        "Empty Stomach",
+        "Craving Food"
+      ],
+      "messages": [
+        "I'm getting quite hungry. Perhaps I should find somewhere to eat soon.",
+        "My stomach is growling loudly. I really need to find some food soon.",
+        "The pangs of hunger are becoming hard to ignore. Time to seek nourishment.",
+        "I could really go for a hearty meal right about now.",
+        "My energy is flagging - I need to find food before I get too weak.",
+        "The aroma of cooking food would be most welcome right now."
+      ]
+    },
+    "satisfied": {
+      "titles": [
+        "Well Fed",
+        "Satisfying Meal",
+        "Nourishment Found",
+        "Hunger Satisfied"
+      ],
+      "messages": [
+        "That meal really hit the spot! I feel much better now.",
+        "Nothing beats a good meal after a long day of adventuring.",
+        "My hunger is satisfied and my energy restored. Ready to continue!",
+        "That was exactly what I needed. I feel nourished and ready for anything.",
+        "A full belly makes all the difference in how I feel about my adventures.",
+        "Good food is one of life's simple pleasures, especially on the road."
+      ]
+    }
+  },
+  "tiredness": {
+    "high": {
+      "titles": [
+        "Feeling Weary",
+        "Need for Rest",
+        "Exhaustion Setting In",
+        "Time to Rest"
+      ],
+      "messages": [
+        "My legs are getting tired from all this walking. A rest would be welcome.",
+        "My feet are aching and I can barely keep my eyes open. I need rest.",
+        "The weight of my pack feels heavier with each step. Time for a break.",
+        "I'm feeling the strain of constant travel. My body needs recuperation.",
+        "Every muscle in my body is crying out for rest. I should find somewhere to sleep.",
+        "The road has been long today. I'm looking forward to putting my feet up."
+      ]
+    },
+    "rested": {
+      "titles": [
+        "Well Rested",
+        "Energy Restored",
+        "Refreshed",
+        "Ready to Continue"
+      ],
+      "messages": [
+        "That rest was exactly what I needed. I feel energized and ready to continue!",
+        "A good rest has worked wonders. My energy is completely restored.",
+        "I feel refreshed and ready to take on whatever challenges await.",
+        "Nothing beats a proper rest. I'm feeling strong and capable again.",
+        "My body feels renewed after that rest. The adventure continues!",
+        "Rest is just as important as the journey itself. I feel much better now."
+      ]
+    }
+  },
+  "mood": {
+    "high": {
+      "titles": [
+        "Feeling Great",
+        "High Spirits",
+        "Optimistic Outlook",
+        "Joyful Moment"
+      ],
+      "messages": [
+        "I'm feeling fantastic! This adventure is everything I hoped it would be.",
+        "I'm feeling quite content and optimistic about my adventures!",
+        "My spirits are soaring today. There's something magical about this journey.",
+        "I couldn't be happier with how this adventure is unfolding.",
+        "Life on the road suits me perfectly. I'm in excellent spirits!",
+        "Every day brings new wonders. I'm filled with joy and excitement!",
+        "The world seems full of possibilities today. I'm feeling incredibly positive."
+      ]
+    },
+    "low": {
+      "titles": [
+        "Feeling Down",
+        "Low Spirits",
+        "Melancholy Moment",
+        "Challenging Times"
+      ],
+      "messages": [
+        "I'm feeling a bit down today. Perhaps things will improve soon.",
+        "I'm feeling a bit discouraged today. Maybe tomorrow will be better.",
+        "The weight of solitude is pressing on me today. I hope my mood lifts soon.",
+        "Not every day can be perfect. I'm feeling rather melancholy right now.",
+        "Sometimes the road feels lonely. I'm struggling with low spirits today.",
+        "I'm having one of those days where everything feels more difficult."
+      ]
+    }
+  },
+  "weather": {
+    "positive": {
+      "titles": [
+        "Beautiful Weather",
+        "Perfect Conditions",
+        "Lovely Day",
+        "Weather Blessing"
+      ],
+      "messages": [
+        "The clear weather has lifted my spirits considerably!",
+        "What a beautiful day for adventure! The weather couldn't be more perfect.",
+        "The sunshine warms both my body and my soul. Glorious weather today!",
+        "Days like this remind me why I love being outdoors. Perfect weather for exploring.",
+        "The gentle breeze and clear skies make every step a pleasure."
+      ]
+    },
+    "negative": {
+      "titles": [
+        "Challenging Weather",
+        "Difficult Conditions",
+        "Weather Woes",
+        "Stormy Times"
+      ],
+      "messages": [
+        "The constant bad weather is starting to dampen my spirits.",
+        "This persistent rain is making travel more challenging than usual.",
+        "The harsh weather tests my resolve, but I press on regardless.",
+        "Not even bad weather can stop a determined adventurer like myself.",
+        "The elements are fierce today, but I've weathered worse storms."
+      ]
+    }
+  },
+  "poi": {
+    "inn": {
+      "titles": [
+        "Inn Hospitality",
+        "Tavern Comfort",
+        "Warm Welcome",
+        "Hearty Meal"
+      ],
+      "messages": [
+        "That meal at the inn really hit the spot! I feel much better now.",
+        "The warmth and hospitality of the inn has restored my spirits.",
+        "Nothing beats a hot meal and friendly conversation at a good inn.",
+        "The innkeeper's cooking is exactly what a weary traveler needs.",
+        "A proper meal at the inn has given me new energy for the road ahead."
+      ]
+    },
+    "cottage": {
+      "titles": [
+        "Peaceful Rest",
+        "Cottage Comfort",
+        "Quiet Respite",
+        "Restful Haven"
+      ],
+      "messages": [
+        "A nice rest at the cottage has refreshed me greatly.",
+        "The quiet comfort of the cottage was exactly what I needed.",
+        "Sometimes a simple cottage provides the most perfect rest.",
+        "The peaceful atmosphere here has restored my energy completely.",
+        "This cozy cottage feels like a home away from home."
+      ]
+    },
+    "chapel": {
+      "titles": [
+        "Spiritual Moment",
+        "Chapel Peace",
+        "Quiet Reflection",
+        "Sacred Space"
+      ],
+      "messages": [
+        "Spending time at the chapel has brought me peace and clarity.",
+        "The sacred atmosphere here fills me with tranquility.",
+        "A moment of quiet reflection in this holy place has centered my thoughts.",
+        "The chapel's serenity has calmed my restless spirit.",
+        "There's something deeply peaceful about this sacred space."
+      ]
+    },
+    "farmhouse": {
+      "titles": [
+        "Rural Hospitality",
+        "Farm Fresh",
+        "Country Kindness",
+        "Simple Generosity"
+      ],
+      "messages": [
+        "The kind farmers shared some fresh food with me.",
+        "Rural hospitality is truly something special. The farmers were so generous.",
+        "Fresh farm food tastes better than anything from the city.",
+        "The simple kindness of country folk never fails to warm my heart.",
+        "Farm life has a peaceful rhythm that I find quite appealing."
+      ]
+    },
+    "berrybush": {
+      "titles": [
+        "Wild Berries Found",
+        "Nature's Bounty",
+        "Fresh Berries",
+        "Sweet Discovery"
+      ],
+      "messages": [
+        "These wild berries are delicious! Nature provides exactly what I need.",
+        "Fresh berries straight from the bush - nothing tastes quite like this.",
+        "What a wonderful find! These berries have satisfied my hunger perfectly.",
+        "The sweet taste of wild berries reminds me why I love exploring nature.",
+        "These plump berries are a gift from the wilderness. I feel much better now.",
+        "Nothing beats the taste of berries picked fresh from the bush!"
+      ]
+    },
+    "chicken": {
+      "titles": [
+        "Fresh Eggs Collected",
+        "Chicken Coop Discovery",
+        "Farm Fresh Eggs",
+        "Protein Source Found"
+      ],
+      "messages": [
+        "I managed to collect some fresh eggs from this friendly chicken. What a nutritious find!",
+        "These eggs will make an excellent meal. The chicken didn't seem to mind sharing.",
+        "Fresh eggs are exactly what I needed! This chicken has been very generous.",
+        "I carefully gathered a few eggs - they'll provide good sustenance for my journey.",
+        "What luck! These farm-fresh eggs will keep my energy up for miles to come.",
+        "The chicken clucked happily as I collected some of its eggs. Nature's bounty at its finest!"
+      ]
+    }
+  },
+  "personalReflection": {
+    "general": {
+      "titles": [
+        "Personal Reflection",
+        "Quiet Thoughts",
+        "Moment of Contemplation",
+        "Inner Musings"
+      ],
+      "messages": [
+        "Another day of adventure ahead. I wonder what I'll discover next.",
+        "The solitude of the road gives me time to think and reflect.",
+        "Each day brings new experiences that shape who I'm becoming.",
+        "I'm grateful for this opportunity to explore and grow.",
+        "The journey is teaching me as much about myself as about the world.",
+        "Sometimes the best discoveries are the ones we make about ourselves."
+      ]
+    },
+    "mixed_conditions": {
+      "titles": [
+        "Challenging Day",
+        "Mixed Feelings",
+        "Ups and Downs",
+        "Complex Emotions"
+      ],
+      "messages": [
+        "I'm both hungry and exhausted. This adventuring life is taking its toll on me.",
+        "Today has been a mix of highs and lows. Such is the nature of adventure.",
+        "Some days test your limits more than others. Today is one of those days.",
+        "The challenges make the victories all the sweeter, I suppose.",
+        "Not every day can be perfect, but each one teaches me something."
+      ]
+    }
+  },
+  "dailySummary": {
+    "excellent": {
+      "titles": [
+        "Wonderful Day",
+        "Perfect Adventure",
+        "Excellent Progress",
+        "Day Well Spent"
+      ],
+      "messages": [
+        "Today was a wonderful day - I feel well-fed, rested, and in high spirits. Adventure suits me well!",
+        "What a perfect day of exploration! Everything went exactly as I hoped.",
+        "Days like this remind me why I chose the adventurer's life. Absolutely wonderful!",
+        "I couldn't have asked for a better day. Everything fell into place perfectly.",
+        "This is what adventure is all about - discovery, growth, and pure joy!"
+      ]
+    },
+    "good": {
+      "titles": [
+        "Good Day",
+        "Solid Progress",
+        "Satisfying Adventure",
+        "Pleasant Journey"
+      ],
+      "messages": [
+        "A decent day of adventure. I'm feeling optimistic about what tomorrow might bring.",
+        "Today went well overall. I'm satisfied with my progress and discoveries.",
+        "A good day on the road. I'm content with what I've accomplished.",
+        "Steady progress and pleasant discoveries made for a fine day.",
+        "Not every day needs to be extraordinary. Today was simply good, and that's enough."
+      ]
+    },
+    "challenging": {
+      "titles": [
+        "Difficult Day",
+        "Challenging Times",
+        "Tough Journey",
+        "Testing Day"
+      ],
+      "messages": [
+        "Today has been challenging - I'm {conditions}. Tomorrow will be better.",
+        "Some days test your resolve more than others. Today was one of those days.",
+        "The road was harder today, but I persevered. That's what matters.",
+        "Difficult days make me appreciate the good ones even more.",
+        "Every adventurer faces tough days. It's how we handle them that defines us."
+      ]
+    },
+    "moderate": {
+      "titles": [
+        "Another Day",
+        "Steady Progress",
+        "Continuing Journey",
+        "Day's End"
+      ],
+      "messages": [
+        "Another day of exploration complete. I'm managing well enough, though I could use some rest.",
+        "The journey continues at a steady pace. Each day brings me closer to my goals.",
+        "A typical day on the road - not spectacular, but progress nonetheless.",
+        "Some days are about endurance rather than excitement. Today was one of those.",
+        "The adventure continues, one step at a time, one day at a time."
+      ]
+    }
+  }
+}

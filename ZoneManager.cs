@@ -11,6 +11,7 @@ public class ZoneManager
     private Zone _currentZone;
     private Dictionary<string, Zone> _zones;
     private AssetManager _assetManager;
+    private PoIManager _poiManager;
     private Random _random;
     private string _previousZoneId;
 
@@ -24,11 +25,12 @@ public class ZoneManager
         CreateStartingZone();
     }
 
-    public void LoadContent(AssetManager assetManager)
+    public void LoadContent(AssetManager assetManager, PoIManager poiManager)
     {
         try
         {
             _assetManager = assetManager;
+            _poiManager = poiManager;
             
             // Generate terrain for the starting zone
             foreach (var zone in _zones.Values)
@@ -179,6 +181,12 @@ public class ZoneManager
             }
 
             System.Console.WriteLine($"Generated {zone.Objects.Count} objects for zone {zone.Id}");
+            
+            // Generate PoIs for this zone if PoIManager is available
+            if (_poiManager != null)
+            {
+                _poiManager.GeneratePoIsForZone(zone, 32, 32);
+            }
         }
         catch (Exception ex)
         {

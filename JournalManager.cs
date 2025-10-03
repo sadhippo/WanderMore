@@ -76,6 +76,23 @@ public class JournalManager
         AddEntry(JournalEntryType.SpecialEvent, title, description);
     }
 
+    public void OnStatsEvent(JournalEntryType entryType, string title, string description)
+    {
+        // Only allow stats-related entry types
+        if (entryType == JournalEntryType.LevelUp || 
+            entryType == JournalEntryType.StatMilestone || 
+            entryType == JournalEntryType.PersonalReflection || 
+            entryType == JournalEntryType.DailySummary)
+        {
+            AddEntry(entryType, title, description);
+        }
+        else
+        {
+            // Fallback to SpecialEvent for invalid types
+            AddEntry(JournalEntryType.SpecialEvent, title, description);
+        }
+    }
+
     private void OnDayChanged(int day)
     {
         _totalDaysExplored = day;
@@ -91,6 +108,47 @@ public class JournalManager
             int months = day / 30;
             AddEntry(JournalEntryType.Milestone, $"{months} Month{(months > 1 ? "s" : "")} of Adventure", 
                 $"Time flies during exploration. The journey continues with {_totalZonesVisited} zones explored.");
+        }
+    }
+
+    public void OnDayEndStatsRequest(AdventurerStats stats)
+    {
+        // Generate daily summary based on stats
+        string summary = GenerateDailySummary(stats);
+        if (!string.IsNullOrEmpty(summary))
+        {
+            AddEntry(JournalEntryType.DailySummary, "End of Day Reflection", summary);
+        }
+    }
+
+    private string GenerateDailySummary(AdventurerStats stats)
+    {
+        // Assess overall condition and get appropriate summary
+        if (stats.Hunger > 70f && stats.Tiredness > 70f && stats.Mood > 70f)
+        {
+            var (_, message) = JournalEntryData.Instance.GetDailySummaryEntry("excellent");
+            return message;
+        }
+        else if (stats.Hunger < 30f || stats.Tiredness < 30f || stats.Mood < 30f)
+        {
+            var conditions = new List<string>();
+            if (stats.Hunger < 30f) conditions.Add("quite hungry");
+            if (stats.Tiredness < 30f) conditions.Add("exhausted");
+            if (stats.Mood < 30f) conditions.Add("feeling down");
+            
+            string conditionsText = string.Join(" and ", conditions);
+            var (_, message) = JournalEntryData.Instance.GetDailySummaryEntry("challenging", conditionsText);
+            return message;
+        }
+        else if (stats.Mood > 60f)
+        {
+            var (_, message) = JournalEntryData.Instance.GetDailySummaryEntry("good");
+            return message;
+        }
+        else
+        {
+            var (_, message) = JournalEntryData.Instance.GetDailySummaryEntry("moderate");
+            return message;
         }
     }
 
@@ -228,11 +286,19 @@ public enum JournalEntryType
     WeatherEvent,
     Milestone,
     SpecialEvent,
+    // Quest system:
+    QuestReceived,
+    QuestCompleted,
+    QuestObjectiveCompleted,
+    // Stats system:
+    LevelUp,
+    StatMilestone,
+    PersonalReflection,
+    DailySummary,
     // Future expansion:
     // ItemFound,
     // NPCMet,
-    // POIDiscovered,
-    // QuestCompleted
+    // POIDiscovered
 }
 
 public class JournalStatistics

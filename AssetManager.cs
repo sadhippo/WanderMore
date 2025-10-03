@@ -59,6 +59,9 @@ namespace HiddenHorizons
                 
                 var walkingTexture = _content.Load<Texture2D>("adventurer/homeboywalkingsmall");
                 _individualTextures["adventurer_walking"] = walkingTexture;
+                
+                var sleepingTexture = _content.Load<Texture2D>("adventurer/homeboysleeping_small");
+                _individualTextures["adventurer_sleeping"] = sleepingTexture;
             }
             catch
             {
@@ -81,7 +84,7 @@ namespace HiddenHorizons
             _tilesheetManager.DefineTile("double_tree", "fantasyObjects", 4, 6);
             _tilesheetManager.DefineTile("rock",        "fantasyObjects", 4, 10);
             _tilesheetManager.DefineTile("plant",       "fantasyObjects", 4, 8);
-            _tilesheetManager.DefineTile("bush",        "fantasyObjects", 4, 9);
+            _tilesheetManager.DefineTile("bush",        "fantasyObjects", 8, 9);
         }
 
 
@@ -93,6 +96,7 @@ namespace HiddenHorizons
             {
                 _individualTextures["adventurer"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 32, 32, Color.Blue);
                 _individualTextures["adventurer_walking"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 32, 96, Color.DarkBlue);
+                _individualTextures["adventurer_sleeping"] = CreateColoredTexture(graphicsDevice.GraphicsDevice, 128, 32, Color.Purple); // 4 frames horizontal
             }
         }
 

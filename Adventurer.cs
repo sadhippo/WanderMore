@@ -11,10 +11,11 @@ public class Adventurer
     public Vector2 Position { get; set; }
     public Vector2 Velocity { get; set; }
     public float Speed { get; set; } = 80f;
+    public bool IsSleeping => _isSleeping;
     
     private Texture2D _idleTexture;
     private Texture2D _walkingTexture;
-    private Rectangle _sourceRectangle;
+    private Texture2D _sleepingTexture;
     private Vector2 _direction;
     private float _directionChangeTimer;
     private float _directionChangeInterval = 3f; // Change direction every 3 seconds
@@ -23,7 +24,13 @@ public class Adventurer
     // Stuck detection
     private Vector2 _lastPosition;
     private float _stuckTimer;
-    private float _stuckThreshold = 2f; // Consider stuck after 2 seconds (increased due to interaction pauses)
+    private float _stuckThreshold = 5f; // Consider stuck after 5 seconds (much more forgiving)
+    
+    // Building collision detection
+    private int _buildingCollisionCount;
+    private const int MAX_BUILDING_COLLISIONS = 3; // Force direction change after 3 consecutive collisions
+    private float _collisionResetTimer;
+    private const float COLLISION_RESET_TIME = 1f; // Reset counter if no collision for 1 second
     
     // PoI interaction system
     private bool _isInteracting;
@@ -33,6 +40,20 @@ public class Adventurer
     private PointOfInterest _lastInteractionPoI;
     private float _interactionCooldownTimer;
     private float _interactionCooldownDuration = 5f; // 5 seconds before can interact with same PoI again
+    private Rectangle _sourceRectangle;
+    
+    // Pathfinding system
+    private PathfindingManager _pathfindingManager;
+    private bool _isPathfinding;
+    
+    // Stats system integration
+    private StatsManager _statsManager;
+    
+    // Sleeping system
+    private bool _isSleeping;
+    private float _sleepTimer;
+    private const float SLEEP_DURATION = 60f; // 1 minute to fully rest (faster for testing)
+    private const float TIREDNESS_THRESHOLD = 50f; // Start sleeping when tiredness drops below 50 (higher for testing)
     
     // Animation system
     private Dictionary<AnimationType, AnimationData> _animations;
@@ -47,6 +68,16 @@ public class Adventurer
         _direction = Vector2.UnitX; // Start moving right
         _random = new Random();
         _directionChangeTimer = 0f;
+        
+        // Initialize pathfinding system
+        _pathfindingManager = new PathfindingManager();
+        _isPathfinding = false;
+        System.Console.WriteLine("[ADVENTURER] Pathfinding system initialized");
+    }
+    
+    public void SetStatsManager(StatsManager statsManager)
+    {
+        _statsManager = statsManager;
     }
 
     public void LoadContent(Texture2D idleTexture, Texture2D walkingTexture)
@@ -54,11 +85,22 @@ public class Adventurer
         _idleTexture = idleTexture;
         _walkingTexture = walkingTexture;
         
+        // Try to load sleeping texture separately
+        // This will be handled by a separate method
+        
         // Initialize animation system
         SetupAnimations();
         
         // Start with idle animation
         PlayAnimation(AnimationType.Idle);
+    }
+    
+    public void LoadSleepingTexture(Texture2D sleepingTexture)
+    {
+        _sleepingTexture = sleepingTexture;
+        
+        // Re-setup animations to include sleeping
+        SetupAnimations();
     }
 
     private void SetupAnimations()
@@ -84,6 +126,20 @@ public class Adventurer
                 FrameHeight = 32
             }
         };
+        
+        // Add sleeping animation if texture is available
+        if (_sleepingTexture != null)
+        {
+            _animations[AnimationType.Sleeping] = new AnimationData
+            {
+                Texture = _sleepingTexture,
+                FrameCount = 4,
+                FrameTime = 0.5f, // 500ms per frame for slower, peaceful animation
+                IsLooping = true,
+                FrameWidth = 32,
+                FrameHeight = 32
+            };
+        }
     }
 
     private void PlayAnimation(AnimationType animationType)
@@ -96,9 +152,20 @@ public class Adventurer
         }
     }
 
-    public void Update(GameTime gameTime, ZoneManager zoneManager, PoIManager poiManager = null)
+    public void Update(GameTime gameTime, ZoneManager zoneManager, PoIManager poiManager = null, QuestManager questManager = null)
     {
         float deltaTime = (float)gameTime.ElapsedGameTime.TotalSeconds;
+        
+        // Update collision reset timer
+        _collisionResetTimer += deltaTime;
+        if (_collisionResetTimer >= COLLISION_RESET_TIME)
+        {
+            // Reset building collision counter if no collision for a while
+            if (_buildingCollisionCount > 0)
+            {
+                _buildingCollisionCount = 0;
+            }
+        }
         
         // Update interaction cooldown
         if (_interactionCooldownTimer > 0)
@@ -113,9 +180,25 @@ public class Adventurer
             
             if (_interactionTimer >= _interactionDuration)
             {
+                // Trigger interaction event for quest system
+                if (poiManager != null && _currentInteractionPoI != null)
+                {
+                    // This will trigger the PoIInteracted event that the QuestManager subscribes to
+                    var interactionResult = _currentInteractionPoI.Interact(this);
+                    System.Console.WriteLine($"[INTERACTION] {interactionResult.Message}");
+                    
+                    // Fire the interaction event through the PoI manager
+                    poiManager.TriggerInteraction(_currentInteractionPoI, this);
+                    System.Console.WriteLine($"[INTERACTION] Triggered interaction event for {_currentInteractionPoI.Type}");
+                }
+                
                 // Finish interaction
                 _lastInteractionPoI = _currentInteractionPoI;
                 _interactionCooldownTimer = _interactionCooldownDuration;
+                
+                // PoI interaction is now permanently marked as interacted via HasBeenInteracted flag
+                System.Console.WriteLine($"[INTERACTION] {_currentInteractionPoI.Type} marked as interacted (permanent)");
+                
                 _isInteracting = false;
                 _interactionTimer = 0f;
                 
@@ -126,7 +209,7 @@ public class Adventurer
                 }
                 
                 _currentInteractionPoI = null; // Clear after moving away
-                System.Console.WriteLine("Homeboy finished interacting and is moving on!");
+                System.Console.WriteLine("[INTERACTION] Finished interacting and moving on!");
             }
             else
             {
@@ -138,14 +221,63 @@ public class Adventurer
             }
         }
         
-        // Update direction change timer
-        _directionChangeTimer += deltaTime;
+        // Handle sleeping system
+        UpdateSleepingBehavior(deltaTime);
         
-        // Occasionally change direction for natural exploration
-        if (_directionChangeTimer >= _directionChangeInterval)
+        // Skip movement if sleeping
+        if (_isSleeping)
         {
-            ChangeDirection();
-            _directionChangeTimer = 0f;
+            // Update animation while sleeping
+            UpdateAnimation(deltaTime);
+            return;
+        }
+        
+        // Update pathfinding system
+        if (PathfindingConfig.PATHFINDING_ENABLED)
+        {
+            _pathfindingManager.Update(Position, zoneManager, poiManager, deltaTime, questManager);
+            
+            // Check if pathfinding reached a target and we should start interaction
+            if (_pathfindingManager.CurrentTarget != null && 
+                _pathfindingManager.CurrentState == PathfindingManager.PathfindingState.Wandering &&
+                !_isInteracting)
+            {
+                // Pathfinding reached target, check if we should interact
+                float distanceToTarget = Vector2.Distance(Position, _pathfindingManager.CurrentTarget.Position);
+                if (distanceToTarget <= _pathfindingManager.CurrentTarget.InteractionRange)
+                {
+                    var targetPoI = _pathfindingManager.CurrentTarget;
+                    if (IsInteractablePoI(targetPoI.Type))
+                    {
+                        StartInteraction(targetPoI);
+                        _pathfindingManager.AbandonCurrentTarget(); // Now abandon after starting interaction
+                    }
+                }
+            }
+            
+            // Get direction from pathfinding system
+            Vector2 pathfindingDirection = _pathfindingManager.GetNextDirection(Position, _direction);
+            _isPathfinding = _pathfindingManager.HasActiveTarget;
+            
+            if (_isPathfinding)
+            {
+                _direction = pathfindingDirection;
+                // Reset wandering timer when pathfinding
+                _directionChangeTimer = 0f;
+            }
+        }
+        
+        // Update direction change timer (only for wandering)
+        if (!_isPathfinding)
+        {
+            _directionChangeTimer += deltaTime;
+            
+            // Occasionally change direction for natural exploration
+            if (_directionChangeTimer >= _directionChangeInterval)
+            {
+                ChangeDirection();
+                _directionChangeTimer = 0f;
+            }
         }
         
         // Calculate potential new position
@@ -175,16 +307,34 @@ public class Adventurer
             }
             else if (poiCollision && poiManager != null)
             {
-                // Check if we should interact with a PoI
-                var nearbyPoI = GetNearestInteractablePoI(poiManager);
-                if (nearbyPoI != null && !_isInteracting)
+                // Increment building collision counter and reset timer
+                _buildingCollisionCount++;
+                _collisionResetTimer = 0f;
+                
+                // Check if we've hit too many consecutive collisions
+                if (_buildingCollisionCount >= MAX_BUILDING_COLLISIONS)
                 {
-                    StartInteraction(nearbyPoI);
+                    System.Console.WriteLine($"[COLLISION] Too many building collisions ({_buildingCollisionCount}), forcing direction change and abandoning pathfinding");
+                    _pathfindingManager.AbandonCurrentTarget();
+                    ForceNewDirection(zoneManager, poiManager);
+                    _buildingCollisionCount = 0; // Reset after forcing change
                 }
                 else
                 {
-                    // No interaction or already interacting - handle as normal collision
-                    HandleCollision(zoneManager, poiManager);
+                    // Check if we should interact with a PoI
+                    var nearbyPoI = GetNearestInteractablePoI(poiManager);
+                    if (nearbyPoI != null && !_isInteracting)
+                    {
+                        StartInteraction(nearbyPoI);
+                        // Clear pathfinding to prevent immediately going back after interaction
+                        _pathfindingManager.AbandonCurrentTarget();
+                        _buildingCollisionCount = 0; // Reset on interaction
+                    }
+                    else
+                    {
+                        // No interaction or already interacting - handle as normal collision
+                        HandleCollision(zoneManager, poiManager);
+                    }
                 }
             }
             else
@@ -195,8 +345,98 @@ public class Adventurer
         }
         else
         {
-            // No collision - move normally
+            // No collision - move normally and reset collision counter
+            Vector2 oldPosition = Position;
             Position = newPosition;
+            
+            // Track movement for stats system
+            if (_statsManager != null)
+            {
+                float distanceMoved = Vector2.Distance(oldPosition, newPosition);
+                _statsManager.OnMovement(distanceMoved);
+            }
+            
+            // No need to manually reset here since the timer handles it
+        }
+    }
+
+    private void UpdateSleepingBehavior(float deltaTime)
+    {
+        if (_statsManager == null) return;
+        
+        float currentTiredness = _statsManager.CurrentStats.Tiredness;
+        
+        // Check if we should start sleeping
+        if (!_isSleeping && currentTiredness < TIREDNESS_THRESHOLD)
+        {
+            System.Console.WriteLine($"[SLEEP DEBUG] Tiredness {currentTiredness:F1} < {TIREDNESS_THRESHOLD}, starting sleep");
+            StartSleeping();
+        }
+        
+        // Update sleep timer if sleeping
+        if (_isSleeping)
+        {
+            _sleepTimer += deltaTime;
+            
+            // Regenerate tiredness while sleeping - much faster rate
+            float regenRate = 100f / SLEEP_DURATION; // Regenerate to full in SLEEP_DURATION seconds
+            float regenAmount = regenRate * deltaTime;
+            
+            // Make regeneration much more noticeable - multiply by 10
+            regenAmount *= 10f;
+            float oldTiredness = _statsManager.CurrentStats.Tiredness;
+            _statsManager.RegenerateTiredness(regenAmount);
+            
+            // Get updated tiredness after regeneration
+            float updatedTiredness = _statsManager.CurrentStats.Tiredness;
+            
+            // Debug output every few seconds
+            if ((int)_sleepTimer % 5 == 0 && _sleepTimer > 0)
+            {
+                System.Console.WriteLine($"[SLEEP DEBUG] Sleeping for {_sleepTimer:F1}s, Tiredness: {oldTiredness:F1} -> {updatedTiredness:F1} (+{regenAmount:F2})");
+            }
+            
+            // Check if we're fully rested or have slept long enough
+            if (updatedTiredness >= 90f || _sleepTimer >= SLEEP_DURATION)
+            {
+                StopSleeping();
+            }
+        }
+    }
+    
+    private void StartSleeping()
+    {
+        _isSleeping = true;
+        _sleepTimer = 0f;
+        
+        // Stop all movement
+        Velocity = Vector2.Zero;
+        _direction = Vector2.Zero;
+        
+        // Animation will be handled by UpdateAnimation method
+        
+        System.Console.WriteLine("[ADVENTURER] Started sleeping - too tired to continue");
+        
+        // Add journal entry about sleeping
+        if (_statsManager != null)
+        {
+            _statsManager.OnSleepStarted();
+        }
+    }
+    
+    private void StopSleeping()
+    {
+        _isSleeping = false;
+        _sleepTimer = 0f;
+        
+        // Animation will be handled by UpdateAnimation method
+        
+        System.Console.WriteLine("[ADVENTURER] Woke up refreshed and ready to continue exploring");
+        
+        // Add journal entry about waking up
+        if (_statsManager != null)
+        {
+            _statsManager.OnSleepEnded();
         }
     }
 
@@ -213,7 +453,18 @@ public class Adventurer
     private void UpdateAnimation(float deltaTime)
     {
         // Determine which animation should be playing
-        AnimationType targetAnimation = _isMoving ? AnimationType.Walking : AnimationType.Idle;
+        AnimationType targetAnimation;
+        
+        if (_isSleeping)
+        {
+            // Use sleeping animation if available, otherwise use idle
+            targetAnimation = _animations.ContainsKey(AnimationType.Sleeping) ? AnimationType.Sleeping : AnimationType.Idle;
+        }
+        else
+        {
+            targetAnimation = _isMoving ? AnimationType.Walking : AnimationType.Idle;
+        }
+        
         PlayAnimation(targetAnimation);
         
         // Update current animation
@@ -294,7 +545,7 @@ public class Adventurer
         // Check if adventurer has moved significantly
         float distanceMoved = Vector2.Distance(Position, _lastPosition);
         
-        if (distanceMoved < 3f) // Less than 3 pixels moved (more sensitive)
+        if (distanceMoved < 1f) // Less than 1 pixel moved (less sensitive)
         {
             _stuckTimer += deltaTime;
             
@@ -315,7 +566,7 @@ public class Adventurer
 
     private void ForceNewDirection(ZoneManager zoneManager = null, PoIManager poiManager = null)
     {
-        System.Console.WriteLine("Homeboy is stuck! Trying to find a new path...");
+        System.Console.WriteLine("[ADVENTURER] Stuck detected, finding new direction...");
         
         // Try to find a completely clear direction
         for (int attempt = 0; attempt < 24; attempt++)
@@ -350,7 +601,7 @@ public class Adventurer
                 _directionChangeTimer = 0f;
                 _directionChangeInterval = 0.3f; // Short interval after being stuck
                 
-                System.Console.WriteLine("Homeboy found a clear path and got unstuck!");
+                System.Console.WriteLine("[ADVENTURER] Found clear path, unstuck!");
                 return;
             }
         }
@@ -361,7 +612,7 @@ public class Adventurer
         _directionChangeTimer = 0f;
         _directionChangeInterval = 0.2f;
         
-        System.Console.WriteLine("Homeboy is trying to escape from obstacles!");
+        System.Console.WriteLine("[ADVENTURER] Escaping from obstacles...");
     }
 
     private Vector2 FindEscapeDirection(ZoneManager zoneManager, PoIManager poiManager)
@@ -440,11 +691,11 @@ public class Adventurer
     {
         _isInteracting = true;
         _interactionTimer = 0f;
-        _interactionDuration = 2f + _random.NextSingle() * 2f; // 2-4 seconds interaction
+        _interactionDuration = 3f + _random.NextSingle() * 3f; // 3-6 seconds interaction (longer for visibility)
         _currentInteractionPoI = poi;
         
         string interactionType = GetInteractionDescription(poi.Type);
-        System.Console.WriteLine($"Homeboy is {interactionType} for {_interactionDuration:F1} seconds!");
+        System.Console.WriteLine($"[INTERACTION] Starting: {interactionType} for {_interactionDuration:F1} seconds!");
     }
 
     private string GetInteractionDescription(PoIType poiType)
@@ -542,6 +793,9 @@ public class Adventurer
             PoIType.Pig => true,
             PoIType.Deer => true,
             
+            // Resources
+            PoIType.BerryBush => true,
+            
             // Don't interact with monsters or dangerous things
             PoIType.Skeleton => false,
             PoIType.Dragon => false,
@@ -555,6 +809,34 @@ public class Adventurer
     public Rectangle GetBounds()
     {
         return new Rectangle((int)Position.X, (int)Position.Y, _sourceRectangle.Width, _sourceRectangle.Height);
+    }
+    
+    // Pathfinding public interface
+    public void SetQuestTarget(PointOfInterest target)
+    {
+        if (PathfindingConfig.PATHFINDING_ENABLED && _pathfindingManager != null)
+        {
+            _pathfindingManager.SetQuestTarget(target);
+        }
+    }
+    
+    public void AbandonCurrentTarget()
+    {
+        if (_pathfindingManager != null)
+        {
+            _pathfindingManager.AbandonCurrentTarget();
+        }
+    }
+    
+    public bool IsPathfinding => _isPathfinding;
+    
+    public string GetPathfindingStatus()
+    {
+        if (_pathfindingManager != null)
+        {
+            return _pathfindingManager.GetPathfindingStatus();
+        }
+        return "Pathfinding Disabled";
     }
 
     private bool CheckCollision(Vector2 newPosition, ZoneManager zoneManager)
@@ -710,6 +992,7 @@ public enum AnimationType
 {
     Idle,
     Walking,
+    Sleeping,       // Sleeping animation when tired
     Celebrating,    // Future: when discovering something cool
     Resting,        // Future: occasional rest animation
     Surprised,      // Future: when encountering obstacles

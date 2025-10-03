@@ -39,3 +39,4 @@ C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\fantasytilesheet_PoI.xnb
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\fantasytilesheet_PoIBuildings.xnb
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\ui\pausebutton.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\adventurer\homeboysleeping_small.xnb

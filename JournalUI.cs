@@ -201,6 +201,10 @@ public class JournalUI
             JournalEntryType.WeatherEvent => Color.LightBlue,
             JournalEntryType.Milestone => Color.Orange,
             JournalEntryType.SpecialEvent => Color.Magenta,
+            JournalEntryType.LevelUp => Color.Gold,
+            JournalEntryType.StatMilestone => Color.Yellow,
+            JournalEntryType.PersonalReflection => Color.LightCyan,
+            JournalEntryType.DailySummary => Color.LightGray,
             _ => Color.White
         };
     }

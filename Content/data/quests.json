@@ -1,0 +1,156 @@
+{
+  "quests": [
+    {
+      "id": "ranger_storm_watcher",
+      "name": "Storm Watcher",
+      "description": "The ranger has asked you to witness the power of nature by observing a rainstorm.",
+      "type": "Observation",
+      "questGiver": "Ranger",
+      "questGiverName": "Forest Ranger",
+      "rewardDescription": "Knowledge of weather patterns and nature's wisdom",
+      "objectives": [
+        {
+          "id": "witness_rain",
+          "description": "Experience a rainstorm in any location",
+          "type": "WitnessWeather",
+          "parameters": {
+            "weather_type": "Rain"
+          }
+        }
+      ]
+    },
+    {
+      "id": "priest_chapel_pilgrimage",
+      "name": "Sacred Pilgrimage",
+      "description": "The priest has blessed your journey and asks you to visit a chapel to complete your spiritual preparation.",
+      "type": "Exploration",
+      "questGiver": "Priest",
+      "questGiverName": "Village Priest",
+      "rewardDescription": "Spiritual blessing and inner peace",
+      "objectives": [
+        {
+          "id": "visit_chapel",
+          "description": "Find and visit a chapel",
+          "type": "VisitLocation",
+          "parameters": {
+            "poi_type": "Chapel"
+          }
+        }
+      ]
+    },
+    {
+      "id": "hermit_mountain_wisdom",
+      "name": "Mountain Wisdom",
+      "description": "The hermit speaks of ancient knowledge hidden in the mountains. Seek out the high places.",
+      "type": "Exploration",
+      "questGiver": "Hermit",
+      "questGiverName": "Wise Hermit",
+      "rewardDescription": "Ancient wisdom and mountain secrets",
+      "objectives": [
+        {
+          "id": "explore_mountain",
+          "description": "Explore a mountain biome",
+          "type": "ExploreZone",
+          "parameters": {
+            "biome_type": "Mountain"
+          }
+        }
+      ]
+    },
+    {
+      "id": "scholar_lake_studies",
+      "name": "Aquatic Research",
+      "description": "The scholar needs observations of lake ecosystems for their research. Visit a lake and observe its tranquil waters.",
+      "type": "Exploration",
+      "questGiver": "Scholar",
+      "questGiverName": "Learned Scholar",
+      "rewardDescription": "Scientific knowledge and research insights",
+      "objectives": [
+        {
+          "id": "visit_lake",
+          "description": "Visit and observe a lake biome",
+          "type": "ExploreZone",
+          "parameters": {
+            "biome_type": "Lake"
+          }
+        }
+      ]
+    },
+    {
+      "id": "warrior_castle_quest",
+      "name": "Fortress Reconnaissance",
+      "description": "The warrior asks you to scout ancient fortifications. Find and explore a castle.",
+      "type": "Exploration",
+      "questGiver": "Warrior",
+      "questGiverName": "Battle Veteran",
+      "rewardDescription": "Military tactics and fortress knowledge",
+      "objectives": [
+        {
+          "id": "visit_castle",
+          "description": "Find and explore a castle",
+          "type": "VisitLocation",
+          "parameters": {
+            "poi_type": "Castle"
+          }
+        }
+      ]
+    },
+    {
+      "id": "mermaid_fog_mystery",
+      "name": "Misty Visions",
+      "description": "The mermaid speaks of visions that come with the fog. Witness the mysterious mists.",
+      "type": "Observation",
+      "questGiver": "Mermaid",
+      "questGiverName": "Lake Guardian",
+      "rewardDescription": "Mystical insights and water magic knowledge",
+      "objectives": [
+        {
+          "id": "witness_fog",
+          "description": "Experience fog in any location",
+          "type": "WitnessWeather",
+          "parameters": {
+            "weather_type": "Fog"
+          }
+        }
+      ]
+    },
+    {
+      "id": "adventurer_inn_tales",
+      "name": "Traveler's Tales",
+      "description": "A fellow adventurer suggests visiting inns to hear stories from other travelers.",
+      "type": "Exploration",
+      "questGiver": "Adventurer",
+      "questGiverName": "Fellow Adventurer",
+      "rewardDescription": "Stories and travel wisdom from other adventurers",
+      "objectives": [
+        {
+          "id": "visit_inn",
+          "description": "Find and visit an inn",
+          "type": "VisitLocation",
+          "parameters": {
+            "poi_type": "Inn"
+          }
+        }
+      ]
+    },
+    {
+      "id": "ranger_snow_meditation",
+      "name": "Winter's Silence",
+      "description": "The ranger speaks of the peaceful meditation that comes with snowfall. Experience winter's quiet beauty.",
+      "type": "Observation",
+      "questGiver": "Ranger",
+      "questGiverName": "Forest Warden",
+      "rewardDescription": "Inner peace and winter survival knowledge",
+      "objectives": [
+        {
+          "id": "witness_snow",
+          "description": "Experience snowfall in any location",
+          "type": "WitnessWeather",
+          "parameters": {
+            "weather_type": "Snow"
+          }
+        }
+      ]
+    }
+  ]
+}

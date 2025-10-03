@@ -68,6 +68,8 @@ public class PointOfInterest
             PoIType.Cat => "The cat purrs contentedly and follows you for a short distance.",
             PoIType.Dog => "The friendly dog wags its tail and seems eager to play.",
             PoIType.Unicorn => "The majestic unicorn allows you to approach, a rare honor indeed.",
+            PoIType.BerryBush => "You gather fresh berries from the bush, feeling nourished.",
+            PoIType.Chicken => "You carefully collect some fresh eggs from the friendly chicken.",
             _ => $"You examine the {Type.ToString().ToLower()} with curiosity."
         };
     }
@@ -89,6 +91,8 @@ public class PointOfInterest
             
             PoIType.Skeleton or PoIType.Dragon or PoIType.Minotaur or 
             PoIType.Centaur or PoIType.Golem => InteractionType.Combat,
+            
+            PoIType.BerryBush => InteractionType.Exploration,
             
             _ => InteractionType.Examine
         };
@@ -135,7 +139,10 @@ public enum PoIType
     SkullFortress,
     HauntedHouse,
     TreeHouse,
-    Mine
+    Mine,
+    
+    // Resources
+    BerryBush
 }
 
 public enum InteractionType
