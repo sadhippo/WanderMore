@@ -15,6 +15,7 @@ public class UIManager
     private StatsManager _statsManager;
     private JournalManager _journalManager;
     private StatsHUD _statsHUD;
+    private EscapeMenu _escapeMenu;
     private Rectangle _clockArea;
     private Rectangle _dayCounterArea;
     private Rectangle _zoneNameArea;
@@ -51,6 +52,9 @@ public class UIManager
         // Initialize stats HUD
         _statsHUD = new StatsHUD(graphicsDevice);
         
+        // Initialize escape menu
+        _escapeMenu = new EscapeMenu(graphicsDevice);
+        
         // Create pixel texture for UI backgrounds
         _pixelTexture = new Texture2D(graphicsDevice, 1, 1);
         _pixelTexture.SetData(new[] { Color.White });
@@ -78,12 +82,21 @@ public class UIManager
     {
         _font = font;
         _statsHUD?.LoadContent(font);
+        _escapeMenu?.LoadContent(font);
+    }
+    
+    public void SetAudioManager(AudioManager audioManager)
+    {
+        _escapeMenu?.SetAudioManager(audioManager);
     }
 
     public void UpdateScreenSize(int screenWidth, int screenHeight)
     {
         // Update ticker area to match screen size
         _tickerArea = new Rectangle(50, screenHeight - 70, screenWidth - 100, 50);
+        
+        // Update escape menu screen size
+        _escapeMenu?.UpdateScreenSize(screenWidth, screenHeight);
     }
 
     public void LoadUITextures(ContentManager content)
@@ -122,6 +135,9 @@ public class UIManager
                 _tickerAlpha = 0f;
             }
         }
+        
+        // Update escape menu
+        _escapeMenu?.Update(gameTime);
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -162,6 +178,9 @@ public class UIManager
             System.Console.WriteLine($"Error in UIManager.Draw: {ex.Message}");
             // Continue without crashing
         }
+        
+        // Draw escape menu on top of everything else
+        _escapeMenu?.Draw(spriteBatch);
     }
 
     private void DrawTextUI(SpriteBatch spriteBatch)
@@ -439,11 +458,16 @@ public class UIManager
 
     public bool HandleMouseClick(Vector2 mousePosition)
     {
+        // Check escape menu first (highest priority)
+        if (_escapeMenu != null && _escapeMenu.HandleMouseClick(mousePosition))
+        {
+            return true;
+        }
+        
         // Check if pause button was clicked
         if (_pauseButtonArea.Contains(mousePosition))
         {
             _isPaused = !_isPaused;
-            System.Console.WriteLine(_isPaused ? "Game paused" : "Game resumed");
             return true; // Consumed the click
         }
         
@@ -468,7 +492,6 @@ public class UIManager
     public void SetPaused(bool paused)
     {
         _isPaused = paused;
-        System.Console.WriteLine(_isPaused ? "Game paused" : "Game resumed");
     }
 
     public void ShowJournalEntry(string title, string description)
@@ -492,6 +515,25 @@ public class UIManager
         ShowJournalEntry(entry.Title, entry.Description);
     }
 
+    public void ShowEscapeMenu()
+    {
+        _escapeMenu?.Show();
+    }
+
+    public void HideEscapeMenu()
+    {
+        _escapeMenu?.Hide();
+    }
+
+    public void ToggleEscapeMenu()
+    {
+        _escapeMenu?.Toggle();
+    }
+
+    public bool IsEscapeMenuVisible => _escapeMenu?.IsVisible ?? false;
+
+    public EscapeMenu EscapeMenu => _escapeMenu;
+
     public void Dispose()
     {
         // Unsubscribe from journal events
@@ -502,6 +544,7 @@ public class UIManager
         
         _pixelTexture?.Dispose();
         _statsHUD?.Dispose();
+        _escapeMenu?.Dispose();
     }
 }
 

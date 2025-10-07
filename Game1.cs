@@ -144,9 +144,23 @@ public class Game1 : Game
             _adventurer.SetLightingManager(_lightingManager);
             System.Console.WriteLine("LightingManager created and connected to adventurer");
             
-            // Subscribe to weather changes for journal tracking
+            // Subscribe to weather changes for journal tracking and audio
             _weatherManager.WeatherChanged += (weather) => {
                 _journalManager.OnWeatherChanged(weather, _timeManager.GetSeasonName());
+                
+                // Handle weather sounds
+                if (_audioManager != null)
+                {
+                    if (weather == WeatherType.Rain)
+                    {
+                        _audioManager.StartRainSound(_weatherManager.WeatherIntensity);
+                    }
+                    else
+                    {
+                        // Stop rain sound when weather changes to anything else
+                        _audioManager.StopRainSound();
+                    }
+                }
             };
             
             System.Console.WriteLine("Journal and PoI systems created");
@@ -238,6 +252,14 @@ public class Game1 : Game
             // Now create UI manager with zone manager reference
             _uiManager = new UIManager(GraphicsDevice, _timeManager, _zoneManager, _weatherManager, _statsManager, _journalManager);
             _uiManager.UpdateScreenSize(_virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
+            _uiManager.SetAudioManager(_audioManager);
+            
+            // Wire up escape menu exit event
+            if (_uiManager.EscapeMenu != null)
+            {
+                _uiManager.EscapeMenu.OnExitRequested += () => Exit();
+            }
+            
             System.Console.WriteLine("UIManager created");
             
             // Create stats page
@@ -288,8 +310,7 @@ public class Game1 : Game
     {
         try
         {
-            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed || 
-                Keyboard.GetState().IsKeyDown(Keys.Escape))
+            if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 Exit();
 
             // Handle keyboard input for zoom control
@@ -312,12 +333,15 @@ public class Game1 : Game
                 // Convert screen coordinates to virtual coordinates
                 Vector2 virtualMousePos = _virtualResolution.ScreenToVirtual(mousePos);
                 
-                // Check UI clicks first (pause button, etc.)
+                // Check UI clicks first (escape menu, pause button, etc.)
                 if (!_uiManager.HandleMouseClick(virtualMousePos))
                 {
-                    // If UI didn't handle it, convert to world coordinates for game interaction
-                    Vector2 mouseWorldPos = _camera.ScreenToWorld(virtualMousePos);
-                    // You can add logic here to influence the adventurer's direction toward the click
+                    // If UI didn't handle it and escape menu is not open, convert to world coordinates for game interaction
+                    if (!_uiManager.IsEscapeMenuVisible)
+                    {
+                        Vector2 mouseWorldPos = _camera.ScreenToWorld(virtualMousePos);
+                        // You can add logic here to influence the adventurer's direction toward the click
+                    }
                 }
             }
             
@@ -331,6 +355,12 @@ public class Game1 : Game
             if (keyboardState.IsKeyDown(Keys.Space) && !_previousKeyboardState.IsKeyDown(Keys.Space))
             {
                 _uiManager.SetPaused(!_uiManager.IsPaused);
+            }
+            
+            // Handle escape key for escape menu
+            if (keyboardState.IsKeyDown(Keys.Escape) && !_previousKeyboardState.IsKeyDown(Keys.Escape))
+            {
+                _uiManager.ToggleEscapeMenu();
             }
             
             // Handle P key for pathfinding status
@@ -394,7 +424,7 @@ public class Game1 : Game
                 _lightingManager = new LightingManager(GraphicsDevice, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
                 _adventurer.SetLightingManager(_lightingManager);
                 
-                System.Console.WriteLine($"Switched to {newMode} mode ({_virtualResolution.ScreenWidth}x{_virtualResolution.ScreenHeight})");
+
             }
             
             _previousKeyboardState = keyboardState;
@@ -417,12 +447,13 @@ public class Game1 : Game
             // Update game systems
             if (_adventurer != null && _zoneManager != null)
             {
-                // Always update journal UI and stats page (can be opened while paused)
+                // Always update journal UI, stats page, and UI manager (can be opened while paused)
                 _journalUI.Update(gameTime);
                 _statsPage.Update(gameTime);
+                _uiManager.Update(gameTime); // Moved here so escape menu can update
                 
-                // Only update game simulation if not paused
-                if (!_uiManager.IsPaused)
+                // Only update game simulation if not paused and escape menu is not open
+                if (!_uiManager.IsPaused && !_uiManager.IsEscapeMenuVisible)
                 {
                     // Update time system
                     _timeManager.Update(gameTime);
@@ -466,9 +497,6 @@ public class Game1 : Game
                         System.Console.WriteLine("[GAME1] WARNING: LightingManager is null in Update!");
                     }
                     
-                    // Update UI manager (for ticker animations)
-                    _uiManager.Update(gameTime);
-                    
                     // Update adventurer (this may trigger zone changes)
                     _adventurer.Update(gameTime, _zoneManager, _poiManager, _questManager);
                     bool zoneChanged = _zoneManager.ZoneChanged;
@@ -501,7 +529,7 @@ public class Game1 : Game
                         // Update stats for zone exploration
                         _statsManager.OnZoneEntered(_zoneManager.CurrentZone);
                         
-                        System.Console.WriteLine($"Zone transition started to: {_zoneManager.CurrentZone.Name}");
+
                     }
                 }
             }

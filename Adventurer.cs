@@ -366,7 +366,7 @@ public class Adventurer
             _footstepTimer += deltaTime;
             if (_footstepTimer >= FOOTSTEP_INTERVAL)
             {
-                _audioManager.PlayFootstep(0.6f); // Slightly quieter than max volume
+                _audioManager.PlayFootstep(0.8f); // Good audible volume
                 _footstepTimer = 0f;
             }
         }
