@@ -8,19 +8,29 @@
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/adventurer/homeboysleeping_small.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/adventurer/homeboywalkingsmall.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/adventurer/torchboy_small.png</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/events/demo.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/fonts/04b03.spritefont</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/fonts/Arial.spritefont</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/bgmusic/forest_day01.ogg</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/bgmusic/forest_day02.ogg</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/bgmusic/forest_night01.ogg</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Rain_light-01.wav</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Steps_dirt-01.ogg</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Steps_dirt-02.ogg</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Steps_dirt-03.ogg</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Steps_dirt-04.ogg</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet_objects.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet_PoI.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet_PoIBuildings.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/ui/pausebutton.png</File>
-    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Steps_dirt-01.ogg</File>
-    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Steps_dirt-02.ogg</File>
-    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Steps_dirt-03.ogg</File>
-    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/sounds/Steps_dirt-04.ogg</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

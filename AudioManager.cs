@@ -33,6 +33,9 @@ public class AudioManager
     public const float DEFAULT_SFX_VOLUME = 0.9f;
     public const float DEFAULT_AMBIENT_VOLUME = 0.6f;
     
+    // Events for volume changes
+    public event Action<float> OnMusicVolumeChanged;
+    
     // Sound cooldowns (in seconds)
     private const float FOOTSTEP_COOLDOWN = 0.2f; // Reduced for more responsive footsteps
     
@@ -251,12 +254,18 @@ public class AudioManager
     {
         MasterVolume = Math.Max(0.0f, Math.Min(1.0f, volume));
         RefreshAllLoopingVolumes();
+        
+        // Notify background music system of volume change
+        OnMusicVolumeChanged?.Invoke(MusicVolume);
     }
     
     public void SetMusicVolume(float volume)
     {
         MusicVolume = Math.Max(0.0f, Math.Min(1.0f, volume));
         RefreshAllLoopingVolumes();
+        
+        // Notify background music system of volume change
+        OnMusicVolumeChanged?.Invoke(MusicVolume);
     }
     
     public void SetSfxVolume(float volume)

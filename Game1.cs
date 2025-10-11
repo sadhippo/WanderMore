@@ -15,6 +15,7 @@ public class Game1 : Game
     // Game systems
     private AssetManager _assetManager;
     private AudioManager _audioManager;
+    private BackgroundMusicManager _backgroundMusicManager;
     private Adventurer _adventurer;
     private Camera _camera;
     private ZoneManager _zoneManager;
@@ -30,6 +31,8 @@ public class Game1 : Game
     private StatsManager _statsManager;
     private StatsPage _statsPage;
     private LightingManager _lightingManager;
+    private EventCardBox _eventCardBox;
+    private DialogueManager _dialogueManager;
     
     // Virtual resolution system
     private VirtualResolution _virtualResolution;
@@ -92,12 +95,19 @@ public class Game1 : Game
             
             // Initialize time system
             _timeManager = new TimeManager();
-            _timeManager.SetDayNightCycle(1f, .5f); // 1 min day, 30 sec night - easily changeable!
+            _timeManager.SetDayDuration(60f); // 1 minute day
+            _timeManager.SetNightDuration(30f); // 30 second night - easily changeable!
             System.Console.WriteLine("TimeManager created");
+            
+            // Background music manager will be created after weather manager
             
             // Initialize weather system
             _weatherManager = new WeatherManager(_timeManager, 12345);
             System.Console.WriteLine("WeatherManager created");
+            
+            // Update background music manager with weather manager
+            _backgroundMusicManager = new BackgroundMusicManager(Content, _audioManager, _timeManager, _weatherManager);
+            System.Console.WriteLine("BackgroundMusicManager updated with WeatherManager");
             
             // Initialize weather effects
             _weatherEffects = new WeatherEffects(GraphicsDevice, _camera);
@@ -116,9 +126,7 @@ public class Game1 : Game
                 _journalManager.OnSpecialEvent($"Discovered {poi.Name}", poi.Description);
             };
             
-            _poiManager.PoIInteracted += (poi, adventurer) => {
-                _journalManager.OnSpecialEvent($"Interacted with {poi.Name}", $"Met with {poi.Name} - {poi.Description}");
-            };
+            // PoIInteracted event will be subscribed after DialogueManager initialization
             
             _poiManager.PoIApproached += (poi) => {
                 // Only add journal entry on first approach to avoid spam
@@ -130,7 +138,7 @@ public class Game1 : Game
             };
             
             // Initialize quest system
-            _questManager = new QuestManager(_journalManager, _weatherManager, _poiManager, _timeManager);
+            _questManager = new QuestManager(_journalManager, _weatherManager, _poiManager, _timeManager, _statsManager);
             
             // Initialize stats system
             _statsManager = new StatsManager();
@@ -143,6 +151,34 @@ public class Game1 : Game
             _lightingManager = new LightingManager(GraphicsDevice, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
             _adventurer.SetLightingManager(_lightingManager);
             System.Console.WriteLine("LightingManager created and connected to adventurer");
+            
+            // Initialize EventCardBox and DialogueManager
+            _eventCardBox = new EventCardBox(GraphicsDevice);
+            _eventCardBox.UpdateScreenSize(_virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
+            
+            _dialogueManager = new DialogueManager(_questManager, _statsManager, _journalManager, _assetManager, _eventCardBox);
+            System.Console.WriteLine("EventCardBox and DialogueManager created");
+            
+            // Subscribe to dialogue events for game state management
+            _dialogueManager.ConversationStarted += () => {
+                // Pause game systems when dialogue starts
+                _uiManager?.SetPaused(true);
+                System.Console.WriteLine("[Game1] Paused game for dialogue");
+            };
+            
+            _dialogueManager.ConversationEnded += () => {
+                // Resume game systems when dialogue ends
+                _uiManager?.SetPaused(false);
+                
+                // Restore background music volume after interaction
+                _backgroundMusicManager?.SetInInteraction(false);
+                
+                System.Console.WriteLine("[Game1] Resumed game after dialogue ended");
+            };
+            
+            // Subscribe to PoI interactions for dialogue triggering
+            // This replaces the existing PoIInteracted subscription to add dialogue support
+            _poiManager.PoIInteracted += OnPoIInteracted;
             
             // Subscribe to weather changes for journal tracking and audio
             _weatherManager.WeatherChanged += (weather) => {
@@ -206,6 +242,10 @@ public class Game1 : Game
             // Load audio assets
             _audioManager.LoadSounds();
             System.Console.WriteLine("Audio loaded");
+            
+            // Load background music
+            _backgroundMusicManager.LoadMusic();
+            System.Console.WriteLine("Background music loaded");
             
             // Load journal entry data
             JournalEntryData.Instance.LoadContent(Content);
@@ -282,11 +322,18 @@ public class Game1 : Game
             // Load UI font
             try
             {
-                var font = Content.Load<SpriteFont>("fonts/Arial");
+                var font = Content.Load<SpriteFont>("fonts/04b03");
                 _uiManager.LoadContent(font);
                 _uiManager.LoadUITextures(Content);
                 _journalUI.LoadContent(font);
                 _statsPage.LoadContent(font);
+                
+                // Load EventCardBox font
+                _eventCardBox.Font = font;
+                
+                // Load DialogueManager data
+                _dialogueManager.LoadDialogueData();
+                
                 System.Console.WriteLine("UI font and textures loaded successfully");
             }
             catch (Exception ex)
@@ -297,6 +344,10 @@ public class Game1 : Game
             }
             
             System.Console.WriteLine("Content loading complete");
+            
+            // Start background music
+            _backgroundMusicManager?.StartMusic();
+            System.Console.WriteLine("Background music started");
         }
         catch (Exception ex)
         {
@@ -333,8 +384,13 @@ public class Game1 : Game
                 // Convert screen coordinates to virtual coordinates
                 Vector2 virtualMousePos = _virtualResolution.ScreenToVirtual(mousePos);
                 
-                // Check UI clicks first (escape menu, pause button, etc.)
-                if (!_uiManager.HandleMouseClick(virtualMousePos))
+                // Check EventCardBox clicks first (highest priority)
+                if (_eventCardBox.IsVisible && _eventCardBox.HandleMouseClick(virtualMousePos))
+                {
+                    // EventCardBox handled the click
+                }
+                // Check UI clicks (escape menu, pause button, etc.)
+                else if (!_uiManager.HandleMouseClick(virtualMousePos))
                 {
                     // If UI didn't handle it and escape menu is not open, convert to world coordinates for game interaction
                     if (!_uiManager.IsEscapeMenuVisible)
@@ -402,6 +458,7 @@ public class Game1 : Game
                 // Update systems that depend on screen size
                 _weatherEffects.UpdateScreenBounds(new Rectangle(0, 0, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight));
                 _uiManager.UpdateScreenSize(_virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
+                _eventCardBox.UpdateScreenSize(_virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
                 _camera.UpdateViewport(_virtualResolution.GetVirtualViewport());
                 
                 // Update minimap position for new aspect ratio
@@ -447,10 +504,20 @@ public class Game1 : Game
             // Update game systems
             if (_adventurer != null && _zoneManager != null)
             {
-                // Always update journal UI, stats page, and UI manager (can be opened while paused)
+                // Always update journal UI, stats page, UI manager, and EventCardBox (can be opened while paused)
                 _journalUI.Update(gameTime);
                 _statsPage.Update(gameTime);
+                _eventCardBox.Update(gameTime);
                 _uiManager.Update(gameTime); // Moved here so escape menu can update
+                
+                // Update background music system (always update so volume changes work while paused)
+                _backgroundMusicManager?.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
+                
+                // Allow stats system to update during dialogue for reward processing
+                if (_dialogueManager.IsConversationActive())
+                {
+                    _statsManager.Update(gameTime);
+                }
                 
                 // Only update game simulation if not paused and escape menu is not open
                 if (!_uiManager.IsPaused && !_uiManager.IsEscapeMenuVisible)
@@ -471,6 +538,9 @@ public class Game1 : Game
                     
                     // Update stats system
                     _statsManager.Update(gameTime);
+                    
+                    // Update quest system
+                    _questManager?.Update();
                     
                     // Update audio system
                     _audioManager?.Update((float)gameTime.ElapsedGameTime.TotalSeconds);
@@ -498,8 +568,13 @@ public class Game1 : Game
                     }
                     
                     // Update adventurer (this may trigger zone changes)
+                    Vector2 previousPosition = _adventurer.Position;
                     _adventurer.Update(gameTime, _zoneManager, _poiManager, _questManager);
                     bool zoneChanged = _zoneManager.ZoneChanged;
+                    
+                    // Update background music with movement state
+                    bool isMoving = Vector2.Distance(previousPosition, _adventurer.Position) > 0.1f;
+                    _backgroundMusicManager?.SetPlayerMoving(isMoving);
                     
                     _camera.Follow(_adventurer.Position);
                     _camera.Update(gameTime);
@@ -525,6 +600,7 @@ public class Game1 : Game
                         
                         // Check quest objectives for zone exploration
                         _questManager.OnZoneEntered(_zoneManager.CurrentZone);
+                        _questManager.OnBiomeVisited(_zoneManager.CurrentZone.BiomeType);
                         
                         // Update stats for zone exploration
                         _statsManager.OnZoneEntered(_zoneManager.CurrentZone);
@@ -635,6 +711,9 @@ public class Game1 : Game
                     _statsPage.Draw(_spriteBatch, _statsManager.CurrentStats);
                 }
                 
+                // Draw EventCardBox if visible (should be on top of other UI)
+                _eventCardBox.Draw(_spriteBatch);
+                
                 _spriteBatch.End();
                 
                 // Apply weather effects
@@ -693,16 +772,106 @@ public class Game1 : Game
             // Don't rethrow in Draw to prevent crash loops
         }
     }
+    
+    /// <summary>
+    /// Handles PoI interactions and triggers dialogue if available
+    /// </summary>
+    private void OnPoIInteracted(PointOfInterest poi, Adventurer adventurer)
+    {
+        try
+        {
+            // Always add journal entry for the interaction
+            _journalManager.OnSpecialEvent($"Interacted with {poi.Name}", $"Met with {poi.Name} - {poi.Description}");
+            
+            // Check if this PoI has associated dialogue/event data
+            if (_dialogueManager != null && HasDialogueForPoI(poi.Type))
+            {
+                // Pause game systems while dialogue is active
+                _uiManager?.SetPaused(true);
+                
+                // Lower background music during interaction
+                _backgroundMusicManager?.SetInInteraction(true);
+                
+                // Trigger the EventCardBox with the dialogue
+                _dialogueManager.TriggerDialogue(poi.Type, GetRelatedQuest(poi));
+                
+                System.Console.WriteLine($"[Game1] Triggered dialogue for PoI: {poi.Type}");
+            }
+            else
+            {
+                // No dialogue exists, continue with existing PoI interaction behavior
+                System.Console.WriteLine($"[Game1] No dialogue available for PoI: {poi.Type}");
+            }
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Game1] Error handling PoI interaction: {ex.Message}");
+        }
+    }
+    
+    /// <summary>
+    /// Checks if a PoI type has associated dialogue data
+    /// </summary>
+    private bool HasDialogueForPoI(PoIType poiType)
+    {
+        // Check if DialogueManager actually has dialogue data for this PoI type
+        if (_dialogueManager == null)
+            return false;
+            
+        var availableDialogues = _dialogueManager.GetDialogueTrees();
+        
+        // Check if any dialogue tree is associated with this PoI type
+        foreach (var tree in availableDialogues.Values)
+        {
+            if (tree.AssociatedNPC == poiType)
+            {
+                return true;
+            }
+        }
+        
+        return false;
+    }
+    
+    /// <summary>
+    /// Gets a related quest for the PoI if one exists
+    /// </summary>
+    private Quest GetRelatedQuest(PointOfInterest poi)
+    {
+        try
+        {
+            // Check if any active quests are related to this PoI
+            var activeQuests = _questManager?.GetActiveQuests() ?? new List<Quest>();
+            
+            foreach (var quest in activeQuests)
+            {
+                // Check if quest involves this PoI type or location
+                if (poi.AssociatedQuests.Contains(quest.Id.ToString()) ||
+                    quest.Name.Contains(poi.Type.ToString(), StringComparison.OrdinalIgnoreCase))
+                {
+                    return quest;
+                }
+            }
+            
+            return null;
+        }
+        catch (Exception ex)
+        {
+            System.Console.WriteLine($"[Game1] Error getting related quest: {ex.Message}");
+            return null;
+        }
+    }
 
     protected override void UnloadContent()
     {
         _assetManager?.UnloadAssets();
         _audioManager?.Dispose();
+        _backgroundMusicManager?.Dispose();
         _miniMap?.Dispose();
         _uiManager?.Dispose();
         _weatherEffects?.Dispose();
         _journalUI?.Dispose();
         _statsPage?.Dispose();
+        _eventCardBox?.Dispose();
         _statsManager?.Dispose();
         _lightingManager?.Dispose();
         _virtualResolution?.Dispose();

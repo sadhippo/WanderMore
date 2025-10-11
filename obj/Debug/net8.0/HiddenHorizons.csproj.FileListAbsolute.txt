@@ -45,3 +45,15 @@ C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\Steps_dirt-02.xnb
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\Steps_dirt-03.xnb
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\Steps_dirt-04.xnb
+C:\Users\accoo\Documents\hiddenhorizons\hiddenhorizons\bin\Debug\net8.0\Content\sounds\Rain_light-01.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\Steps_dirt-01.ogg
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\Steps_dirt-02.ogg
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\Steps_dirt-03.ogg
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\Steps_dirt-04.ogg
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\events\demo.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_day01.ogg
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_day01.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_day02.ogg
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_day02.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_night01.ogg
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_night01.xnb

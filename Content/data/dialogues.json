@@ -1,0 +1,1336 @@
+{
+  "dialogueTrees": [
+    {
+      "id": "ranger_greeting",
+      "name": "Ranger First Meeting",
+      "description": "Initial conversation with a ranger NPC",
+      "associatedNPC": "Ranger",
+      "associatedQuests": [],
+      "startNodeId": "ranger_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "ranger_start": {
+          "id": "ranger_start",
+          "title": "Forest Ranger",
+          "questText": "A weathered ranger emerges from the treeline, bow in hand. 'Greetings, traveler. These woods can be dangerous for the unprepared. What brings you to my domain?'",
+          "speakerName": "Forest Ranger",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "I'm exploring the wilderness and seeking adventure.",
+              "nextNodeId": "ranger_adventure",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "Met a helpful forest ranger who offered guidance.",
+              "conditions": []
+            },
+            {
+              "text": "I'm looking for safe passage through these lands.",
+              "nextNodeId": "ranger_passage",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Just passing through, no need for conversation.",
+              "nextNodeId": "",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "ranger_adventure": {
+          "id": "ranger_adventure",
+          "title": "Forest Ranger",
+          "questText": "The ranger nods approvingly. 'A kindred spirit! The wilderness holds many secrets for those brave enough to seek them. Here, take this knowledge - it may serve you well.'",
+          "speakerName": "Forest Ranger",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Thank you for the wisdom. I'll remember your words.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 5,
+                "mood": 2
+              },
+              "questUpdate": "",
+              "journalEntry": "The ranger shared valuable wilderness knowledge with me.",
+              "conditions": []
+            },
+            {
+              "text": "Do you have any specific advice about this area?",
+              "nextNodeId": "ranger_advice",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "ranger_passage": {
+          "id": "ranger_passage",
+          "title": "Forest Ranger",
+          "questText": "'Wise to ask. The northern path is safest during daylight hours. Avoid the swamplands to the east - they're treacherous even for experienced travelers.'",
+          "speakerName": "Forest Ranger",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "I appreciate the guidance. Safe travels to you as well.",
+              "nextNodeId": "",
+              "statRewards": {
+                "mood": 1
+              },
+              "questUpdate": "",
+              "journalEntry": "Received helpful travel advice from a forest ranger.",
+              "conditions": []
+            }
+          ]
+        },
+        "ranger_advice": {
+          "id": "ranger_advice",
+          "title": "Forest Ranger",
+          "questText": "'Keep your torch ready when night falls - the darkness here is deeper than most places. And if you hear strange whispers, don't follow them. They lead only to trouble.'",
+          "speakerName": "Forest Ranger",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "I'll heed your warning. Thank you, ranger.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 3
+              },
+              "questUpdate": "",
+              "journalEntry": "The ranger warned me about the dangers that lurk in darkness.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "priest_blessing",
+      "name": "Priest Blessing",
+      "description": "A priest offers spiritual guidance and blessings",
+      "associatedNPC": "Priest",
+      "associatedQuests": [],
+      "startNodeId": "priest_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "priest_start": {
+          "id": "priest_start",
+          "title": "Village Priest",
+          "questText": "A gentle priest in simple robes approaches with a warm smile. 'Peace be with you, traveler. I sense you carry a heavy burden on your journey. Perhaps I can offer some comfort?'",
+          "speakerName": "Village Priest",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "I would welcome a blessing for my travels.",
+              "nextNodeId": "priest_blessing",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Thank you, but I must continue on my path.",
+              "nextNodeId": "",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "priest_blessing": {
+          "id": "priest_blessing",
+          "title": "Village Priest",
+          "questText": "The priest places a gentle hand on your shoulder. 'May the light guide your steps and courage fill your heart. Go forth with renewed spirit, brave adventurer.'",
+          "speakerName": "Village Priest",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Your blessing gives me strength. Thank you.",
+              "nextNodeId": "",
+              "statRewards": {
+                "mood": 5
+              },
+              "questUpdate": "",
+              "journalEntry": "Received a heartwarming blessing from a village priest.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "hermit_riddle",
+      "name": "Hermit's Riddle",
+      "description": "A mysterious hermit speaks in riddles and ancient wisdom",
+      "associatedNPC": "Hermit",
+      "associatedQuests": [],
+      "startNodeId": "hermit_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "hermit_start": {
+          "id": "hermit_start",
+          "title": "Mysterious Hermit",
+          "questText": "An ancient hermit sits by a flickering fire, eyes gleaming with hidden knowledge. 'Ah, another seeker arrives. Tell me, young one - what is it that grows stronger when shared, yet never diminishes?'",
+          "speakerName": "Ancient Hermit",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Knowledge and wisdom grow when shared.",
+              "nextNodeId": "hermit_correct",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Love and friendship become stronger when shared.",
+              "nextNodeId": "hermit_correct",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "I'm not sure. Could you tell me the answer?",
+              "nextNodeId": "hermit_hint",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "hermit_correct": {
+          "id": "hermit_correct",
+          "title": "Mysterious Hermit",
+          "questText": "The hermit nods slowly, a knowing smile crossing his weathered face. 'Wise words from one so young. Indeed, the greatest treasures are those that multiply when given freely. Take this token of understanding.'",
+          "speakerName": "Ancient Hermit",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Thank you for the lesson, wise hermit.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 8,
+                "mood": 3
+              },
+              "questUpdate": "",
+              "journalEntry": "Solved the hermit's riddle and gained valuable wisdom.",
+              "conditions": []
+            }
+          ]
+        },
+        "hermit_hint": {
+          "id": "hermit_hint",
+          "title": "Mysterious Hermit",
+          "questText": "The hermit chuckles softly. 'Patience, young seeker. The answer lies not in my words, but in your heart. Think of what you treasure most, and how it changes when you give it to others.'",
+          "speakerName": "Ancient Hermit",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "I'll ponder your words as I continue my journey.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 2
+              },
+              "questUpdate": "",
+              "journalEntry": "The hermit gave me a riddle to contemplate during my travels.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "inn_mysterious",
+      "name": "Mysterious Inn",
+      "description": "A mysterious inn appears out of nowhere with enticing aromas",
+      "associatedNPC": "Inn",
+      "associatedQuests": [],
+      "startNodeId": "inn_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "inn_start": {
+          "id": "inn_start",
+          "title": "The Wanderer's Rest",
+          "questText": "You have arrived at a mysterious inn. It appeared out of nowhere, but the smell of fresh roast and warm bread drifts out the window. Candlelight flickers invitingly through frost-covered glass. Do you dare enter?",
+          "speakerName": "Mysterious Inn",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Enter the inn and stay the night.",
+              "nextNodeId": "inn_stay",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Peek through the window first.",
+              "nextNodeId": "inn_peek",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "This seems too strange. Continue on your path.",
+              "nextNodeId": "",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "Encountered a mysterious inn but chose not to enter.",
+              "conditions": []
+            }
+          ]
+        },
+        "inn_stay": {
+          "id": "inn_stay",
+          "title": "The Wanderer's Rest",
+          "questText": "You push open the heavy wooden door and step inside. The warmth embraces you immediately. A kindly innkeeper with twinkling eyes approaches. 'Welcome, weary traveler! A room and meal for the night?'",
+          "speakerName": "Kindly Innkeeper",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Yes, I'll take a room and a hot meal.",
+              "nextNodeId": "inn_rest",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Just a meal, please. I prefer to sleep under the stars.",
+              "nextNodeId": "inn_meal",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "inn_peek": {
+          "id": "inn_peek",
+          "title": "The Wanderer's Rest",
+          "questText": "Through the frosted window, you see a cozy common room filled with other travelers sharing stories by the fireplace. Everything appears normal and welcoming. Your stomach growls at the sight of steaming bowls of stew.",
+          "speakerName": "Mysterious Inn",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "It looks safe enough. Enter the inn.",
+              "nextNodeId": "inn_stay",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Better safe than sorry. Keep walking.",
+              "nextNodeId": "",
+              "statRewards": {
+                "mood": -1
+              },
+              "questUpdate": "",
+              "journalEntry": "Saw a mysterious inn but decided it was too risky to enter.",
+              "conditions": []
+            }
+          ]
+        },
+        "inn_rest": {
+          "id": "inn_rest",
+          "title": "The Wanderer's Rest",
+          "questText": "You enjoy a hearty meal of roasted meat, fresh bread, and mulled wine. The soft bed provides the best rest you've had in weeks. You wake refreshed and ready for adventure, though the inn has mysteriously vanished with the morning mist.",
+          "speakerName": "Kindly Innkeeper",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "That was exactly what I needed. Time to continue my journey.",
+              "nextNodeId": "",
+              "statRewards": {
+                "mood": 8,
+                "hunger": 15,
+                "experience": 5
+              },
+              "questUpdate": "",
+              "journalEntry": "Stayed at a mysterious inn that vanished with the dawn. I feel completely restored.",
+              "conditions": []
+            }
+          ]
+        },
+        "inn_meal": {
+          "id": "inn_meal",
+          "title": "The Wanderer's Rest",
+          "questText": "The innkeeper serves you a delicious meal of hearty stew and warm bread. As you eat, other travelers share tales of their adventures. You feel nourished in both body and spirit, though you notice the inn seems to shimmer slightly in the candlelight.",
+          "speakerName": "Kindly Innkeeper",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Thank you for the meal. I should be on my way.",
+              "nextNodeId": "",
+              "statRewards": {
+                "hunger": 10,
+                "mood": 4,
+                "experience": 3
+              },
+              "questUpdate": "",
+              "journalEntry": "Enjoyed a mysterious but satisfying meal at an otherworldly inn.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "warrior_campfire",
+      "name": "Warrior's Campfire",
+      "description": "A battle-scarred warrior offers to share their campfire",
+      "associatedNPC": "Warrior",
+      "associatedQuests": [],
+      "startNodeId": "warrior_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "warrior_start": {
+          "id": "warrior_start",
+          "title": "Battle-Scarred Warrior",
+          "questText": "You encounter a grizzled warrior tending a campfire. Scars tell stories of countless battles, but their eyes are kind. 'The night grows cold, friend. Care to share my fire and hear tales of distant lands?'",
+          "speakerName": "Grizzled Warrior",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "I'd be honored to share your fire and stories.",
+              "nextNodeId": "warrior_stories",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Tell me about your battles and adventures.",
+              "nextNodeId": "warrior_battles",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Thank you, but I must keep moving.",
+              "nextNodeId": "",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "warrior_stories": {
+          "id": "warrior_stories",
+          "title": "Battle-Scarred Warrior",
+          "questText": "The warrior's eyes light up as you settle by the fire. 'Ah, a kindred spirit! I've traveled from the crystal caves of the north to the burning deserts of the south. Each place taught me something new about courage and friendship.'",
+          "speakerName": "Grizzled Warrior",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "What's the most important lesson you've learned?",
+              "nextNodeId": "warrior_wisdom",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Those sound like incredible adventures.",
+              "nextNodeId": "warrior_gift",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "warrior_battles": {
+          "id": "warrior_battles",
+          "title": "Battle-Scarred Warrior",
+          "questText": "The warrior traces a long scar on their arm thoughtfully. 'Each scar has a story, but the greatest battles aren't always fought with sword and shield. Sometimes the hardest fight is choosing mercy over vengeance, or hope over despair.'",
+          "speakerName": "Grizzled Warrior",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "That's profound wisdom from someone who's seen so much.",
+              "nextNodeId": "warrior_wisdom",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "warrior_wisdom": {
+          "id": "warrior_wisdom",
+          "title": "Battle-Scarred Warrior",
+          "questText": "'True strength comes not from the sword you carry, but from the friends who stand beside you and the principles you refuse to abandon. Remember that, young adventurer, and you'll never truly be defeated.'",
+          "speakerName": "Grizzled Warrior",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "I'll carry those words with me. Thank you, warrior.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 7,
+                "mood": 5
+              },
+              "questUpdate": "",
+              "journalEntry": "A wise warrior shared profound lessons about true strength and courage.",
+              "conditions": []
+            }
+          ]
+        },
+        "warrior_gift": {
+          "id": "warrior_gift",
+          "title": "Battle-Scarred Warrior",
+          "questText": "The warrior reaches into their pack and pulls out a small, worn charm. 'This has protected me through many dangers. I sense you have a great journey ahead - perhaps it will serve you better than it has served me.'",
+          "speakerName": "Grizzled Warrior",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "I'm honored by your generosity. I'll treasure this gift.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 5,
+                "mood": 6
+              },
+              "questUpdate": "",
+              "journalEntry": "Received a protective charm from a generous warrior by the campfire.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "scholar_library",
+      "name": "Scholar's Knowledge",
+      "description": "A learned scholar offers to share ancient knowledge",
+      "associatedNPC": "Scholar",
+      "associatedQuests": [],
+      "startNodeId": "scholar_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "scholar_start": {
+          "id": "scholar_start",
+          "title": "Learned Scholar",
+          "questText": "You find a scholar hunched over ancient tomes beneath a gnarled oak tree. Scrolls and books surround them like a portable library. They look up with bright, curious eyes. 'Ah! A fellow seeker of knowledge, perhaps?'",
+          "speakerName": "Learned Scholar",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "I'm always eager to learn something new.",
+              "nextNodeId": "scholar_teach",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "What are you studying out here?",
+              "nextNodeId": "scholar_research",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "I'm more of a practical adventurer than a scholar.",
+              "nextNodeId": "scholar_practical",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "scholar_teach": {
+          "id": "scholar_teach",
+          "title": "Learned Scholar",
+          "questText": "The scholar's face brightens with delight. 'Wonderful! Knowledge shared is knowledge doubled. Here's something fascinating - did you know that the ancient peoples used star patterns not just for navigation, but to predict weather and seasonal changes?'",
+          "speakerName": "Learned Scholar",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "That's incredible! How does it work?",
+              "nextNodeId": "scholar_stars",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Do you have any other interesting knowledge to share?",
+              "nextNodeId": "scholar_more",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "scholar_research": {
+          "id": "scholar_research",
+          "title": "Learned Scholar",
+          "questText": "'I'm documenting the migration patterns of magical creatures and their connection to ley lines. Fascinating stuff! The data suggests that certain locations have much higher concentrations of mystical energy.'",
+          "speakerName": "Learned Scholar",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "That sounds like it could be useful for an adventurer.",
+              "nextNodeId": "scholar_practical_knowledge",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "scholar_practical": {
+          "id": "scholar_practical",
+          "title": "Learned Scholar",
+          "questText": "The scholar chuckles warmly. 'Ah, but practical knowledge is still knowledge! Here's something useful - certain plants glow faintly near sources of fresh water. Very handy when you're lost in the wilderness!'",
+          "speakerName": "Learned Scholar",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "That's actually very helpful. Thank you!",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 4
+              },
+              "questUpdate": "",
+              "journalEntry": "Learned a practical survival tip from a helpful scholar.",
+              "conditions": []
+            }
+          ]
+        },
+        "scholar_stars": {
+          "id": "scholar_stars",
+          "title": "Learned Scholar",
+          "questText": "'The constellation of the Great Bear shifts position throughout the seasons. When it's directly overhead at midnight, winter storms are most likely. When it's low on the horizon, expect clear skies for travel!'",
+          "speakerName": "Learned Scholar",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "This knowledge will serve me well on my travels.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 8
+              },
+              "questUpdate": "",
+              "journalEntry": "Learned ancient star navigation techniques from a knowledgeable scholar.",
+              "conditions": []
+            }
+          ]
+        },
+        "scholar_more": {
+          "id": "scholar_more",
+          "title": "Learned Scholar",
+          "questText": "'Indeed! Here's a curious fact - the roots of silverleaf trees can purify contaminated water. And mushrooms that grow in perfect circles often indicate the presence of underground springs!'",
+          "speakerName": "Learned Scholar",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Your knowledge is a treasure trove. Thank you for sharing!",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 6
+              },
+              "questUpdate": "",
+              "journalEntry": "Gained valuable wilderness knowledge from a generous scholar.",
+              "conditions": []
+            }
+          ]
+        },
+        "scholar_practical_knowledge": {
+          "id": "scholar_practical_knowledge",
+          "title": "Learned Scholar",
+          "questText": "'Absolutely! Areas with high mystical energy often have the best healing herbs and the clearest water sources. But they also attract more dangerous creatures, so approach with caution!'",
+          "speakerName": "Learned Scholar",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "That's invaluable information for an adventurer. Thank you!",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 7
+              },
+              "questUpdate": "",
+              "journalEntry": "Learned about mystical energy patterns and their practical implications.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "mermaid_song",
+      "name": "Mermaid's Song",
+      "description": "A mysterious mermaid by a moonlit lake offers ancient wisdom",
+      "associatedNPC": "Mermaid",
+      "associatedQuests": [],
+      "startNodeId": "mermaid_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "mermaid_start": {
+          "id": "mermaid_start",
+          "title": "Moonlit Mermaid",
+          "questText": "By the edge of a crystal-clear lake, a beautiful mermaid sits on a moss-covered rock, her tail shimmering in the moonlight. She sings a haunting melody that seems to speak directly to your soul. She notices your approach and smiles mysteriously.",
+          "speakerName": "Mysterious Mermaid",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Your song is beautiful. What does it mean?",
+              "nextNodeId": "mermaid_song_meaning",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "I've never seen a mermaid before. Are you real?",
+              "nextNodeId": "mermaid_real",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "I don't want to disturb you. I'll continue on my way.",
+              "nextNodeId": "",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "Encountered a mermaid by moonlight but chose not to intrude.",
+              "conditions": []
+            }
+          ]
+        },
+        "mermaid_song_meaning": {
+          "id": "mermaid_song_meaning",
+          "title": "Moonlit Mermaid",
+          "questText": "The mermaid's voice is like liquid silver as she speaks. 'It is the song of the deep waters, telling of currents that flow beneath the world. It speaks of hidden paths and secret knowledge that only the waters remember.'",
+          "speakerName": "Mysterious Mermaid",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Could you teach me some of this water wisdom?",
+              "nextNodeId": "mermaid_wisdom",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "The song touched something deep in my heart.",
+              "nextNodeId": "mermaid_blessing",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "mermaid_real": {
+          "id": "mermaid_real",
+          "title": "Moonlit Mermaid",
+          "questText": "She laughs like the sound of gentle waves on shore. 'As real as the moon's reflection on water, as real as the dreams that guide your steps. Reality has many layers, land-walker. Some truths can only be felt, not seen.'",
+          "speakerName": "Mysterious Mermaid",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "That's a beautiful way to think about existence.",
+              "nextNodeId": "mermaid_philosophy",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "mermaid_wisdom": {
+          "id": "mermaid_wisdom",
+          "title": "Moonlit Mermaid",
+          "questText": "'Listen well, brave traveler. Water always finds its way, flowing around obstacles rather than fighting them. When you face challenges, remember the wisdom of water - persistence and adaptability will carry you further than force.'",
+          "speakerName": "Mysterious Mermaid",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "I will remember the wisdom of water. Thank you.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 6,
+                "mood": 3
+              },
+              "questUpdate": "",
+              "journalEntry": "A wise mermaid taught me the ancient wisdom of water and flow.",
+              "conditions": []
+            }
+          ]
+        },
+        "mermaid_blessing": {
+          "id": "mermaid_blessing",
+          "title": "Moonlit Mermaid",
+          "questText": "The mermaid reaches into the water and pulls out a small, perfectly smooth stone that glows with inner light. 'Then carry this with you. It holds a fragment of the song, and will remind you that even in the darkest times, beauty and wonder still exist.'",
+          "speakerName": "Mysterious Mermaid",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "This is a precious gift. I'll treasure it always.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 5,
+                "mood": 8
+              },
+              "questUpdate": "",
+              "journalEntry": "Received a magical singing stone from a benevolent mermaid.",
+              "conditions": []
+            }
+          ]
+        },
+        "mermaid_philosophy": {
+          "id": "mermaid_philosophy",
+          "title": "Moonlit Mermaid",
+          "questText": "'You have an open heart, land-walker. That is rarer than you might think. Hold onto that openness - it will lead you to wonders that closed minds can never discover.'",
+          "speakerName": "Mysterious Mermaid",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Your words give me hope. Thank you for this encounter.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 4,
+                "mood": 6
+              },
+              "questUpdate": "",
+              "journalEntry": "Had a profound philosophical conversation with a wise mermaid.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "unicorn_encounter",
+      "name": "Unicorn's Grace",
+      "description": "A rare encounter with a majestic unicorn in a moonlit glade",
+      "associatedNPC": "Unicorn",
+      "associatedQuests": [],
+      "startNodeId": "unicorn_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "unicorn_start": {
+          "id": "unicorn_start",
+          "title": "Majestic Unicorn",
+          "questText": "In a moonlit glade filled with silver flowers, a magnificent unicorn stands perfectly still. Its horn gleams like starlight, and its eyes hold ancient wisdom. It regards you with calm curiosity, neither approaching nor fleeing.",
+          "speakerName": "Majestic Unicorn",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Approach slowly with respect and wonder.",
+              "nextNodeId": "unicorn_approach",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Stay perfectly still and simply observe this miracle.",
+              "nextNodeId": "unicorn_observe",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Back away quietly to avoid disturbing such a pure creature.",
+              "nextNodeId": "",
+              "statRewards": {
+                "mood": 2
+              },
+              "questUpdate": "",
+              "journalEntry": "Witnessed a unicorn from afar, respecting its sacred nature.",
+              "conditions": []
+            }
+          ]
+        },
+        "unicorn_approach": {
+          "id": "unicorn_approach",
+          "title": "Majestic Unicorn",
+          "questText": "The unicorn watches your careful approach with intelligent eyes. As you draw near, it lowers its magnificent head slightly - not in submission, but in acknowledgment of your respectful manner. You feel a profound sense of peace wash over you.",
+          "speakerName": "Majestic Unicorn",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Gently extend your hand in greeting.",
+              "nextNodeId": "unicorn_touch",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Speak softly to show your peaceful intentions.",
+              "nextNodeId": "unicorn_speak",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "unicorn_observe": {
+          "id": "unicorn_observe",
+          "title": "Majestic Unicorn",
+          "questText": "You stand motionless, drinking in the sight of this legendary creature. The unicorn seems to appreciate your restraint. It moves gracefully through the glade, and you notice that flowers bloom brighter where its hooves touch the earth.",
+          "speakerName": "Majestic Unicorn",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "This moment of pure wonder is enough. Treasure the memory.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 8,
+                "mood": 10
+              },
+              "questUpdate": "",
+              "journalEntry": "Witnessed a unicorn in its natural grace - a moment of pure magic I'll never forget.",
+              "conditions": []
+            }
+          ]
+        },
+        "unicorn_touch": {
+          "id": "unicorn_touch",
+          "title": "Majestic Unicorn",
+          "questText": "The unicorn allows you to touch its silky mane. The moment your fingers make contact, you feel a surge of pure, healing energy flow through you. All your weariness and small hurts fade away, replaced by vitality and inner peace.",
+          "speakerName": "Majestic Unicorn",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Thank you for this incredible gift of healing and trust.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 10,
+                "mood": 12
+              },
+              "questUpdate": "",
+              "journalEntry": "Touched by a unicorn's grace - healed in body and spirit by this sacred encounter.",
+              "conditions": []
+            }
+          ]
+        },
+        "unicorn_speak": {
+          "id": "unicorn_speak",
+          "title": "Majestic Unicorn",
+          "questText": "You whisper gentle words of gratitude for this encounter. The unicorn's eyes seem to sparkle with understanding. Though it cannot speak, you sense its approval of your pure heart. It nods once before gracefully departing into the moonlight.",
+          "speakerName": "Majestic Unicorn",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "I am honored by your acknowledgment, noble creature.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 7,
+                "mood": 8
+              },
+              "questUpdate": "",
+              "journalEntry": "Communicated with a unicorn through pure intention - a bond beyond words.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "adventurer_meeting",
+      "name": "Fellow Adventurer",
+      "description": "A meeting with another adventurer on the road",
+      "associatedNPC": "Adventurer",
+      "associatedQuests": [],
+      "startNodeId": "adventurer_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "adventurer_start": {
+          "id": "adventurer_start",
+          "title": "Fellow Adventurer",
+          "questText": "You encounter another adventurer on the winding path. They carry a worn pack and weathered gear, clearly having traveled far. They look up with a friendly smile and wave. 'Well met, fellow wanderer! It's rare to meet another soul on these remote trails.'",
+          "speakerName": "Fellow Adventurer",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Greetings! It's good to see another traveler out here.",
+              "nextNodeId": "adventurer_friendly",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "What brings you to these distant lands?",
+              "nextNodeId": "adventurer_purpose",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Just passing through. Safe travels to you.",
+              "nextNodeId": "",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "Met another adventurer on the road but kept the encounter brief.",
+              "conditions": []
+            }
+          ]
+        },
+        "adventurer_friendly": {
+          "id": "adventurer_friendly",
+          "title": "Fellow Adventurer",
+          "questText": "The adventurer's eyes light up with genuine warmth. 'Indeed! The road can be lonely, and it's always a pleasure to meet someone who understands the call of the horizon. I've been traveling for months now, seeking new experiences and stories to tell.'",
+          "speakerName": "Fellow Adventurer",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "I know that feeling well. What's the most interesting place you've discovered?",
+              "nextNodeId": "adventurer_stories",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Perhaps we could share supplies and stories for a while?",
+              "nextNodeId": "adventurer_share",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "adventurer_purpose": {
+          "id": "adventurer_purpose",
+          "title": "Fellow Adventurer",
+          "questText": "The adventurer adjusts their pack thoughtfully. 'I'm searching for the legendary Crystal Caves that are said to lie beyond the northern mountains. They say the caves hold ancient secrets and beautiful formations that glow with their own light. What about you? What drives your wandering spirit?'",
+          "speakerName": "Fellow Adventurer",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "I'm exploring to discover what lies beyond the next horizon.",
+              "nextNodeId": "adventurer_kinship",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "The Crystal Caves sound fascinating. Have you found any clues?",
+              "nextNodeId": "adventurer_caves",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "adventurer_stories": {
+          "id": "adventurer_stories",
+          "title": "Fellow Adventurer",
+          "questText": "'Ah, there was this hidden valley I found last spring - filled with flowers that only bloom under starlight! And a village built entirely in the branches of enormous trees. Each place teaches you something new about the world and yourself.'",
+          "speakerName": "Fellow Adventurer",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Those sound like magical discoveries. Thank you for sharing!",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 4,
+                "mood": 6
+              },
+              "questUpdate": "",
+              "journalEntry": "Shared wonderful travel stories with a fellow adventurer.",
+              "conditions": []
+            }
+          ]
+        },
+        "adventurer_share": {
+          "id": "adventurer_share",
+          "title": "Fellow Adventurer",
+          "questText": "The adventurer beams with delight. 'What a wonderful idea! I have some dried fruit and fresh bread to share, and I'd love to hear about your own adventures. There's nothing quite like the camaraderie of fellow travelers.'",
+          "speakerName": "Fellow Adventurer",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "This is exactly what I needed. Thank you for your kindness.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 3,
+                "mood": 8,
+                "hunger": 8
+              },
+              "questUpdate": "",
+              "journalEntry": "Shared a meal and stories with a generous fellow adventurer.",
+              "conditions": []
+            }
+          ]
+        },
+        "adventurer_kinship": {
+          "id": "adventurer_kinship",
+          "title": "Fellow Adventurer",
+          "questText": "'A kindred spirit indeed! That's exactly what drives me too. There's something magical about not knowing what you'll find around the next bend. May your path be filled with wonder and your pack never too heavy.'",
+          "speakerName": "Fellow Adventurer",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "And may your journey to the Crystal Caves be successful!",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 5,
+                "mood": 5
+              },
+              "questUpdate": "",
+              "journalEntry": "Found kinship with another adventurer who shares the same wandering spirit.",
+              "conditions": []
+            }
+          ]
+        },
+        "adventurer_caves": {
+          "id": "adventurer_caves",
+          "title": "Fellow Adventurer",
+          "questText": "'I've heard whispers in mountain villages about strange lights seen on clear nights, and an old map I found suggests they're real. If I find them, I'll be sure to leave markers for other adventurers like yourself. We should help each other discover the world's secrets!'",
+          "speakerName": "Fellow Adventurer",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "That's the spirit of true adventure. Good luck on your quest!",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 6,
+                "mood": 4
+              },
+              "questUpdate": "",
+              "journalEntry": "Learned about the mysterious Crystal Caves from a fellow seeker.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    },
+    {
+      "id": "castle_ancient",
+      "name": "Ancient Castle",
+      "description": "An ancient castle holds secrets of a bygone era",
+      "associatedNPC": "Castle",
+      "associatedQuests": [],
+      "startNodeId": "castle_start",
+      "activationConditions": [],
+      "priority": 1,
+      "nodes": {
+        "castle_start": {
+          "id": "castle_start",
+          "title": "Ancient Castle",
+          "questText": "You stand before the imposing gates of an ancient castle. Its weathered stone walls tell tales of forgotten kingdoms and long-lost nobility. The heavy wooden doors are slightly ajar, as if inviting you to explore its mysteries.",
+          "speakerName": "Ancient Castle",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Enter the castle and explore its halls.",
+              "nextNodeId": "castle_explore",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Search the courtyard for clues about its history.",
+              "nextNodeId": "castle_courtyard",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "This place feels too ominous. Continue on your journey.",
+              "nextNodeId": "",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "Encountered an ancient castle but chose not to enter its mysterious halls.",
+              "conditions": []
+            }
+          ]
+        },
+        "castle_explore": {
+          "id": "castle_explore",
+          "title": "Ancient Castle",
+          "questText": "You push open the heavy doors and step into a grand hall. Dust motes dance in shafts of sunlight streaming through tall windows. Faded tapestries line the walls, depicting scenes of noble hunts and royal ceremonies from ages past.",
+          "speakerName": "Ancient Castle",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Examine the tapestries more closely.",
+              "nextNodeId": "castle_tapestries",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            },
+            {
+              "text": "Climb the spiral staircase to the upper floors.",
+              "nextNodeId": "castle_tower",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "castle_courtyard": {
+          "id": "castle_courtyard",
+          "title": "Ancient Castle",
+          "questText": "In the overgrown courtyard, you discover remnants of a once-beautiful garden. Among the wild roses and ivy, you find a weathered stone plaque with an inscription barely visible through centuries of wear.",
+          "speakerName": "Ancient Castle",
+          "eventImage": "demo.png",
+          "isEndNode": false,
+          "choices": [
+            {
+              "text": "Try to decipher the ancient inscription.",
+              "nextNodeId": "castle_inscription",
+              "statRewards": {},
+              "questUpdate": "",
+              "journalEntry": "",
+              "conditions": []
+            }
+          ]
+        },
+        "castle_tapestries": {
+          "id": "castle_tapestries",
+          "title": "Ancient Castle",
+          "questText": "The tapestries reveal the story of a noble family who once ruled these lands with wisdom and compassion. One tapestry shows them welcoming travelers and sharing their wealth with the poor. Their legacy of kindness seems to still linger in these halls.",
+          "speakerName": "Ancient Castle",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Feel inspired by their example of noble leadership.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 6,
+                "mood": 4
+              },
+              "questUpdate": "",
+              "journalEntry": "Learned about a noble family's legacy of kindness and wisdom in an ancient castle.",
+              "conditions": []
+            }
+          ]
+        },
+        "castle_tower": {
+          "id": "castle_tower",
+          "title": "Ancient Castle",
+          "questText": "From the tower's highest window, you have a breathtaking view of the surrounding lands. You can see for miles in every direction - forests, rivers, and distant mountains. This vantage point fills you with a sense of perspective and wonder.",
+          "speakerName": "Ancient Castle",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Take in the magnificent view and feel renewed.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 5,
+                "mood": 6
+              },
+              "questUpdate": "",
+              "journalEntry": "Climbed an ancient castle tower and gained a magnificent view of the surrounding lands.",
+              "conditions": []
+            }
+          ]
+        },
+        "castle_inscription": {
+          "id": "castle_inscription",
+          "title": "Ancient Castle",
+          "questText": "With patience, you make out the faded words: 'Here lies the Garden of Memory, where every flower planted was a promise kept, every tree grown was a life honored.' The inscription speaks of a ruler who valued remembrance and legacy above conquest.",
+          "speakerName": "Ancient Castle",
+          "eventImage": "demo.png",
+          "isEndNode": true,
+          "choices": [
+            {
+              "text": "Reflect on the wisdom of honoring memory and keeping promises.",
+              "nextNodeId": "",
+              "statRewards": {
+                "experience": 7,
+                "mood": 3
+              },
+              "questUpdate": "",
+              "journalEntry": "Deciphered an ancient inscription about honoring memory and keeping promises.",
+              "conditions": []
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

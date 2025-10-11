@@ -8,6 +8,12 @@
       "questGiver": "Ranger",
       "questGiverName": "Forest Ranger",
       "rewardDescription": "Knowledge of weather patterns and nature's wisdom",
+      "priority": 1,
+      "chainId": "weather_mastery",
+      "chainOrder": 1,
+      "nextQuestIds": [
+        "ranger_snow_meditation"
+      ],
       "objectives": [
         {
           "id": "witness_rain",
@@ -17,16 +23,26 @@
             "weather_type": "Rain"
           }
         }
-      ]
+      ],
+      "rewards": {
+        "Success": {
+          "description": "Gained weather wisdom and survival knowledge",
+          "statBonuses": {
+            "experience": 10,
+            "mood": 5
+          }
+        }
+      }
     },
     {
       "id": "priest_chapel_pilgrimage",
       "name": "Sacred Pilgrimage",
       "description": "The priest has blessed your journey and asks you to visit a chapel to complete your spiritual preparation.",
-      "type": "Exploration",
+      "type": "Branching",
       "questGiver": "Priest",
       "questGiverName": "Village Priest",
       "rewardDescription": "Spiritual blessing and inner peace",
+      "priority": 2,
       "objectives": [
         {
           "id": "visit_chapel",
@@ -36,7 +52,63 @@
             "poi_type": "Chapel"
           }
         }
-      ]
+      ],
+      "branches": [
+        {
+          "id": "dawn_prayer",
+          "name": "Dawn Prayer",
+          "description": "Visit the chapel at dawn for a special blessing",
+          "conditions": [
+            {
+              "id": "dawn_time",
+              "description": "Must be dawn",
+              "type": "TimeOfDay",
+              "parameters": {
+                "time_of_day": "Day"
+              }
+            }
+          ],
+          "nextQuestIds": [
+            "priest_morning_blessing"
+          ],
+          "reward": {
+            "description": "Special dawn blessing received",
+            "statBonuses": {
+              "experience": 20,
+              "mood": 10
+            }
+          }
+        },
+        {
+          "id": "standard_visit",
+          "name": "Standard Visit",
+          "description": "Complete the pilgrimage normally",
+          "conditions": [],
+          "nextQuestIds": [
+            "priest_standard_blessing"
+          ],
+          "reward": {
+            "description": "Standard spiritual blessing",
+            "statBonuses": {
+              "experience": 10
+            }
+          }
+        }
+      ],
+      "rewards": {
+        "Success": {
+          "description": "Completed sacred pilgrimage",
+          "statBonuses": {
+            "experience": 15
+          }
+        },
+        "Branched": {
+          "description": "Pilgrimage led to deeper spiritual understanding",
+          "statBonuses": {
+            "experience": 25
+          }
+        }
+      }
     },
     {
       "id": "hermit_mountain_wisdom",
@@ -46,6 +118,27 @@
       "questGiver": "Hermit",
       "questGiverName": "Wise Hermit",
       "rewardDescription": "Ancient wisdom and mountain secrets",
+      "priority": 3,
+      "prerequisites": [
+        {
+          "id": "level_requirement",
+          "type": "StatMinimum",
+          "parameters": {
+            "stat_name": "level",
+            "min_value": 2
+          },
+          "isRequired": true
+        },
+        {
+          "id": "experience_requirement",
+          "type": "StatMinimum",
+          "parameters": {
+            "stat_name": "experience",
+            "min_value": 50
+          },
+          "isRequired": true
+        }
+      ],
       "objectives": [
         {
           "id": "explore_mountain",
@@ -55,7 +148,19 @@
             "biome_type": "Mountain"
           }
         }
-      ]
+      ],
+      "rewards": {
+        "Success": {
+          "description": "Gained ancient mountain wisdom",
+          "statBonuses": {
+            "experience": 30,
+            "mood": 10
+          },
+          "unlockedQuests": [
+            "hermit_secret_path"
+          ]
+        }
+      }
     },
     {
       "id": "scholar_lake_studies",
@@ -151,6 +256,118 @@
           }
         }
       ]
+    },
+    {
+      "id": "hermit_secret_path",
+      "name": "The Secret Path",
+      "description": "The hermit reveals a hidden path that only the wise can follow. This knowledge comes only to those who have proven themselves.",
+      "type": "Story",
+      "questGiver": "Hermit",
+      "questGiverName": "Wise Hermit",
+      "rewardDescription": "Access to hidden areas and ancient secrets",
+      "priority": 5,
+      "prerequisites": [
+        {
+          "id": "mountain_wisdom_completed",
+          "type": "QuestCompleted",
+          "parameters": {
+            "quest_id": "hermit_mountain_wisdom"
+          },
+          "isRequired": true
+        }
+      ],
+      "activationConditions": [
+        {
+          "id": "night_time",
+          "description": "The secret can only be revealed at night",
+          "type": "TimeOfDay",
+          "parameters": {
+            "time_of_day": "Night"
+          }
+        }
+      ],
+      "objectives": [
+        {
+          "id": "find_secret_entrance",
+          "description": "Find the hidden entrance in the mountains",
+          "type": "VisitLocation",
+          "parameters": {
+            "poi_type": "Mine"
+          },
+          "conditions": [
+            {
+              "id": "mountain_location",
+              "description": "Must be in mountain biome",
+              "type": "BiomeVisited",
+              "parameters": {
+                "biome_type": "Mountain"
+              }
+            }
+          ]
+        }
+      ],
+      "rewards": {
+        "Success": {
+          "description": "Unlocked the path to ancient mysteries",
+          "statBonuses": {
+            "experience": 50,
+            "mood": 15
+          },
+          "customRewards": {
+            "secret_areas_unlocked": true,
+            "hermit_trust": "high"
+          }
+        }
+      }
+    }
+  ],
+  "questChains": [
+    {
+      "id": "weather_mastery",
+      "name": "Weather Mastery Chain",
+      "description": "A series of quests to understand and master weather patterns",
+      "questIds": [
+        "ranger_storm_watcher",
+        "ranger_snow_meditation"
+      ],
+      "isLinear": true,
+      "chainData": {
+        "theme": "weather",
+        "difficulty": "beginner"
+      }
+    }
+  ],
+  "questTemplates": [
+    {
+      "id": "exploration_template",
+      "name": "Exploration Quest Template",
+      "description": "Visit {location_type} in {biome_type}",
+      "type": "Exploration",
+      "objectiveTemplates": [
+        {
+          "id": "explore_objective",
+          "description": "Explore the {biome_type} biome",
+          "type": "ExploreZone",
+          "parameters": {
+            "biome_type": "{biome_type}"
+          }
+        }
+      ],
+      "variableOptions": {
+        "biome_type": [
+          "Forest",
+          "Lake",
+          "Mountain",
+          "DenseForest",
+          "Plains",
+          "Swamp"
+        ],
+        "location_type": [
+          "ancient ruins",
+          "hidden grove",
+          "sacred site"
+        ]
+      }
     }
   ]
 }

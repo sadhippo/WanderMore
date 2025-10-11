@@ -61,6 +61,18 @@
 /processorParam:TextureFormat=Color
 /build:adventurer/torchboy_small.png
 
+#begin events/demo.png
+/importer:TextureImporter
+/processor:TextureProcessor
+/processorParam:ColorKeyColor=255,0,255,255
+/processorParam:ColorKeyEnabled=True
+/processorParam:GenerateMipmaps=False
+/processorParam:PremultiplyAlpha=True
+/processorParam:ResizeToPowerOfTwo=False
+/processorParam:MakeSquare=False
+/processorParam:TextureFormat=Color
+/build:events/demo.png
+
 #begin fonts/04b03.spritefont
 /importer:FontDescriptionImporter
 /processor:LocalizedFontProcessor
@@ -74,6 +86,54 @@
 /processorParam:PremultiplyAlpha=True
 /processorParam:TextureFormat=Compressed
 /build:fonts/Arial.spritefont
+
+#begin sounds/bgmusic/forest_day01.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:sounds/bgmusic/forest_day01.ogg
+
+#begin sounds/bgmusic/forest_day02.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:sounds/bgmusic/forest_day02.ogg
+
+#begin sounds/bgmusic/forest_night01.ogg
+/importer:OggImporter
+/processor:SongProcessor
+/processorParam:Quality=Best
+/build:sounds/bgmusic/forest_night01.ogg
+
+#begin sounds/Rain_light-01.wav
+/importer:WavImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Rain_light-01.wav
+
+#begin sounds/Steps_dirt-01.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Steps_dirt-01.ogg
+
+#begin sounds/Steps_dirt-02.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Steps_dirt-02.ogg
+
+#begin sounds/Steps_dirt-03.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Steps_dirt-03.ogg
+
+#begin sounds/Steps_dirt-04.ogg
+/importer:OggImporter
+/processor:SoundEffectProcessor
+/processorParam:Quality=Best
+/build:sounds/Steps_dirt-04.ogg
 
 #begin tilesheet/fantasytilesheet_objects.png
 /importer:TextureImporter
@@ -135,26 +195,3 @@
 /processorParam:TextureFormat=Color
 /build:ui/pausebutton.png
 
-#begin sounds/Steps_dirt-01.ogg
-/importer:OggImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sounds/Steps_dirt-01.ogg
-
-#begin sounds/Steps_dirt-02.ogg
-/importer:OggImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sounds/Steps_dirt-02.ogg
-
-#begin sounds/Steps_dirt-03.ogg
-/importer:OggImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sounds/Steps_dirt-03.ogg
-
-#begin sounds/Steps_dirt-04.ogg
-/importer:OggImporter
-/processor:SoundEffectProcessor
-/processorParam:Quality=Best
-/build:sounds/Steps_dirt-04.ogg

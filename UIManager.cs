@@ -21,9 +21,14 @@ public class UIManager
     private Rectangle _zoneNameArea;
     private Rectangle _weatherArea;
     private Rectangle _pauseButtonArea;
+    private Rectangle _muteButtonArea;
     
     // Pause system
     private bool _isPaused;
+    
+    // Audio system
+    private AudioManager _audioManager;
+    private bool _isMuted;
     
     // Journal ticker system
     private string _currentTickerText;
@@ -65,6 +70,7 @@ public class UIManager
         _zoneNameArea = new Rectangle(10, 90, 250, 35);
         _weatherArea = new Rectangle(10, 130, 220, 30);
         _pauseButtonArea = new Rectangle(220, 10, 40, 40); // Next to clock
+        _muteButtonArea = new Rectangle(220, 55, 60, 30); // Next to day counter
         
         // Define pause button sprite source (full image)
         _pauseButtonSource = new Rectangle(0, 0, 32, 32);
@@ -87,6 +93,7 @@ public class UIManager
     
     public void SetAudioManager(AudioManager audioManager)
     {
+        _audioManager = audioManager;
         _escapeMenu?.SetAudioManager(audioManager);
     }
 
@@ -158,6 +165,10 @@ public class UIManager
             
             // Draw weather background
             DrawUIPanel(spriteBatch, _weatherArea, new Color(0, 0, 0, 120));
+            
+            // Draw mute button background
+            Color muteBackgroundColor = _isMuted ? new Color(150, 50, 50, 150) : new Color(0, 0, 0, 120);
+            DrawUIPanel(spriteBatch, _muteButtonArea, muteBackgroundColor);
             
             // Draw time progress bar
             DrawTimeProgressBar(spriteBatch);
@@ -245,6 +256,12 @@ public class UIManager
             spriteBatch.DrawString(_font, "PAUSED", pausedTextPos, Color.Yellow);
         }
         
+        // Draw mute button
+        string muteText = _isMuted ? "MUTE" : "MUTE";
+        Color muteTextColor = _isMuted ? Color.Red : Color.White;
+        Vector2 muteTextPos = new Vector2(_muteButtonArea.X + 10, _muteButtonArea.Y + 8);
+        spriteBatch.DrawString(_font, muteText, muteTextPos, muteTextColor);
+        
         // Draw stats HUD
         try
         {
@@ -330,6 +347,10 @@ public class UIManager
             Color pauseColor = _isPaused ? Color.Red : Color.Green;
             spriteBatch.Draw(_pixelTexture, _pauseButtonArea, pauseColor);
         }
+        
+        // Draw mute button (fallback when no font)
+        Color muteColor = _isMuted ? Color.Red : Color.Gray;
+        spriteBatch.Draw(_pixelTexture, _muteButtonArea, muteColor);
         
         // Draw stats HUD (fallback mode)
         if (_statsManager != null && _statsHUD != null)
@@ -471,6 +492,13 @@ public class UIManager
             return true; // Consumed the click
         }
         
+        // Check if mute button was clicked
+        if (_muteButtonArea.Contains(mousePosition))
+        {
+            ToggleMute();
+            return true; // Consumed the click
+        }
+        
         return false; // Click not handled
     }
 
@@ -533,6 +561,31 @@ public class UIManager
     public bool IsEscapeMenuVisible => _escapeMenu?.IsVisible ?? false;
 
     public EscapeMenu EscapeMenu => _escapeMenu;
+    
+    private float _previousMasterVolume = 1.0f;
+    
+    public void ToggleMute()
+    {
+        if (_audioManager == null) return;
+        
+        _isMuted = !_isMuted;
+        
+        if (_isMuted)
+        {
+            // Store current volume and mute
+            _previousMasterVolume = _audioManager.MasterVolume;
+            _audioManager.SetMasterVolume(0.0f);
+            System.Console.WriteLine("[UI] Audio muted");
+        }
+        else
+        {
+            // Restore previous volume
+            _audioManager.SetMasterVolume(_previousMasterVolume);
+            System.Console.WriteLine($"[UI] Audio unmuted (volume: {_previousMasterVolume:F2})");
+        }
+    }
+    
+    public bool IsMuted => _isMuted;
 
     public void Dispose()
     {
