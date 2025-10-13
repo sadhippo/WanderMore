@@ -427,14 +427,29 @@ public class UIManager
         // Background
         spriteBatch.Draw(_pixelTexture, progressArea, Color.Black * 0.5f);
         
-        // Progress fill
-        int fillWidth = (int)(progressArea.Width * _timeManager.DayProgress);
+        // Progress fill - calculate overall daily progress
+        float overallProgress = GetOverallDayProgress();
+        int fillWidth = (int)(progressArea.Width * overallProgress);
         Rectangle fillArea = new Rectangle(progressArea.X, progressArea.Y, fillWidth, progressArea.Height);
         
-        Color progressColor = _timeManager.CurrentTimeOfDay == TimeOfDay.Day ? 
-            Color.Yellow : Color.DarkBlue;
+        Color progressColor = _timeManager.CurrentTimeOfDay switch
+        {
+            TimeOfDay.Dawn => Color.Orange,
+            TimeOfDay.Day => Color.Yellow,
+            TimeOfDay.Dusk => Color.Red,
+            TimeOfDay.Night => Color.DarkBlue,
+            _ => Color.White
+        };
         
         spriteBatch.Draw(_pixelTexture, fillArea, progressColor);
+    }
+
+    private float GetOverallDayProgress()
+    {
+        // Calculate progress through the entire day cycle (0.0 to 1.0)
+        float cyclePosition = _timeManager.CurrentTime % (_timeManager.DawnDuration + _timeManager.DayDuration + _timeManager.DuskDuration + _timeManager.NightDuration);
+        float totalCycleTime = _timeManager.DawnDuration + _timeManager.DayDuration + _timeManager.DuskDuration + _timeManager.NightDuration;
+        return cyclePosition / totalCycleTime;
     }
 
     private void DrawJournalTicker(SpriteBatch spriteBatch)

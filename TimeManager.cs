@@ -6,13 +6,15 @@ namespace HiddenHorizons;
 public class TimeManager
 {
     // Configurable timing (in seconds)
-    public float DayDuration { get; set; } = 300f;   // 5 minutes
-    public float NightDuration { get; set; } = 180f; // 3 minutes
+    public float DawnDuration { get; set; } = 60f;   // 1 minute
+    public float DayDuration { get; set; } = 240f;   // 4 minutes
+    public float DuskDuration { get; set; } = 60f;   // 1 minute
+    public float NightDuration { get; set; } = 120f; // 2 minutes
     
     // Current time state
     public float CurrentTime { get; private set; }
     public TimeOfDay CurrentTimeOfDay { get; private set; }
-    public float DayProgress { get; private set; } // 0.0 to 1.0
+    public float TimeProgress { get; private set; } // 0.0 to 1.0 within current time period
     public int CurrentDay { get; private set; } = 1;
     
     // Time events for other systems to subscribe to
@@ -28,9 +30,9 @@ public class TimeManager
 
     public TimeManager()
     {
-        _totalCycleTime = DayDuration + NightDuration;
-        CurrentTimeOfDay = TimeOfDay.Day;
-        _previousTimeOfDay = TimeOfDay.Day;
+        _totalCycleTime = DawnDuration + DayDuration + DuskDuration + NightDuration;
+        CurrentTimeOfDay = TimeOfDay.Dawn;
+        _previousTimeOfDay = TimeOfDay.Dawn;
         CurrentTime = 0f;
     }
 
@@ -43,15 +45,25 @@ public class TimeManager
         float cyclePosition = CurrentTime % _totalCycleTime;
         
         // Determine time of day and progress
-        if (cyclePosition < DayDuration)
+        if (cyclePosition < DawnDuration)
+        {
+            CurrentTimeOfDay = TimeOfDay.Dawn;
+            TimeProgress = cyclePosition / DawnDuration;
+        }
+        else if (cyclePosition < DawnDuration + DayDuration)
         {
             CurrentTimeOfDay = TimeOfDay.Day;
-            DayProgress = cyclePosition / DayDuration;
+            TimeProgress = (cyclePosition - DawnDuration) / DayDuration;
+        }
+        else if (cyclePosition < DawnDuration + DayDuration + DuskDuration)
+        {
+            CurrentTimeOfDay = TimeOfDay.Dusk;
+            TimeProgress = (cyclePosition - DawnDuration - DayDuration) / DuskDuration;
         }
         else
         {
             CurrentTimeOfDay = TimeOfDay.Night;
-            DayProgress = (cyclePosition - DayDuration) / NightDuration;
+            TimeProgress = (cyclePosition - DawnDuration - DayDuration - DuskDuration) / NightDuration;
         }
         
         // Check for time of day changes
@@ -59,8 +71,8 @@ public class TimeManager
         {
             TimeOfDayChanged?.Invoke(CurrentTimeOfDay);
             
-            // If transitioning from night to day, increment day counter
-            if (CurrentTimeOfDay == TimeOfDay.Day && _previousTimeOfDay == TimeOfDay.Night)
+            // If transitioning from night to dawn, increment day counter
+            if (CurrentTimeOfDay == TimeOfDay.Dawn && _previousTimeOfDay == TimeOfDay.Night)
             {
                 CurrentDay++;
                 DayChanged?.Invoke(CurrentDay);
@@ -89,113 +101,138 @@ public class TimeManager
 
     public string GetTimeString()
     {
-        // Convert progress to 12-hour format
-        float totalHours = CurrentTimeOfDay == TimeOfDay.Day ? 12f : 12f;
-        float currentHour = DayProgress * totalHours;
+        float currentHour;
+        int displayHour, minute;
         
-        int hour = (int)currentHour;
-        int minute = (int)((currentHour - hour) * 60);
-        
-        if (CurrentTimeOfDay == TimeOfDay.Day)
+        switch (CurrentTimeOfDay)
         {
-            // Day: 6:00 AM to 6:00 PM
-            int displayHour = 6 + hour;
-            if (displayHour > 12)
-                return $"{displayHour - 12}:{minute:D2} PM";
-            else if (displayHour == 12)
-                return $"12:{minute:D2} PM";
-            else
+            case TimeOfDay.Dawn:
+                // Dawn: 5:00 AM to 6:00 AM
+                currentHour = 5f + (TimeProgress * 1f);
+                displayHour = (int)currentHour;
+                minute = (int)((currentHour - displayHour) * 60);
                 return $"{displayHour}:{minute:D2} AM";
-        }
-        else
-        {
-            // Night: 6:00 PM to 6:00 AM
-            int displayHour = 6 + hour;
-            if (displayHour > 12)
-                return $"{displayHour - 12}:{minute:D2} AM";
-            else if (displayHour == 12)
-                return $"12:{minute:D2} AM";
-            else
+                
+            case TimeOfDay.Day:
+                // Day: 6:00 AM to 6:00 PM
+                currentHour = 6f + (TimeProgress * 12f);
+                displayHour = (int)currentHour;
+                minute = (int)((currentHour - displayHour) * 60);
+                if (displayHour > 12)
+                    return $"{displayHour - 12}:{minute:D2} PM";
+                else if (displayHour == 12)
+                    return $"12:{minute:D2} PM";
+                else
+                    return $"{displayHour}:{minute:D2} AM";
+                    
+            case TimeOfDay.Dusk:
+                // Dusk: 6:00 PM to 7:00 PM
+                currentHour = 6f + (TimeProgress * 1f);
+                displayHour = (int)currentHour;
+                minute = (int)((currentHour - displayHour) * 60);
                 return $"{displayHour}:{minute:D2} PM";
+                
+            case TimeOfDay.Night:
+                // Night: 7:00 PM to 5:00 AM
+                currentHour = 7f + (TimeProgress * 10f);
+                if (currentHour >= 12f)
+                {
+                    // After midnight
+                    displayHour = (int)(currentHour - 12f);
+                    if (displayHour == 0) displayHour = 12;
+                    minute = (int)((currentHour - (int)currentHour) * 60);
+                    return $"{displayHour}:{minute:D2} AM";
+                }
+                else
+                {
+                    // Before midnight
+                    displayHour = (int)currentHour;
+                    minute = (int)((currentHour - displayHour) * 60);
+                    return $"{displayHour}:{minute:D2} PM";
+                }
+                
+            default:
+                return "12:00 AM";
         }
     }
 
     public Color GetAmbientColor()
     {
-        if (CurrentTimeOfDay == TimeOfDay.Day)
+        return CurrentTimeOfDay switch
         {
-            // Day colors: bright to warm
-            if (DayProgress < 0.1f) // Dawn
-            {
-                return Color.Lerp(new Color(255, 200, 150), Color.White, DayProgress * 10f);
-            }
-            else if (DayProgress > 0.9f) // Dusk
-            {
-                float duskProgress = (DayProgress - 0.9f) * 10f;
-                return Color.Lerp(Color.White, new Color(255, 180, 120), duskProgress);
-            }
-            else // Midday
-            {
-                return Color.White;
-            }
-        }
-        else
-        {
-            // Night colors: dark blue tints
-            if (DayProgress < 0.1f) // Early night
-            {
-                return Color.Lerp(new Color(255, 180, 120), new Color(150, 150, 200), DayProgress * 10f);
-            }
-            else if (DayProgress > 0.9f) // Pre-dawn
-            {
-                float predawnProgress = (DayProgress - 0.9f) * 10f;
-                return Color.Lerp(new Color(150, 150, 200), new Color(255, 200, 150), predawnProgress);
-            }
-            else // Deep night
-            {
-                return new Color(120, 120, 180);
-            }
-        }
+            // Dawn: Transition from night colors to warm orange-pink
+            TimeOfDay.Dawn => Color.Lerp(new Color(20, 30, 60), new Color(255, 150, 100), TimeProgress),
+            
+            // Day: Warm golden sunlight (smooth transition from dawn)
+            TimeOfDay.Day => new Color(255, 220, 180), // Warm golden (closer to dawn end color)
+            
+            // Dusk: Transition from day colors all the way to night colors
+            TimeOfDay.Dusk => Color.Lerp(new Color(255, 220, 180), new Color(20, 30, 60), TimeProgress),
+            
+            // Night: Dark blue-purple ambient (same as end of dusk)
+            TimeOfDay.Night => new Color(20, 30, 60),
+            
+            _ => Color.White
+        };
+    }
+
+    public void SetDawnDuration(float seconds)
+    {
+        DawnDuration = seconds;
+        _totalCycleTime = DawnDuration + DayDuration + DuskDuration + NightDuration;
     }
 
     public void SetDayDuration(float seconds)
     {
         DayDuration = seconds;
-        _totalCycleTime = DayDuration + NightDuration;
+        _totalCycleTime = DawnDuration + DayDuration + DuskDuration + NightDuration;
+    }
+
+    public void SetDuskDuration(float seconds)
+    {
+        DuskDuration = seconds;
+        _totalCycleTime = DawnDuration + DayDuration + DuskDuration + NightDuration;
     }
 
     public void SetNightDuration(float seconds)
     {
         NightDuration = seconds;
-        _totalCycleTime = DayDuration + NightDuration;
+        _totalCycleTime = DawnDuration + DayDuration + DuskDuration + NightDuration;
     }
 
     public void SetTime(TimeOfDay timeOfDay, float progress = 0f)
     {
         progress = MathHelper.Clamp(progress, 0f, 1f);
         
-        if (timeOfDay == TimeOfDay.Day)
+        switch (timeOfDay)
         {
-            CurrentTime = progress * DayDuration;
-        }
-        else
-        {
-            CurrentTime = DayDuration + (progress * NightDuration);
+            case TimeOfDay.Dawn:
+                CurrentTime = progress * DawnDuration;
+                break;
+            case TimeOfDay.Day:
+                CurrentTime = DawnDuration + (progress * DayDuration);
+                break;
+            case TimeOfDay.Dusk:
+                CurrentTime = DawnDuration + DayDuration + (progress * DuskDuration);
+                break;
+            case TimeOfDay.Night:
+                CurrentTime = DawnDuration + DayDuration + DuskDuration + (progress * NightDuration);
+                break;
         }
     }
 
     // Utility methods for other systems
     public float GetCurrentGameHour()
     {
-        // Returns 0-24 hour format (0 = 6 AM, 12 = 6 PM, 18 = midnight, etc.)
-        if (CurrentTimeOfDay == TimeOfDay.Day)
+        // Returns 0-24 hour format (5 = 5 AM dawn start, 6 = day start, 18 = dusk start, 19 = night start)
+        return CurrentTimeOfDay switch
         {
-            return DayProgress * 12f; // 0-12 hours of day
-        }
-        else
-        {
-            return 12f + (DayProgress * 12f); // 12-24 hours of night
-        }
+            TimeOfDay.Dawn => 5f + (TimeProgress * 1f),
+            TimeOfDay.Day => 6f + (TimeProgress * 12f),
+            TimeOfDay.Dusk => 18f + (TimeProgress * 1f),
+            TimeOfDay.Night => 19f + (TimeProgress * 10f),
+            _ => 6f
+        };
     }
 
     public bool IsTimeInRange(float startHour, float endHour)
@@ -233,6 +270,8 @@ public class TimeManager
 
 public enum TimeOfDay
 {
+    Dawn,
     Day,
+    Dusk,
     Night
 }

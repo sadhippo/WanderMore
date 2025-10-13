@@ -179,7 +179,7 @@ public class BackgroundMusicManager
     private void UpdateTimeBasedEffects(float deltaTime)
     {
         // Apply sophisticated volume changes based on time of day progress
-        float timeProgress = _timeManager.DayProgress;
+        float timeProgress = _timeManager.TimeProgress;
         
         if (_timeManager.CurrentTimeOfDay == TimeOfDay.Day)
         {

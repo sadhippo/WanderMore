@@ -134,20 +134,35 @@ public class WeatherManager
             WeatherIntensity = intensity;
             WeatherChanged?.Invoke(weather);
             
-            System.Console.WriteLine($"Weather changed to {weather} (intensity: {intensity:F2}) in {_timeManager.GetSeasonName()}");
+            var lightingInfluence = GetWeatherLightingInfluence();
+            System.Console.WriteLine($"Weather changed to {weather} (intensity: {intensity:F2}) in {_timeManager.GetSeasonName()} - Lighting: R{lightingInfluence.R} G{lightingInfluence.G} B{lightingInfluence.B}");
         }
     }
 
-    public Color GetWeatherTint()
+    /// <summary>
+    /// Gets weather influence on ambient lighting (used by lighting system)
+    /// Returns a multiplier color that affects the base ambient lighting
+    /// </summary>
+    public Color GetWeatherLightingInfluence()
     {
         return CurrentWeather switch
         {
-            WeatherType.Rain => Color.Lerp(Color.Transparent, new Color(100, 120, 140), WeatherIntensity * 0.3f),
-            WeatherType.Snow => Color.Lerp(Color.Transparent, new Color(240, 240, 255), WeatherIntensity * 0.2f),
-            WeatherType.Fog => Color.Lerp(Color.Transparent, new Color(200, 200, 200), WeatherIntensity * 0.4f),
-            WeatherType.Cloudy => Color.Lerp(Color.Transparent, new Color(180, 180, 180), WeatherIntensity * 0.2f),
-            _ => Color.Transparent
+            WeatherType.Rain => new Color(0.8f, 0.9f, 1.0f) * (0.7f + WeatherIntensity * 0.2f), // Darker, bluer
+            WeatherType.Snow => new Color(0.9f, 0.9f, 1.0f) * (0.8f + WeatherIntensity * 0.1f), // Slightly darker, whiter
+            WeatherType.Fog => new Color(0.85f, 0.85f, 0.85f) * (0.6f + WeatherIntensity * 0.3f), // Much darker, grayer
+            WeatherType.Cloudy => new Color(0.9f, 0.9f, 0.9f) * (0.8f + WeatherIntensity * 0.1f), // Slightly darker
+            _ => Color.White // Clear weather - no change
         };
+    }
+
+    /// <summary>
+    /// Legacy method - now redirects to GetWeatherLightingInfluence for compatibility
+    /// </summary>
+    [Obsolete("Use GetWeatherLightingInfluence() instead - weather effects are now handled through ambient lighting")]
+    public Color GetWeatherTint()
+    {
+        // Return transparent since we no longer use overlay tinting
+        return Color.Transparent;
     }
 
     public string GetWeatherDescription()

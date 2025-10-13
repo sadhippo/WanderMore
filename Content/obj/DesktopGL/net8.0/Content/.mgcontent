@@ -23,9 +23,11 @@
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet_PoI.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet_PoIBuildings.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/fantasytilesheet.png</File>
+    <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/tilesheet/groundtiles3.png</File>
     <File>C:/Users/accoo/Documents/hiddenhorizons/HiddenHorizons/Content/ui/pausebutton.png</File>
   </SourceFiles>
   <DestFiles>
+    <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />
     <File xsi:nil="true" />

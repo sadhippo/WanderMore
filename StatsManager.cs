@@ -138,19 +138,30 @@ public class StatsManager
         
         float tirednessChange = 0f;
         
-        if (_timeManager.CurrentTimeOfDay == TimeOfDay.Day)
+        switch (_timeManager.CurrentTimeOfDay)
         {
-            // During day: gradually get more tired as the day progresses
-            // More tired towards end of day (progress closer to 1.0)
-            float dayProgressFactor = _timeManager.DayProgress * 0.5f + 0.5f; // 0.5 to 1.0 multiplier
-            tirednessChange = -_config.DayTirednessRate * dayProgressFactor;
-        }
-        else // Night time
-        {
-            // During night: recover tiredness (rest)
-            // Better recovery early in the night
-            float nightProgressFactor = (1.0f - _timeManager.DayProgress) * 0.5f + 0.5f; // 0.5 to 1.0 multiplier  
-            tirednessChange = _config.NightRestRate * nightProgressFactor;
+            case TimeOfDay.Dawn:
+                // Dawn: slight tiredness recovery as you wake up
+                tirednessChange = _config.NightRestRate * 0.3f;
+                break;
+                
+            case TimeOfDay.Day:
+                // During day: gradually get more tired as the day progresses
+                float dayProgressFactor = _timeManager.TimeProgress * 0.5f + 0.5f; // 0.5 to 1.0 multiplier
+                tirednessChange = -_config.DayTirednessRate * dayProgressFactor;
+                break;
+                
+            case TimeOfDay.Dusk:
+                // Dusk: moderate tiredness increase as day ends
+                tirednessChange = -_config.DayTirednessRate * 0.8f;
+                break;
+                
+            case TimeOfDay.Night:
+                // During night: recover tiredness (rest)
+                // Better recovery early in the night
+                float nightProgressFactor = (1.0f - _timeManager.TimeProgress) * 0.5f + 0.5f; // 0.5 to 1.0 multiplier  
+                tirednessChange = _config.NightRestRate * nightProgressFactor;
+                break;
         }
         
         CurrentStats.SetStat(StatType.Tiredness, CurrentStats.Tiredness + tirednessChange);

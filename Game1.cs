@@ -21,6 +21,7 @@ public class Game1 : Game
     private ZoneManager _zoneManager;
     private MiniMap _miniMap;
     private TimeManager _timeManager;
+    private TimeOfDay _lastTimeOfDay;
     private WeatherManager _weatherManager;
     private WeatherEffects _weatherEffects;
     private JournalManager _journalManager;
@@ -95,8 +96,12 @@ public class Game1 : Game
             
             // Initialize time system
             _timeManager = new TimeManager();
-            _timeManager.SetDayDuration(60f); // 1 minute day
-            _timeManager.SetNightDuration(30f); // 30 second night - easily changeable!
+            // Set longer durations to better see the lighting transitions
+            _timeManager.SetDawnDuration(15f);  // 15 seconds dawn
+            _timeManager.SetDayDuration(45f);   // 45 seconds day  
+            _timeManager.SetDuskDuration(15f);  // 15 seconds dusk
+            _timeManager.SetNightDuration(25f); // 25 seconds night
+            _lastTimeOfDay = _timeManager.CurrentTimeOfDay;
             System.Console.WriteLine("TimeManager created");
             
             // Background music manager will be created after weather manager
@@ -524,8 +529,10 @@ public class Game1 : Game
                 {
                     // Update time system
                     _timeManager.Update(gameTime);
-                    // Toggle adventurer night mode for torch sprite
-                    _adventurer.SetNightMode(_timeManager.CurrentTimeOfDay == TimeOfDay.Night);
+                    // Toggle adventurer night mode for torch sprite and light visibility
+                    // Keep torch on during dark periods: Night, Dawn, and Dusk
+                    bool needsLight = _timeManager.CurrentTimeOfDay != TimeOfDay.Day;
+                    _adventurer.SetNightMode(needsLight);
                     
                     // Update weather system
                     _weatherManager.Update(gameTime);
@@ -548,16 +555,16 @@ public class Game1 : Game
                     // Update lighting system
                     if (_lightingManager != null)
                     {
-                        // Set ambient light based on time of day
-                        if (_timeManager.CurrentTimeOfDay == TimeOfDay.Night)
+                        // Set ambient light based on time of day AND weather
+                        var timeAmbient = _timeManager.GetAmbientColor();
+                        var weatherAmbient = GetCombinedWeatherAmbient(timeAmbient);
+                        _lightingManager.AmbientColor = weatherAmbient;
+                        
+                        // Debug output for lighting changes (only when time period changes)
+                        if (_lastTimeOfDay != _timeManager.CurrentTimeOfDay)
                         {
-                            // Dark ambient for multiply lighting (lightmap background color)
-                            // This is what unlit areas will be multiplied by
-                            _lightingManager.AmbientColor = new Color(15, 20, 40); // Dark blue for night
-                        }
-                        else
-                        {
-                            _lightingManager.AmbientColor = Color.White; // Full brightness during day
+                            System.Console.WriteLine($"[LIGHTING] Time changed to {_timeManager.CurrentTimeOfDay} - Combined Ambient: R{weatherAmbient.R} G{weatherAmbient.G} B{weatherAmbient.B} - {_timeManager.GetTimeString()} - Weather: {_weatherManager.CurrentWeather}");
+                            _lastTimeOfDay = _timeManager.CurrentTimeOfDay;
                         }
                         
                         _lightingManager.Update(gameTime);
@@ -628,13 +635,10 @@ public class Game1 : Game
                 // Begin drawing to virtual resolution
                 _virtualResolution.BeginVirtualDraw();
                 
-                // STEP 1: Render scene to texture (at night) or directly to virtual target (during day)
-                if (_timeManager.CurrentTimeOfDay == TimeOfDay.Night)
-                {
-                    // Render scene to texture for multiply lighting
-                    GraphicsDevice.SetRenderTarget(_sceneRenderTarget);
-                    GraphicsDevice.Clear(Color.Black); // Clear to black
-                }
+                // STEP 1: Always render scene to texture for lighting system
+                // Render scene to texture for multiply lighting
+                GraphicsDevice.SetRenderTarget(_sceneRenderTarget);
+                GraphicsDevice.Clear(Color.Black); // Clear to black
                 
                 // Draw world with camera transform
                 _spriteBatch.Begin(transformMatrix: _camera.GetTransformMatrix(), samplerState: SamplerState.PointClamp);
@@ -650,10 +654,10 @@ public class Game1 : Game
                 
                 _spriteBatch.End();
                 
-                // STEP 2: At night, render lightmap and multiply with scene
-                if (_timeManager.CurrentTimeOfDay == TimeOfDay.Night && _lightingManager != null)
+                // STEP 2: Always render lightmap and multiply with scene for all time periods
+                if (_lightingManager != null)
                 {
-                    // Render lightmap (black background + white/orange lights)
+                    // Render lightmap with ambient color based on time of day
                     _lightingManager.BeginLightMap(_camera);
                     _lightingManager.DrawLights(_spriteBatch, _camera);
                     _lightingManager.EndLightMap();
@@ -716,18 +720,7 @@ public class Game1 : Game
                 
                 _spriteBatch.End();
                 
-                // Apply weather effects
-                Color weatherTint = _weatherManager.GetWeatherTint();
-                if (weatherTint != Color.Transparent)
-                {
-                    _spriteBatch.Begin(samplerState: SamplerState.PointClamp, blendState: BlendState.AlphaBlend);
-                    Rectangle virtualRect = new Rectangle(0, 0, 
-                        _virtualResolution.VirtualWidth, 
-                        _virtualResolution.VirtualHeight);
-                    
-                    _spriteBatch.Draw(_fadeTexture, virtualRect, weatherTint);
-                    _spriteBatch.End();
-                }
+                // Weather effects are now handled through ambient lighting system
                 
                 // Draw transition fade effect
                 if (_isTransitioning)
@@ -809,6 +802,26 @@ public class Game1 : Game
         }
     }
     
+    /// <summary>
+    /// Combines time-of-day ambient lighting with weather effects
+    /// </summary>
+    private Color GetCombinedWeatherAmbient(Color timeAmbient)
+    {
+        if (_weatherManager == null)
+            return timeAmbient;
+
+        // Get weather influence from WeatherManager
+        var weatherInfluence = _weatherManager.GetWeatherLightingInfluence();
+
+        // Multiply time ambient with weather influence
+        return new Color(
+            (timeAmbient.R / 255f) * (weatherInfluence.R / 255f),
+            (timeAmbient.G / 255f) * (weatherInfluence.G / 255f),
+            (timeAmbient.B / 255f) * (weatherInfluence.B / 255f),
+            timeAmbient.A / 255f
+        );
+    }
+
     /// <summary>
     /// Checks if a PoI type has associated dialogue data
     /// </summary>

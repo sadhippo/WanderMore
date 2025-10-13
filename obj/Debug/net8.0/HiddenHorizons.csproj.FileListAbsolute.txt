@@ -57,3 +57,4 @@ C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_day02.xnb
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_night01.ogg
 C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\sounds\bgmusic\forest_night01.xnb
+C:\Users\accoo\Documents\hiddenhorizons\HiddenHorizons\bin\Debug\net8.0\Content\tilesheet\groundtiles3.xnb

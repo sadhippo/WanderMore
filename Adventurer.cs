@@ -97,12 +97,19 @@ public class Adventurer
         SetupAnimations();
     }
 
-    public void SetNightMode(bool isNight)
+    public void SetNightMode(bool needsLight)
     {
-        if (_isNightMode == isNight) return;
-        _isNightMode = isNight;
+        if (_isNightMode == needsLight) return;
+        _isNightMode = needsLight;
         
-        System.Console.WriteLine($"[ADVENTURER] Night mode changed to: {isNight}, Night texture available: {_walkingTextureNight != null}");
+        System.Console.WriteLine($"[ADVENTURER] Light mode changed to: {needsLight}, Night texture available: {_walkingTextureNight != null}");
+        
+        // Control lantern light visibility
+        if (_lanternLight != null)
+        {
+            _lanternLight.Enabled = needsLight;
+            System.Console.WriteLine($"[ADVENTURER] Lantern light enabled: {_lanternLight.Enabled}");
+        }
         
         // Swap walking texture in-place to avoid rebuilding everything
         if (_animations != null && _animations.ContainsKey(AnimationType.Walking))
