@@ -1,0 +1,777 @@
+{
+    "npcs": [
+        {
+            "id": "ranger",
+            "name": "Forest Ranger",
+            "type": "Ranger",
+            "description": "A skilled ranger who knows every path through the wilderness.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 1,
+                "y": 2
+            },
+            "biomes": [
+                "Forest",
+                "DenseForest"
+            ],
+            "spawn_weight": 0.8,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Paths",
+                "Wildlife",
+                "Dangers"
+            ],
+            "services": [
+                "Information",
+                "Guide"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "priest",
+            "name": "Wandering Priest",
+            "type": "Priest",
+            "description": "A holy wanderer offering blessings to travelers.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 6,
+                "y": 0
+            },
+            "biomes": [
+                "Plains",
+                "Forest"
+            ],
+            "spawn_weight": 0.6,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Blessings",
+                "Faith",
+                "Healing"
+            ],
+            "services": [
+                "Blessing",
+                "Healing"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "hermit",
+            "name": "Wise Hermit",
+            "type": "Hermit",
+            "description": "A wise hermit who speaks in riddles about the world's mysteries.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 5,
+                "y": 0
+            },
+            "biomes": [
+                "Mountain",
+                "DenseForest"
+            ],
+            "spawn_weight": 0.5,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Wisdom",
+                "Riddles",
+                "Secrets"
+            ],
+            "services": [
+                "Information",
+                "Wisdom"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "mermaid",
+            "name": "Lake Guardian",
+            "type": "Mermaid",
+            "description": "A mystical mermaid who sings haunting melodies.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 2,
+                "y": 3
+            },
+            "biomes": [
+                "Lake"
+            ],
+            "spawn_weight": 0.7,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Waters",
+                "Songs",
+                "Depths"
+            ],
+            "services": [
+                "Information",
+                "Magic"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "warrior",
+            "name": "Brave Knight",
+            "type": "Warrior",
+            "description": "A seasoned warrior who has seen many battles.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 1,
+                "y": 0
+            },
+            "biomes": [
+                "Plains",
+                "Mountain",
+                "Forest"
+            ],
+            "spawn_weight": 0.7,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Combat",
+                "Honor",
+                "Quests"
+            ],
+            "services": [
+                "Training",
+                "Protection"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "adventurer_npc",
+            "name": "Fellow Adventurer",
+            "type": "Adventurer",
+            "description": "Another adventurer exploring the world, sharing tales of distant lands.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 1,
+                "y": 1
+            },
+            "biomes": [
+                "Plains",
+                "Forest",
+                "Mountain",
+                "Lake"
+            ],
+            "spawn_weight": 0.6,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Adventures",
+                "Exploration",
+                "Tales"
+            ],
+            "services": [
+                "Information",
+                "Trade"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "scholar",
+            "name": "Learned Scholar",
+            "type": "Scholar",
+            "description": "A wise scholar researching ancient knowledge and mysteries.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 5,
+                "y": 1
+            },
+            "biomes": [
+                "Plains",
+                "Forest",
+                "Mountain"
+            ],
+            "spawn_weight": 0.5,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Knowledge",
+                "History",
+                "Research"
+            ],
+            "services": [
+                "Information",
+                "Teaching"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "archmage_eldren",
+            "name": "Archmage Eldren",
+            "type": "ArchmageEldren",
+            "description": "A powerful archmage wielding ancient magical knowledge.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 0,
+                "y": 0
+            },
+            "biomes": [
+                "Mountain",
+                "DenseForest"
+            ],
+            "spawn_weight": 0.3,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Magic",
+                "Ancient Lore",
+                "Spells"
+            ],
+            "services": [
+                "Magic Training",
+                "Enchantment"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Mystical",
+                "radius": 200,
+                "intensity": 1.0
+            }
+        },
+        {
+            "id": "thrain_stonehand",
+            "name": "Thrain Stonehand",
+            "type": "ThrainStonehand",
+            "description": "A master dwarf craftsman known for his stonework.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 2,
+                "y": 0
+            },
+            "biomes": [
+                "Mountain",
+                "Plains"
+            ],
+            "spawn_weight": 0.6,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Crafting",
+                "Stone",
+                "Dwarven Lore"
+            ],
+            "services": [
+                "Crafting",
+                "Repair"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 160,
+                "intensity": 0.9
+            }
+        },
+        {
+            "id": "brother_colren",
+            "name": "Brother Colren",
+            "type": "BrotherColren",
+            "description": "A devoted monk spreading peace and wisdom.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 3,
+                "y": 0
+            },
+            "biomes": [
+                "Plains",
+                "Forest"
+            ],
+            "spawn_weight": 0.5,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Peace",
+                "Meditation",
+                "Wisdom"
+            ],
+            "services": [
+                "Blessing",
+                "Guidance"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "elder_marnic",
+            "name": "Elder Marnic",
+            "type": "ElderMarnic",
+            "description": "An ancient elder with knowledge of forgotten times.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 4,
+                "y": 0
+            },
+            "biomes": [
+                "Forest",
+                "Mountain",
+                "DenseForest"
+            ],
+            "spawn_weight": 0.4,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Ancient Times",
+                "Legends",
+                "Prophecy"
+            ],
+            "services": [
+                "Wisdom",
+                "Prophecy"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 170,
+                "intensity": 0.9
+            }
+        },
+        {
+            "id": "axeman_torvik",
+            "name": "Axeman Torvik",
+            "type": "AxemanTorvik",
+            "description": "A fierce warrior wielding a mighty battle axe.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 0,
+                "y": 1
+            },
+            "biomes": [
+                "Mountain",
+                "DenseForest",
+                "Swamp"
+            ],
+            "spawn_weight": 0.6,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Battle",
+                "Strength",
+                "Axes"
+            ],
+            "services": [
+                "Training",
+                "Protection"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "knight_roland",
+            "name": "Knight Roland",
+            "type": "KnightRoland",
+            "description": "A noble knight upholding justice and honor.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 2,
+                "y": 1
+            },
+            "biomes": [
+                "Plains",
+                "Forest"
+            ],
+            "spawn_weight": 0.7,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Honor",
+                "Justice",
+                "Chivalry"
+            ],
+            "services": [
+                "Protection",
+                "Justice"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 160,
+                "intensity": 0.9
+            }
+        },
+        {
+            "id": "knight_aldric",
+            "name": "Knight Aldric",
+            "type": "KnightAldric",
+            "description": "A seasoned knight with tales of many battles.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 3,
+                "y": 1
+            },
+            "biomes": [
+                "Plains",
+                "Mountain"
+            ],
+            "spawn_weight": 0.6,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "War Stories",
+                "Strategy",
+                "Valor"
+            ],
+            "services": [
+                "Training",
+                "Strategy"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 160,
+                "intensity": 0.9
+            }
+        },
+        {
+            "id": "spellknight_serel",
+            "name": "Spellknight Serel",
+            "type": "SpellknightSerel",
+            "description": "A rare warrior who combines magic and swordplay.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 4,
+                "y": 1
+            },
+            "biomes": [
+                "Forest",
+                "Mountain"
+            ],
+            "spawn_weight": 0.4,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Magic Combat",
+                "Spellsword",
+                "Balance"
+            ],
+            "services": [
+                "Magic Training",
+                "Combat Training"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Mystical",
+                "radius": 180,
+                "intensity": 1.0
+            }
+        },
+        {
+            "id": "mara_the_strong",
+            "name": "Mara the Strong",
+            "type": "MaraTheStrong",
+            "description": "A powerful warrior known for her incredible strength.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 0,
+                "y": 2
+            },
+            "biomes": [
+                "Mountain",
+                "Plains"
+            ],
+            "spawn_weight": 0.5,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Strength",
+                "Training",
+                "Challenges"
+            ],
+            "services": [
+                "Strength Training",
+                "Challenges"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "tiller_hobben",
+            "name": "Tiller Hobben",
+            "type": "TillerHobben",
+            "description": "A hardworking farmer who knows the land well.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 2,
+                "y": 2
+            },
+            "biomes": [
+                "Plains",
+                "Forest"
+            ],
+            "spawn_weight": 0.7,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Farming",
+                "Seasons",
+                "Crops"
+            ],
+            "services": [
+                "Farming Tips",
+                "Seeds"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 140,
+                "intensity": 0.7
+            }
+        },
+        {
+            "id": "novice_bran",
+            "name": "Novice Bran",
+            "type": "NoviceBran",
+            "description": "A young apprentice eager to learn and help.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 3,
+                "y": 2
+            },
+            "biomes": [
+                "Plains",
+                "Forest"
+            ],
+            "spawn_weight": 0.6,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Learning",
+                "Apprenticeship",
+                "Enthusiasm"
+            ],
+            "services": [
+                "Information",
+                "Assistance"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 130,
+                "intensity": 0.7
+            }
+        },
+        {
+            "id": "shadow_rell",
+            "name": "Shadow Rell",
+            "type": "ShadowRell",
+            "description": "A mysterious figure who moves like shadow itself.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 4,
+                "y": 2
+            },
+            "biomes": [
+                "DenseForest",
+                "Swamp"
+            ],
+            "spawn_weight": 0.3,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Shadows",
+                "Stealth",
+                "Secrets"
+            ],
+            "services": [
+                "Stealth Training",
+                "Information"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Shadow",
+                "radius": 120,
+                "intensity": 0.6
+            }
+        },
+        {
+            "id": "smith_dorrik",
+            "name": "Smith Dorrik",
+            "type": "SmithDorrik",
+            "description": "A master blacksmith forging weapons and tools.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 5,
+                "y": 2
+            },
+            "biomes": [
+                "Plains",
+                "Mountain"
+            ],
+            "spawn_weight": 0.6,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Smithing",
+                "Metal",
+                "Craftsmanship"
+            ],
+            "services": [
+                "Repair",
+                "Crafting"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Forge",
+                "radius": 180,
+                "intensity": 1.0
+            }
+        },
+        {
+            "id": "arlen_the_swift",
+            "name": "Arlen the Swift",
+            "type": "ArlenTheSwift",
+            "description": "A nimble scout known for incredible speed and agility.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 6,
+                "y": 2
+            },
+            "biomes": [
+                "Forest",
+                "Plains"
+            ],
+            "spawn_weight": 0.5,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Speed",
+                "Scouting",
+                "Agility"
+            ],
+            "services": [
+                "Scouting",
+                "Speed Training"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 140,
+                "intensity": 0.8
+            }
+        },
+        {
+            "id": "miner_vorn",
+            "name": "Miner Vorn",
+            "type": "MinerVorn",
+            "description": "A grizzled miner who knows every tunnel and vein.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 0,
+                "y": 3
+            },
+            "biomes": [
+                "Mountain"
+            ],
+            "spawn_weight": 0.7,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Mining",
+                "Tunnels",
+                "Gems"
+            ],
+            "services": [
+                "Mining Tips",
+                "Gems"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Lantern",
+                "radius": 160,
+                "intensity": 0.9
+            }
+        },
+        {
+            "id": "farmer",
+            "name": "Village Farmer",
+            "type": "Farmer",
+            "description": "A humble farmer tending to crops and livestock.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 1,
+                "y": 3
+            },
+            "biomes": [
+                "Plains"
+            ],
+            "spawn_weight": 0.8,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Crops",
+                "Weather",
+                "Harvest"
+            ],
+            "services": [
+                "Food",
+                "Farming Knowledge"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 140,
+                "intensity": 0.7
+            }
+        },
+        {
+            "id": "priest_secondary",
+            "name": "Temple Priest",
+            "type": "Priest",
+            "description": "A devoted priest offering spiritual guidance and healing.",
+            "sprite": {
+                "sheet": "npc",
+                "x": 6,
+                "y": 1
+            },
+            "biomes": [
+                "Plains",
+                "Forest",
+                "Mountain"
+            ],
+            "spawn_weight": 0.5,
+            "interaction_type": "Conversation",
+            "dialogue_topics": [
+                "Faith",
+                "Healing",
+                "Divine Guidance"
+            ],
+            "services": [
+                "Blessing",
+                "Healing",
+                "Spiritual Guidance"
+            ],
+            "lighting": {
+                "enabled": true,
+                "color": "Torch",
+                "radius": 150,
+                "intensity": 0.8
+            }
+        }
+    ]
+}

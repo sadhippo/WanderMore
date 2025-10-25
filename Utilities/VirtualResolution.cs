@@ -34,7 +34,7 @@ public class VirtualResolution
     private RenderTarget2D _virtualRenderTarget;
     
     public VirtualResolution(GraphicsDeviceManager graphics, GraphicsDevice graphicsDevice, Game game,
-                           int virtualWidth = 1024, int virtualHeight = 768)
+                           int virtualWidth = 640, int virtualHeight = 480)
     {
         _graphics = graphics;
         _graphicsDevice = graphicsDevice;
@@ -56,11 +56,11 @@ public class VirtualResolution
             case AspectRatioMode.Regular:
                 // Standard landscape gaming resolution
                 _graphics.IsFullScreen = false;
-                _graphics.PreferredBackBufferWidth = 1024;
-                _graphics.PreferredBackBufferHeight = 768;
+                _graphics.PreferredBackBufferWidth = 1280;
+                _graphics.PreferredBackBufferHeight = 960;
                 // Keep original virtual resolution
-                VirtualWidth = 1024;
-                VirtualHeight = 768;
+                VirtualWidth = 640;
+                VirtualHeight = 480;
                 break;
                 
             case AspectRatioMode.TikTok:
@@ -141,7 +141,7 @@ public class VirtualResolution
         _graphicsDevice.Clear(Color.Black);
         
         // Draw the virtual render target to the calculated rectangle
-        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.LinearClamp);
+        spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.Opaque, SamplerState.PointClamp);
         spriteBatch.Draw(_virtualRenderTarget, RenderRectangle, Color.White);
         spriteBatch.End();
     }

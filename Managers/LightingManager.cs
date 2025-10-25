@@ -79,6 +79,7 @@ public class LightingManager : IDisposable
     {
         var light = new Light(position, color, radius, intensity);
         _lights.Add(light);
+        System.Console.WriteLine($"[LIGHTING] Added light at {position} - Total lights: {_lights.Count}");
         return light;
     }
     
@@ -87,7 +88,8 @@ public class LightingManager : IDisposable
     /// </summary>
     public void RemoveLight(Light light)
     {
-        _lights.Remove(light);
+        bool removed = _lights.Remove(light);
+        System.Console.WriteLine($"[LIGHTING] Removed light at {light.Position} - Success: {removed} - Total lights: {_lights.Count}");
     }
     
     /// <summary>

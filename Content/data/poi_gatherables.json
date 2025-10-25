@@ -1,0 +1,604 @@
+{
+  "gatherable_plants": [
+    {
+      "id": "heartberry_bush",
+      "name": "Heartberry Bush",
+      "type": "HeartberryBush",
+      "rarity": "Common",
+      "category": "Cooking",
+      "description": "Sweet berry used in tarts and healing tonics.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 0,
+        "y": 0
+      },
+      "biomes": [
+        "Forest",
+        "Plains"
+      ],
+      "spawn_weight": 1.0,
+      "harvest": {
+        "item_id": "heartberry",
+        "min_quantity": 2,
+        "max_quantity": 5,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "nightgrape_cluster",
+      "name": "Nightgrape Cluster",
+      "type": "NightgrapeCluster",
+      "rarity": "Uncommon",
+      "category": "Alchemy",
+      "description": "Fermented into mana elixirs. Glows faintly at night.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 1,
+        "y": 0
+      },
+      "biomes": [
+        "DenseForest",
+        "Forest"
+      ],
+      "spawn_weight": 0.7,
+      "harvest": {
+        "item_id": "nightgrape",
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "moonblossom_vine",
+      "name": "Moonblossom Vine",
+      "type": "MoonblossomVine",
+      "rarity": "Rare",
+      "category": "Alchemy",
+      "description": "Moonlit petals used in invisibility potions.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 2,
+        "y": 0
+      },
+      "biomes": [
+        "Forest",
+        "DenseForest"
+      ],
+      "spawn_weight": 0.4,
+      "harvest": {
+        "item_id": "moonblossom_petal",
+        "min_quantity": 1,
+        "max_quantity": 2,
+        "success_chance": 0.8
+      }
+    },
+    {
+      "id": "amberfruit_grove",
+      "name": "Amberfruit Grove",
+      "type": "AmberfruitGrove",
+      "rarity": "Common",
+      "category": "Cooking",
+      "description": "Zesty fruit often candied for travel rations.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 3,
+        "y": 0
+      },
+      "biomes": [
+        "Plains",
+        "Forest"
+      ],
+      "spawn_weight": 1.0,
+      "harvest": {
+        "item_id": "amberfruit",
+        "min_quantity": 2,
+        "max_quantity": 4,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "sunapple_tree",
+      "name": "Sunapple Tree",
+      "type": "SunappleTree",
+      "rarity": "Uncommon",
+      "category": "Cooking",
+      "description": "Restores stamina and warmth in cold regions.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 4,
+        "y": 0
+      },
+      "biomes": [
+        "Forest",
+        "Plains",
+        "Mountain"
+      ],
+      "spawn_weight": 0.7,
+      "harvest": {
+        "item_id": "sunapple",
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "lemora_plant",
+      "name": "Lemora Plant",
+      "type": "LemoraPlant",
+      "rarity": "Common",
+      "category": "Cooking",
+      "description": "A citrus herb for bright flavor and minor detox.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 0,
+        "y": 1
+      },
+      "biomes": [
+        "Plains",
+        "Forest"
+      ],
+      "spawn_weight": 1.0,
+      "harvest": {
+        "item_id": "lemora_herb",
+        "min_quantity": 2,
+        "max_quantity": 4,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "crimsonberry_tree",
+      "name": "Crimsonberry Tree",
+      "type": "CrimsonberryTree",
+      "rarity": "Uncommon",
+      "category": "Alchemy",
+      "description": "Base ingredient for minor health potions.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 1,
+        "y": 1
+      },
+      "biomes": [
+        "Forest",
+        "DenseForest"
+      ],
+      "spawn_weight": 0.7,
+      "harvest": {
+        "item_id": "crimsonberry",
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "duskwine_fruit",
+      "name": "Duskwine Fruit",
+      "type": "DuskwineFruit",
+      "rarity": "Rare",
+      "category": "Alchemy",
+      "description": "Brewed for shadow resistance tonics.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 2,
+        "y": 1
+      },
+      "biomes": [
+        "DenseForest",
+        "Swamp"
+      ],
+      "spawn_weight": 0.4,
+      "harvest": {
+        "item_id": "duskwine_fruit",
+        "min_quantity": 1,
+        "max_quantity": 2,
+        "success_chance": 0.8
+      }
+    },
+    {
+      "id": "tandemfruit_tree",
+      "name": "Tandemfruit Tree",
+      "type": "TandemfruitTree",
+      "rarity": "Rare",
+      "category": "Cooking",
+      "description": "Dual-flavored fruit, prized by royal chefs.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 3,
+        "y": 1
+      },
+      "biomes": [
+        "Forest",
+        "Plains"
+      ],
+      "spawn_weight": 0.4,
+      "harvest": {
+        "item_id": "tandemfruit",
+        "min_quantity": 1,
+        "max_quantity": 2,
+        "success_chance": 0.9
+      }
+    },
+    {
+      "id": "twintide_vine",
+      "name": "Twintide Vine",
+      "type": "TwintideVine",
+      "rarity": "Epic",
+      "category": "Alchemy",
+      "description": "Dual-element reagent balancing fire and water energies.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 4,
+        "y": 1
+      },
+      "biomes": [
+        "Lake",
+        "Swamp"
+      ],
+      "spawn_weight": 0.2,
+      "harvest": {
+        "item_id": "twintide_essence",
+        "min_quantity": 1,
+        "max_quantity": 1,
+        "success_chance": 0.5
+      }
+    },
+    {
+      "id": "plump_figlet",
+      "name": "Plump Figlet",
+      "type": "PlumpFiglet",
+      "rarity": "Common",
+      "category": "Cooking",
+      "description": "Simple fruit eaten fresh; restores small health.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 0,
+        "y": 2
+      },
+      "biomes": [
+        "Plains",
+        "Forest"
+      ],
+      "spawn_weight": 1.0,
+      "harvest": {
+        "item_id": "plump_figlet",
+        "min_quantity": 2,
+        "max_quantity": 5,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "cobalt_cherry_tree",
+      "name": "Cobalt Cherry Tree",
+      "type": "CobaltCherryTree",
+      "rarity": "Uncommon",
+      "category": "Alchemy",
+      "description": "Used in elixirs to boost focus and precision.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 1,
+        "y": 2
+      },
+      "biomes": [
+        "Forest",
+        "Mountain"
+      ],
+      "spawn_weight": 0.7,
+      "harvest": {
+        "item_id": "cobalt_cherry",
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "firepepper_bush",
+      "name": "Firepepper Bush",
+      "type": "FirepepperBush",
+      "rarity": "Common",
+      "category": "Cooking",
+      "description": "Spicy fruit for stews; minor warming effect.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 2,
+        "y": 2
+      },
+      "biomes": [
+        "Plains",
+        "Mountain"
+      ],
+      "spawn_weight": 1.0,
+      "harvest": {
+        "item_id": "firepepper",
+        "min_quantity": 2,
+        "max_quantity": 4,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "goldbloom_tree",
+      "name": "Goldbloom Tree",
+      "type": "GoldbloomTree",
+      "rarity": "Rare",
+      "category": "Alchemy",
+      "description": "Petals ground for rejuvenation potions.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 3,
+        "y": 2
+      },
+      "biomes": [
+        "Forest",
+        "Plains"
+      ],
+      "spawn_weight": 0.4,
+      "harvest": {
+        "item_id": "goldbloom_petal",
+        "min_quantity": 1,
+        "max_quantity": 2,
+        "success_chance": 0.8
+      }
+    },
+    {
+      "id": "autumnthorn_shrub",
+      "name": "Autumnthorn Shrub",
+      "type": "AutumnthornShrub",
+      "rarity": "Epic",
+      "category": "Alchemy",
+      "description": "A rare reagent for necromantic elixirs.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 4,
+        "y": 2
+      },
+      "biomes": [
+        "DenseForest",
+        "Swamp"
+      ],
+      "spawn_weight": 0.2,
+      "harvest": {
+        "item_id": "autumnthorn",
+        "min_quantity": 1,
+        "max_quantity": 1,
+        "success_chance": 0.4
+      }
+    },
+    {
+      "id": "mandor_tree",
+      "name": "Mandor Tree",
+      "type": "MandorTree",
+      "rarity": "Common",
+      "category": "Cooking",
+      "description": "Mild fruit used in desserts.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 0,
+        "y": 3
+      },
+      "biomes": [
+        "Plains",
+        "Forest"
+      ],
+      "spawn_weight": 1.0,
+      "harvest": {
+        "item_id": "mandor_fruit",
+        "min_quantity": 2,
+        "max_quantity": 4,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "sunburst_tree",
+      "name": "Sunburst Tree",
+      "type": "SunburstTree",
+      "rarity": "Uncommon",
+      "category": "Cooking",
+      "description": "Bright, juicy fruit restoring energy.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 1,
+        "y": 3
+      },
+      "biomes": [
+        "Plains",
+        "Forest"
+      ],
+      "spawn_weight": 0.7,
+      "harvest": {
+        "item_id": "sunburst_fruit",
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "roseapple_tree",
+      "name": "Roseapple Tree",
+      "type": "RoseappleTree",
+      "rarity": "Rare",
+      "category": "Cooking",
+      "description": "Aromatic fruit used in fine confections.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 2,
+        "y": 3
+      },
+      "biomes": [
+        "Forest",
+        "Plains"
+      ],
+      "spawn_weight": 0.4,
+      "harvest": {
+        "item_id": "roseapple",
+        "min_quantity": 1,
+        "max_quantity": 2,
+        "success_chance": 0.9
+      }
+    },
+    {
+      "id": "barrowfruit_barrel",
+      "name": "Barrowfruit Barrel",
+      "type": "BarrowfruitBarrel",
+      "rarity": "Uncommon",
+      "category": "Alchemy",
+      "description": "Preserved fruit with mild restorative traits.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 3,
+        "y": 3
+      },
+      "biomes": [
+        "Forest",
+        "DenseForest"
+      ],
+      "spawn_weight": 0.7,
+      "harvest": {
+        "item_id": "barrowfruit",
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "frostberry_bush",
+      "name": "Frostberry Bush",
+      "type": "FrostberryBush",
+      "rarity": "Epic",
+      "category": "Alchemy",
+      "description": "Essential reagent for frost resistance potions.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 4,
+        "y": 3
+      },
+      "biomes": [
+        "Mountain"
+      ],
+      "spawn_weight": 0.2,
+      "harvest": {
+        "item_id": "frostberry",
+        "min_quantity": 1,
+        "max_quantity": 1,
+        "success_chance": 0.4
+      }
+    },
+    {
+      "id": "banava_tree",
+      "name": "Banava Tree",
+      "type": "BanavaTree",
+      "rarity": "Common",
+      "category": "Cooking",
+      "description": "Tropical fruit, filling and refreshing.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 0,
+        "y": 4
+      },
+      "biomes": [
+        "Plains",
+        "Lake"
+      ],
+      "spawn_weight": 1.0,
+      "harvest": {
+        "item_id": "banava_fruit",
+        "min_quantity": 2,
+        "max_quantity": 4,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "redthorn_shrub",
+      "name": "Redthorn Shrub",
+      "type": "RedthornShrub",
+      "rarity": "Uncommon",
+      "category": "Alchemy",
+      "description": "Thorn extract used in poison antidotes.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 1,
+        "y": 4
+      },
+      "biomes": [
+        "Forest",
+        "DenseForest"
+      ],
+      "spawn_weight": 0.7,
+      "harvest": {
+        "item_id": "redthorn_extract",
+        "min_quantity": 1,
+        "max_quantity": 2,
+        "success_chance": 1.0
+      }
+    },
+    {
+      "id": "vineheart_bush",
+      "name": "Vineheart Bush",
+      "type": "VineheartBush",
+      "rarity": "Rare",
+      "category": "Alchemy",
+      "description": "Heart-shaped leaves for vitality potions.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 2,
+        "y": 4
+      },
+      "biomes": [
+        "Forest",
+        "DenseForest"
+      ],
+      "spawn_weight": 0.4,
+      "harvest": {
+        "item_id": "vineheart_leaf",
+        "min_quantity": 1,
+        "max_quantity": 2,
+        "success_chance": 0.8
+      }
+    },
+    {
+      "id": "starberry_cluster",
+      "name": "Starberry Cluster",
+      "type": "StarberryCluster",
+      "rarity": "Epic",
+      "category": "Cooking",
+      "description": "Sparkling fruit used in celestial feasts.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 3,
+        "y": 4
+      },
+      "biomes": [
+        "Lake",
+        "Mountain"
+      ],
+      "spawn_weight": 0.2,
+      "harvest": {
+        "item_id": "starberry",
+        "min_quantity": 1,
+        "max_quantity": 1,
+        "success_chance": 0.3
+      }
+    },
+    {
+      "id": "melonoak_tree",
+      "name": "Melonoak Tree",
+      "type": "MelonoakTree",
+      "rarity": "Uncommon",
+      "category": "Cooking",
+      "description": "Thick rind used for potions and sturdy meals.",
+      "sprite": {
+        "sheet": "gatherable",
+        "x": 4,
+        "y": 4
+      },
+      "biomes": [
+        "Forest",
+        "Plains"
+      ],
+      "spawn_weight": 0.7,
+      "harvest": {
+        "item_id": "melonoak_rind",
+        "min_quantity": 1,
+        "max_quantity": 3,
+        "success_chance": 1.0
+      }
+    }
+  ]
+}

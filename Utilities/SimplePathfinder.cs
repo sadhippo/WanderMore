@@ -20,19 +20,18 @@ public class SimplePathfinder
         if (IsDirectPathClear(start, target, zoneManager, poiManager))
         {
             path.Enqueue(target);
-            System.Console.WriteLine($"[PATHFINDER] Direct path clear to target (distance: {totalDistance:F1})");
+
             return path;
         }
         
         // If direct path is blocked, use edge-following algorithm
-        System.Console.WriteLine($"[PATHFINDER] Direct path blocked, finding route around obstacles (distance: {totalDistance:F1})");
         var edgePath = FindPathAroundObstacles(start, target, zoneManager, poiManager);
         foreach (var waypoint in edgePath)
         {
             path.Enqueue(waypoint);
         }
         
-        System.Console.WriteLine($"[PATHFINDER] Generated path with {path.Count} waypoints");
+        // System.Console.WriteLine($"[PATHFINDER] Generated path with {path.Count} waypoints");
         return path;
     }
     

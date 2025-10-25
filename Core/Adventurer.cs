@@ -40,15 +40,18 @@ public class Adventurer
     private float _interactionTimer;
     private float _interactionDuration;
     private PointOfInterest _currentInteractionPoI;
-    private PointOfInterest _lastInteractionPoI;
-    private float _interactionCooldownTimer;
-    private float _interactionCooldownDuration = 5f; // 5 seconds before can interact with same PoI again
     // Pathfinding system
     private PathfindingManager _pathfindingManager;
     private bool _isPathfinding;
     
+    // PoI detection system
+    private PoIDetector _poiDetector;
+    
     // Stats system integration
     private StatsManager _statsManager;
+    
+    // Inventory system
+    private InventoryManager _inventoryManager;
     
     // Audio system integration
     private AudioManager _audioManager;
@@ -87,7 +90,15 @@ public class Adventurer
         // Initialize pathfinding system
         _pathfindingManager = new PathfindingManager();
         _isPathfinding = false;
-        System.Console.WriteLine("[ADVENTURER] Pathfinding system initialized");
+
+        
+        // Initialize PoI detection system
+        _poiDetector = new PoIDetector();
+
+        
+        // Initialize inventory system
+        _inventoryManager = new InventoryManager(30); // 30 slots
+
     }
 
     public void LoadTorchTexture(Texture2D torchTexture)
@@ -102,13 +113,13 @@ public class Adventurer
         if (_isNightMode == needsLight) return;
         _isNightMode = needsLight;
         
-        System.Console.WriteLine($"[ADVENTURER] Light mode changed to: {needsLight}, Night texture available: {_walkingTextureNight != null}");
+
         
         // Control lantern light visibility
         if (_lanternLight != null)
         {
             _lanternLight.Enabled = needsLight;
-            System.Console.WriteLine($"[ADVENTURER] Lantern light enabled: {_lanternLight.Enabled}");
+
         }
         
         // Swap walking texture in-place to avoid rebuilding everything
@@ -120,7 +131,7 @@ public class Adventurer
             if (anim.Texture != null)
             {
                 anim.FrameCount = Math.Max(1, anim.Texture.Width / 32);
-                System.Console.WriteLine($"[ADVENTURER] Walking animation updated: FrameCount={anim.FrameCount}, TextureWidth={anim.Texture.Width}");
+
             }
             _animations[AnimationType.Walking] = anim;
         }
@@ -131,10 +142,29 @@ public class Adventurer
         _statsManager = statsManager;
     }
     
+    public InventoryManager GetInventoryManager()
+    {
+        return _inventoryManager;
+    }
+    
+    public bool CollectItem(string itemId, int quantity = 1)
+    {
+        bool success = _inventoryManager.AddItem(itemId, quantity);
+        if (success)
+        {
+            System.Console.WriteLine($"[ADVENTURER] Collected {quantity}x {itemId}");
+        }
+        else
+        {
+            System.Console.WriteLine($"[ADVENTURER] Failed to collect {quantity}x {itemId} - inventory full or invalid item");
+        }
+        return success;
+    }
+    
     public void SetAudioManager(AudioManager audioManager)
     {
         _audioManager = audioManager;
-        System.Console.WriteLine("[ADVENTURER] AudioManager connected");
+
     }
     
     public void SetLightingManager(LightingManager lightingManager)
@@ -145,11 +175,11 @@ public class Adventurer
         if (_lightingManager != null)
         {
             _lanternLight = _lightingManager.AddLight(Position, LightPresets.Lantern, LANTERN_NORMAL_RADIUS, LANTERN_NORMAL_INTENSITY);
-            System.Console.WriteLine($"[ADVENTURER] Lantern light created: Radius={LANTERN_NORMAL_RADIUS}, Intensity={LANTERN_NORMAL_INTENSITY}, Enabled={_lanternLight?.Enabled}");
+
         }
         else
         {
-            System.Console.WriteLine("[ADVENTURER] WARNING: LightingManager is null!");
+
         }
     }
 
@@ -247,11 +277,7 @@ public class Adventurer
             }
         }
         
-        // Update interaction cooldown
-        if (_interactionCooldownTimer > 0)
-        {
-            _interactionCooldownTimer -= deltaTime;
-        }
+        // Interaction cooldown now handled by PoIDetector
         
         // Handle PoI interaction
         if (_isInteracting)
@@ -269,15 +295,20 @@ public class Adventurer
                     
                     // Fire the interaction event through the PoI manager
                     poiManager.TriggerInteraction(_currentInteractionPoI, this);
-                    System.Console.WriteLine($"[INTERACTION] Triggered interaction event for {_currentInteractionPoI.Type}");
+
                 }
                 
-                // Finish interaction
-                _lastInteractionPoI = _currentInteractionPoI;
-                _interactionCooldownTimer = _interactionCooldownDuration;
+                // Finish interaction - cooldown handled by PoIDetector
+                
+                // Add to PoI detection cooldown to prevent immediate re-targeting
+                if (_poiDetector != null)
+                {
+                    _poiDetector.AddPoIToCooldown(_currentInteractionPoI, PathfindingConfig.INTERACTION_COOLDOWN);
+
+                }
                 
                 // PoI interaction is now permanently marked as interacted via HasBeenInteracted flag
-                System.Console.WriteLine($"[INTERACTION] {_currentInteractionPoI.Type} marked as interacted (permanent)");
+
                 
                 _isInteracting = false;
                 _interactionTimer = 0f;
@@ -289,7 +320,7 @@ public class Adventurer
                 }
                 
                 _currentInteractionPoI = null; // Clear after moving away
-                System.Console.WriteLine("[INTERACTION] Finished interacting and moving on!");
+
             }
             else
             {
@@ -300,6 +331,9 @@ public class Adventurer
                 return; // Skip movement logic while interacting
             }
         }
+        
+        // Handle automatic food consumption
+        UpdateAutomaticFoodConsumption();
         
         // Handle sleeping system
         UpdateSleepingBehavior(deltaTime);
@@ -317,21 +351,14 @@ public class Adventurer
         {
             _pathfindingManager.Update(Position, zoneManager, poiManager, deltaTime, questManager);
             
-            // Check if pathfinding reached a target and we should start interaction
-            if (_pathfindingManager.CurrentTarget != null && 
-                _pathfindingManager.CurrentState == PathfindingManager.PathfindingState.Wandering &&
-                !_isInteracting)
+            // Check if pathfinding just finished and we should look for nearby PoIs to interact with
+            if (!_pathfindingManager.HasActiveTarget && !_isInteracting)
             {
-                // Pathfinding reached target, check if we should interact
-                float distanceToTarget = Vector2.Distance(Position, _pathfindingManager.CurrentTarget.Position);
-                if (distanceToTarget <= _pathfindingManager.CurrentTarget.InteractionRange)
+                // Check for nearby PoIs immediately when pathfinding finishes
+                var nearbyPoI = _poiDetector.FindNearestInterestingPoI(Position, poiManager);
+                if (nearbyPoI != null && Vector2.Distance(Position, nearbyPoI.Position) <= nearbyPoI.InteractionRange)
                 {
-                    var targetPoI = _pathfindingManager.CurrentTarget;
-                    if (IsInteractablePoI(targetPoI.Type))
-                    {
-                        StartInteraction(targetPoI);
-                        _pathfindingManager.AbandonCurrentTarget(); // Now abandon after starting interaction
-                    }
+                    StartInteraction(nearbyPoI);
                 }
             }
             
@@ -410,7 +437,7 @@ public class Adventurer
                 // Check if we've hit too many consecutive collisions
                 if (_buildingCollisionCount >= MAX_BUILDING_COLLISIONS)
                 {
-                    System.Console.WriteLine($"[COLLISION] Too many building collisions ({_buildingCollisionCount}), forcing direction change and abandoning pathfinding");
+
                     _pathfindingManager.AbandonCurrentTarget();
                     ForceNewDirection(zoneManager, poiManager);
                     _buildingCollisionCount = 0; // Reset after forcing change
@@ -418,7 +445,7 @@ public class Adventurer
                 else
                 {
                     // Check if we should interact with a PoI
-                    var nearbyPoI = GetNearestInteractablePoI(poiManager);
+                    var nearbyPoI = _poiDetector.FindNearestInterestingPoI(Position, poiManager);
                     if (nearbyPoI != null && !_isInteracting)
                     {
                         StartInteraction(nearbyPoI);
@@ -456,6 +483,41 @@ public class Adventurer
         }
     }
 
+    private void UpdateAutomaticFoodConsumption()
+    {
+        if (_statsManager == null || _inventoryManager == null) return;
+        
+        float currentHunger = _statsManager.CurrentStats.Hunger;
+        
+        // Check if hunger is below 20%
+        if (currentHunger < 20f)
+        {
+            // Try to consume berries first, then eggs
+            if (_inventoryManager.HasItem("berries", 1))
+            {
+                if (_inventoryManager.UseItem("berries", 1))
+                {
+                    // Restore 60% hunger
+                    float newHunger = Math.Min(100f, currentHunger + 60f);
+                    _statsManager.CurrentStats.SetStat(StatType.Hunger, newHunger);
+                    // Only log successful consumption
+                    System.Console.WriteLine($"Auto-consumed berries! Hunger restored: {currentHunger:F1}% -> {newHunger:F1}%");
+                }
+            }
+            else if (_inventoryManager.HasItem("egg", 1))
+            {
+                if (_inventoryManager.UseItem("egg", 1))
+                {
+                    // Restore 60% hunger
+                    float newHunger = Math.Min(100f, currentHunger + 60f);
+                    _statsManager.CurrentStats.SetStat(StatType.Hunger, newHunger);
+                    // Only log successful consumption
+                    System.Console.WriteLine($"Auto-consumed egg! Hunger restored: {currentHunger:F1}% -> {newHunger:F1}%");
+                }
+            }
+        }
+    }
+
     private void UpdateSleepingBehavior(float deltaTime)
     {
         if (_statsManager == null) return;
@@ -465,7 +527,6 @@ public class Adventurer
         // Check if we should start sleeping
         if (!_isSleeping && currentTiredness < TIREDNESS_THRESHOLD)
         {
-            System.Console.WriteLine($"[SLEEP DEBUG] Tiredness {currentTiredness:F1} < {TIREDNESS_THRESHOLD}, starting sleep");
             StartSleeping();
         }
         
@@ -486,11 +547,6 @@ public class Adventurer
             // Get updated tiredness after regeneration
             float updatedTiredness = _statsManager.CurrentStats.Tiredness;
             
-            // Debug output every few seconds
-            if ((int)_sleepTimer % 5 == 0 && _sleepTimer > 0)
-            {
-                System.Console.WriteLine($"[SLEEP DEBUG] Sleeping for {_sleepTimer:F1}s, Tiredness: {oldTiredness:F1} -> {updatedTiredness:F1} (+{regenAmount:F2})");
-            }
             
             // Check if we're fully rested or have slept long enough
             if (updatedTiredness >= 90f || _sleepTimer >= SLEEP_DURATION)
@@ -516,12 +572,12 @@ public class Adventurer
             _lanternLight.Radius = CAMPFIRE_RADIUS;
             _lanternLight.Color = LightPresets.Campfire; // Warmer campfire color
             _lanternLight.Flickers = true; // Add flickering for campfire effect
-            System.Console.WriteLine("[ADVENTURER] Campfire lit - settling in for sleep");
+
         }
         
         // Animation will be handled by UpdateAnimation method
         
-        System.Console.WriteLine("[ADVENTURER] Started sleeping - too tired to continue");
+
         
         // Add journal entry about sleeping
         if (_statsManager != null)
@@ -542,12 +598,12 @@ public class Adventurer
             _lanternLight.Radius = LANTERN_NORMAL_RADIUS;
             _lanternLight.Color = LightPresets.Lantern; // Back to lantern color
             _lanternLight.Flickers = false; // Stop flickering
-            System.Console.WriteLine("[ADVENTURER] Campfire extinguished, lantern restored");
+
         }
         
         // Animation will be handled by UpdateAnimation method
         
-        System.Console.WriteLine("[ADVENTURER] Woke up refreshed and ready to continue exploring");
+
         
         // Add journal entry about waking up
         if (_statsManager != null)
@@ -636,7 +692,7 @@ public class Adventurer
                 Color.White, 
                 0f, 
                 Vector2.Zero, 
-                1f, 
+                0.8f, // 80% of original size
                 effects, 
                 0f
             );
@@ -683,7 +739,7 @@ public class Adventurer
 
     private void ForceNewDirection(ZoneManager zoneManager = null, PoIManager poiManager = null)
     {
-        System.Console.WriteLine("[ADVENTURER] Stuck detected, finding new direction...");
+
         
         // Try to find a completely clear direction
         for (int attempt = 0; attempt < 24; attempt++)
@@ -718,7 +774,7 @@ public class Adventurer
                 _directionChangeTimer = 0f;
                 _directionChangeInterval = 0.3f; // Short interval after being stuck
                 
-                System.Console.WriteLine("[ADVENTURER] Found clear path, unstuck!");
+
                 return;
             }
         }
@@ -729,7 +785,7 @@ public class Adventurer
         _directionChangeTimer = 0f;
         _directionChangeInterval = 0.2f;
         
-        System.Console.WriteLine("[ADVENTURER] Escaping from obstacles...");
+
     }
 
     private Vector2 FindEscapeDirection(ZoneManager zoneManager, PoIManager poiManager)
@@ -850,78 +906,7 @@ public class Adventurer
         };
     }
 
-    private PointOfInterest GetNearestInteractablePoI(PoIManager poiManager)
-    {
-        var nearbyPoIs = poiManager.GetNearbyPoIs(Position, 40f);
-        PointOfInterest nearest = null;
-        float nearestDistance = float.MaxValue;
-        
-        foreach (var poi in nearbyPoIs)
-        {
-            // Only interact with certain types of PoIs
-            if (IsInteractablePoI(poi.Type))
-            {
-                // Skip if this is the same PoI we just interacted with and cooldown is active
-                if (_lastInteractionPoI != null && poi.Id == _lastInteractionPoI.Id && _interactionCooldownTimer > 0)
-                {
-                    continue;
-                }
-                
-                float distance = Vector2.Distance(Position, poi.Position);
-                if (distance < nearestDistance)
-                {
-                    nearest = poi;
-                    nearestDistance = distance;
-                }
-            }
-        }
-        
-        return nearest;
-    }
-
-    private bool IsInteractablePoI(PoIType poiType)
-    {
-        return poiType switch
-        {
-            // Buildings
-            PoIType.Inn => true,
-            PoIType.Cottage => true,
-            PoIType.Farmhouse => true,
-            PoIType.Castle => true,
-            PoIType.Chapel => true,
-            PoIType.Hut => true,
-            PoIType.Mine => true,
-            
-            // NPCs
-            PoIType.Ranger => true,
-            PoIType.Priest => true,
-            PoIType.Warrior => true,
-            PoIType.Scholar => true,
-            PoIType.Hermit => true,
-            PoIType.Adventurer => true,
-            PoIType.Mermaid => true,
-            
-            // Animals
-            PoIType.Cat => true,
-            PoIType.Dog => true,
-            PoIType.Unicorn => true,
-            PoIType.Sheep => true,
-            PoIType.Chicken => true,
-            PoIType.Pig => true,
-            PoIType.Deer => true,
-            
-            // Resources
-            PoIType.BerryBush => true,
-            
-            // Don't interact with monsters or dangerous things
-            PoIType.Skeleton => false,
-            PoIType.Dragon => false,
-            PoIType.Minotaur => false,
-            PoIType.Golem => false,
-            
-            _ => false
-        };
-    }
+    // PoI interaction logic moved to centralized PoIDetector system
 
     public Rectangle GetBounds()
     {

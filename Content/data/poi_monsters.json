@@ -1,0 +1,89 @@
+{
+  "monsters": [
+    {
+      "id": "skeleton",
+      "name": "Ancient Skeleton",
+      "type": "Skeleton",
+      "description": "The remains of an ancient warrior, still guarding this place.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 7,
+        "y": 7
+      },
+      "biomes": ["DenseForest", "Swamp"],
+      "spawn_weight": 0.6,
+      "interaction_type": "Combat",
+      "threat_level": "Medium",
+      "interaction_message": "The skeleton's bones rattle as it turns to face you, weapon raised.",
+      "hostile": true
+    },
+    {
+      "id": "centaur",
+      "name": "Wild Centaur",
+      "type": "Centaur",
+      "description": "A powerful centaur warrior, half-human and half-horse.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 15,
+        "y": 8
+      },
+      "biomes": ["Forest", "Plains"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Combat",
+      "threat_level": "High",
+      "interaction_message": "The centaur stamps its hooves and eyes you with suspicion.",
+      "hostile": false
+    },
+    {
+      "id": "dragon",
+      "name": "Ancient Dragon",
+      "type": "Dragon",
+      "description": "A mighty dragon, ancient and powerful beyond measure.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 4,
+        "y": 7
+      },
+      "biomes": ["Mountain"],
+      "spawn_weight": 0.1,
+      "interaction_type": "Combat",
+      "threat_level": "Legendary",
+      "interaction_message": "The dragon's eyes glow with ancient intelligence as smoke curls from its nostrils.",
+      "hostile": true
+    },
+    {
+      "id": "minotaur",
+      "name": "Fierce Minotaur",
+      "type": "Minotaur",
+      "description": "A towering minotaur with massive horns and rippling muscles.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 6,
+        "y": 8
+      },
+      "biomes": ["Mountain", "Swamp"],
+      "spawn_weight": 0.5,
+      "interaction_type": "Combat",
+      "threat_level": "High",
+      "interaction_message": "The minotaur bellows a challenge, pawing at the ground menacingly.",
+      "hostile": true
+    },
+    {
+      "id": "golem",
+      "name": "Stone Golem",
+      "type": "Golem",
+      "description": "A massive golem constructed from ancient stone and magic.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 11,
+        "y": 8
+      },
+      "biomes": ["Mountain"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Combat",
+      "threat_level": "High",
+      "interaction_message": "The golem's stone body grinds and creaks as it slowly turns toward you.",
+      "hostile": false
+    }
+  ]
+}

@@ -12,6 +12,8 @@ public class PoIDetector
     private float _lastUpdateTime;
     private int _debugCallCount;
     
+
+    
     public PoIDetector()
     {
         _poiCooldowns = new Dictionary<Guid, float>();
@@ -29,13 +31,6 @@ public class PoIDetector
         // Get nearby PoIs within detection range
         var nearbyPoIs = poiManager.GetNearbyPoIs(position, DETECTION_RANGE);
         
-        // Debug output every 100 calls (roughly every 2 seconds)
-        if (_debugCallCount++ % 100 == 0)
-        {
-            System.Console.WriteLine($"[POI DETECTOR] Checking {nearbyPoIs.Count} nearby PoIs at position {position}");
-            System.Console.WriteLine($"[POI DETECTOR] Active cooldowns: {_poiCooldowns.Count}");
-        }
-        
         PointOfInterest bestTarget = null;
         float closestDistance = float.MaxValue;
         
@@ -44,20 +39,17 @@ public class PoIDetector
             // Skip if already interacted with (permanent)
             if (poi.HasBeenInteracted)
             {
-                if (_debugCallCount % 100 == 0)
-                {
-                    System.Console.WriteLine($"[POI DETECTOR] Skipping {poi.Type} - already interacted");
-                }
+
                 continue;
             }
+            
+            // Debug: Show PoI status
+
             
             // Skip if on cooldown
             if (IsPoIOnCooldown(poi))
             {
-                if (_debugCallCount % 100 == 0)
-                {
-                    System.Console.WriteLine($"[POI DETECTOR] Skipping {poi.Type} - on cooldown");
-                }
+
                 continue;
             }
                 
@@ -73,10 +65,7 @@ public class PoIDetector
             }
         }
         
-        if (bestTarget != null && _debugCallCount % 100 == 0)
-        {
-            System.Console.WriteLine($"[POI DETECTOR] Found target: {bestTarget.Type} at distance {Vector2.Distance(position, bestTarget.Position):F1}");
-        }
+
         
         return bestTarget;
     }
@@ -93,7 +82,7 @@ public class PoIDetector
         if (poi == null) return;
         
         _poiCooldowns[poi.Id] = cooldownTime;
-        System.Console.WriteLine($"[POI INTERACTION] {poi.Type} added to cooldown for {cooldownTime} seconds");
+
     }
     
     private void UpdateCooldowns()
@@ -127,52 +116,12 @@ public class PoIDetector
         foreach (var key in keysToRemove)
         {
             _poiCooldowns.Remove(key);
-            System.Console.WriteLine($"[POI DETECTOR] Cooldown expired for PoI {key}");
+
         }
     }
     
     private bool IsInteractablePoI(PoIType poiType)
     {
-        return poiType switch
-        {
-            // Buildings
-            PoIType.Inn => true,
-            PoIType.Cottage => true,
-            PoIType.Farmhouse => true,
-            PoIType.Castle => true,
-            PoIType.Chapel => true,
-            PoIType.Hut => true,
-            PoIType.Mine => true,
-            
-            // NPCs
-            PoIType.Ranger => true,
-            PoIType.Priest => true,
-            PoIType.Warrior => true,
-            PoIType.Scholar => true,
-            PoIType.Hermit => true,
-            PoIType.Adventurer => true,
-            PoIType.Mermaid => true,
-            
-            // Animals
-            PoIType.Cat => true,
-            PoIType.Dog => true,
-            PoIType.Unicorn => true,
-            PoIType.Sheep => true,
-            PoIType.Chicken => true,
-            PoIType.Pig => true,
-            PoIType.Deer => true,
-            
-            // Resources
-            PoIType.BerryBush => true,
-            
-            // Don't interact with monsters or dangerous things
-            PoIType.Skeleton => false,
-            PoIType.Dragon => false,
-            PoIType.Minotaur => false,
-            PoIType.Golem => false,
-            PoIType.Centaur => false,
-            
-            _ => false
-        };
+        return PoIInteractionHelper.IsInteractablePoI(poiType);
     }
 }

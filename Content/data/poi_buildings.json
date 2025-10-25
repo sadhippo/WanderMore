@@ -1,0 +1,787 @@
+{
+  "buildings": [
+    {
+      "id": "farmhouse",
+      "name": "Farmhouse",
+      "type": "Farmhouse",
+      "description": "A rustic farmhouse with fields nearby.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 4,
+        "y": 2
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.8,
+      "interaction_type": "Building",
+      "services": ["Rest", "Trade"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 200,
+        "intensity": 1.0
+      }
+    },
+    {
+      "id": "inn",
+      "name": "Inn",
+      "type": "Inn",
+      "description": "A welcoming inn that provides rest for weary travelers.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 4,
+        "y": 3
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.6,
+      "interaction_type": "Building",
+      "services": ["Rest", "Trade", "Information"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 200,
+        "intensity": 1.0
+      }
+    },
+    {
+      "id": "cottage",
+      "name": "Cottage",
+      "type": "Cottage",
+      "description": "A peaceful dwelling where time seems to slow down.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 5,
+        "y": 2
+      },
+      "biomes": ["Forest", "Lake"],
+      "spawn_weight": 1.0,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 200,
+        "intensity": 1.0
+      }
+    },
+    {
+      "id": "castle",
+      "name": "Castle",
+      "type": "Castle",
+      "description": "An imposing castle that dominates the landscape.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 5,
+        "y": 3
+      },
+      "biomes": ["Mountain", "Plains"],
+      "spawn_weight": 0.3,
+      "interaction_type": "Building",
+      "services": ["Quest", "Information"],
+      "lighting": {
+        "enabled": true,
+        "color": "Torch",
+        "radius": 250,
+        "intensity": 1.2
+      }
+    },
+    {
+      "id": "mine",
+      "name": "Mine",
+      "type": "Mine",
+      "description": "An old mining operation with valuable resources.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 13,
+        "y": 3
+      },
+      "biomes": ["Mountain"],
+      "spawn_weight": 0.7,
+      "interaction_type": "Exploration",
+      "services": ["Mining"],
+      "lighting": {
+        "enabled": true,
+        "color": "Lantern",
+        "radius": 180,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "hut",
+      "name": "Hut",
+      "type": "Hut",
+      "description": "A simple dwelling built from local materials.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 8,
+        "y": 2
+      },
+      "biomes": ["Swamp", "Forest"],
+      "spawn_weight": 1.0,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 200,
+        "intensity": 1.0
+      }
+    },
+    {
+      "id": "chapel",
+      "name": "Chapel",
+      "type": "Chapel",
+      "description": "A sacred place of worship and contemplation.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 7,
+        "y": 3
+      },
+      "biomes": ["Plains", "Forest", "Mountain"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Building",
+      "services": ["Rest", "Blessing"],
+      "lighting": {
+        "enabled": true,
+        "color": "Torch",
+        "radius": 250,
+        "intensity": 1.2
+      }
+    },
+    {
+      "id": "oracle",
+      "name": "Oracle",
+      "type": "Oracle",
+      "description": "A mystical shrine where ancient wisdom can be sought.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 8,
+        "y": 3
+      },
+      "biomes": ["Mountain", "Forest", "Lake"],
+      "spawn_weight": 0.2,
+      "interaction_type": "Building",
+      "services": ["Information", "Quest"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 180,
+        "intensity": 0.8
+      }
+    },
+    {
+      "id": "skull_fortress",
+      "name": "Skull Fortress",
+      "type": "SkullFortress",
+      "description": "A foreboding fortress marked by death and darkness.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 12,
+        "y": 2
+      },
+      "biomes": ["Mountain", "Swamp", "DenseForest"],
+      "spawn_weight": 0.1,
+      "interaction_type": "Exploration",
+      "services": ["Combat", "Treasure"],
+      "lighting": {
+        "enabled": true,
+        "color": "EerieGreen",
+        "radius": 160,
+        "intensity": 0.7
+      }
+    },
+    {
+      "id": "haunted_house",
+      "name": "Haunted House",
+      "type": "HauntedHouse",
+      "description": "An abandoned dwelling with an unsettling presence.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 11,
+        "y": 2
+      },
+      "biomes": ["DenseForest", "Swamp"],
+      "spawn_weight": 0.3,
+      "interaction_type": "Exploration",
+      "services": ["Combat", "Treasure"],
+      "lighting": {
+        "enabled": true,
+        "color": "EerieGreen",
+        "radius": 160,
+        "intensity": 0.7
+      }
+    },
+    {
+      "id": "tree_house",
+      "name": "Tree House",
+      "type": "TreeHouse",
+      "description": "A dwelling built high among the branches of ancient trees.",
+      "sprite": {
+        "sheet": "buildings",
+        "x": 11,
+        "y": 3
+      },
+      "biomes": ["Forest", "DenseForest"],
+      "spawn_weight": 0.6,
+      "interaction_type": "Building",
+      "services": ["Rest", "Information"],
+      "lighting": {
+        "enabled": true,
+        "color": "Campfire",
+        "radius": 170,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "house_a",
+      "name": "House A",
+      "type": "HouseA",
+      "description": "A simple dwelling for travelers to rest.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 0,
+        "y": 0
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.8,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 180,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "cottage_a",
+      "name": "Cottage A",
+      "type": "CottageA",
+      "description": "A cozy cottage with a welcoming hearth.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 1,
+        "y": 0
+      },
+      "biomes": ["Forest", "Lake"],
+      "spawn_weight": 0.9,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 180,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "townhouse_pumpkins",
+      "name": "Pumpkin Townhouse",
+      "type": "TownhousePumpkins",
+      "description": "A townhouse decorated with seasonal pumpkins.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 3,
+        "y": 0
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.5,
+      "interaction_type": "Building",
+      "services": ["Rest", "Trade"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 180,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "mushroom_house",
+      "name": "Mushroom House",
+      "type": "MushroomHouse",
+      "description": "A whimsical house built from giant mushrooms.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 4,
+        "y": 0
+      },
+      "biomes": ["Forest", "DenseForest", "Swamp"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Building",
+      "services": ["Rest", "Information"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 160,
+        "intensity": 0.8
+      }
+    },
+    {
+      "id": "forest_cabin",
+      "name": "Forest Cabin",
+      "type": "ForestCabin",
+      "description": "A secluded cabin deep in the woods.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 5,
+        "y": 0
+      },
+      "biomes": ["Forest", "DenseForest"],
+      "spawn_weight": 0.7,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": true,
+        "color": "Campfire",
+        "radius": 170,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "crystal_shrine",
+      "name": "Crystal Shrine",
+      "type": "CrystalShrine",
+      "description": "A mystical shrine emanating magical energy.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 6,
+        "y": 0
+      },
+      "biomes": ["Mountain", "Lake"],
+      "spawn_weight": 0.2,
+      "interaction_type": "Building",
+      "services": ["Information", "Blessing"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 200,
+        "intensity": 1.0
+      }
+    },
+    {
+      "id": "large_tavern",
+      "name": "Large Tavern",
+      "type": "LargeTavern",
+      "description": "A bustling tavern where adventurers gather.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 7,
+        "y": 0
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Building",
+      "services": ["Rest", "Trade", "Information"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 220,
+        "intensity": 1.1
+      }
+    },
+    {
+      "id": "witch_hut",
+      "name": "Witch Hut",
+      "type": "WitchHut",
+      "description": "A mysterious hut where potions are brewed.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 0,
+        "y": 1
+      },
+      "biomes": ["Swamp", "DenseForest"],
+      "spawn_weight": 0.3,
+      "interaction_type": "Building",
+      "services": ["Trade", "Information"],
+      "lighting": {
+        "enabled": true,
+        "color": "EerieGreen",
+        "radius": 160,
+        "intensity": 0.8
+      }
+    },
+    {
+      "id": "blacksmith_forge",
+      "name": "Blacksmith Forge",
+      "type": "BlacksmithForge",
+      "description": "A forge where weapons and tools are crafted.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 1,
+        "y": 1
+      },
+      "biomes": ["Plains", "Mountain"],
+      "spawn_weight": 0.5,
+      "interaction_type": "Building",
+      "services": ["Trade", "Repair"],
+      "lighting": {
+        "enabled": true,
+        "color": "Torch",
+        "radius": 190,
+        "intensity": 1.0
+      }
+    },
+    {
+      "id": "windmill",
+      "name": "Windmill",
+      "type": "Windmill",
+      "description": "An old windmill still turning in the breeze.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 2,
+        "y": 1
+      },
+      "biomes": ["Plains"],
+      "spawn_weight": 0.6,
+      "interaction_type": "Building",
+      "services": ["Trade"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 180,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "storage_shed",
+      "name": "Storage Shed",
+      "type": "StorageShed",
+      "description": "A shed filled with supplies and equipment.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 3,
+        "y": 1
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.7,
+      "interaction_type": "Building",
+      "services": ["Trade"],
+      "lighting": {
+        "enabled": true,
+        "color": "Lantern",
+        "radius": 160,
+        "intensity": 0.8
+      }
+    },
+    {
+      "id": "broken_tower_a",
+      "name": "Broken Tower A",
+      "type": "BrokenTowerA",
+      "description": "Remnants of a once-mighty tower.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 5,
+        "y": 1
+      },
+      "biomes": ["Mountain", "Plains"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Exploration",
+      "services": ["Treasure"],
+      "lighting": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "house_b",
+      "name": "House B",
+      "type": "HouseB",
+      "description": "Another dwelling for weary travelers.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 6,
+        "y": 1
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.8,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 180,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "house_c",
+      "name": "House C",
+      "type": "HouseC",
+      "description": "A third house offering shelter and rest.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 7,
+        "y": 1
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.8,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 180,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "stable",
+      "name": "Stable",
+      "type": "Stable",
+      "description": "A stable where horses and livestock rest.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 0,
+        "y": 2
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.6,
+      "interaction_type": "Building",
+      "services": ["Rest", "Trade"],
+      "lighting": {
+        "enabled": true,
+        "color": "Lantern",
+        "radius": 170,
+        "intensity": 0.8
+      }
+    },
+    {
+      "id": "tomb_a",
+      "name": "Ancient Tomb",
+      "type": "TombA",
+      "description": "An ancient tomb with mysterious inscriptions.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 1,
+        "y": 2
+      },
+      "biomes": ["Mountain", "DenseForest"],
+      "spawn_weight": 0.2,
+      "interaction_type": "Exploration",
+      "services": ["Treasure", "Combat"],
+      "lighting": {
+        "enabled": true,
+        "color": "EerieGreen",
+        "radius": 150,
+        "intensity": 0.6
+      }
+    },
+    {
+      "id": "well",
+      "name": "Stone Well",
+      "type": "Well",
+      "description": "A stone well providing fresh water.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 2,
+        "y": 2
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.8,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "house_d",
+      "name": "House D",
+      "type": "HouseD",
+      "description": "Yet another house for adventurers to visit.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 3,
+        "y": 2
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.8,
+      "interaction_type": "Building",
+      "services": ["Rest"],
+      "lighting": {
+        "enabled": true,
+        "color": "WindowLight",
+        "radius": 180,
+        "intensity": 0.9
+      }
+    },
+    {
+      "id": "tower_ruin",
+      "name": "Tower Ruin",
+      "type": "TowerRuin",
+      "description": "The crumbling remains of an old watchtower.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 4,
+        "y": 2
+      },
+      "biomes": ["Mountain", "Plains"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Exploration",
+      "services": ["Treasure"],
+      "lighting": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "broken_tower_b",
+      "name": "Broken Tower B",
+      "type": "BrokenTowerB",
+      "description": "Another ruined tower from bygone days.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 5,
+        "y": 2
+      },
+      "biomes": ["Mountain", "Plains"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Exploration",
+      "services": ["Treasure"],
+      "lighting": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "gold_archway_a",
+      "name": "Golden Archway A",
+      "type": "GoldArchwayA",
+      "description": "An ornate golden archway of unknown origin.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 6,
+        "y": 2
+      },
+      "biomes": ["Plains", "Mountain"],
+      "spawn_weight": 0.2,
+      "interaction_type": "Building",
+      "services": ["Information", "Quest"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 200,
+        "intensity": 1.0
+      }
+    },
+    {
+      "id": "gold_archway_b",
+      "name": "Golden Archway B",
+      "type": "GoldArchwayB",
+      "description": "A matching golden archway to its counterpart.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 7,
+        "y": 2
+      },
+      "biomes": ["Plains", "Mountain"],
+      "spawn_weight": 0.2,
+      "interaction_type": "Building",
+      "services": ["Information", "Quest"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 200,
+        "intensity": 1.0
+      }
+    },
+    {
+      "id": "broken_tower_c",
+      "name": "Broken Tower C",
+      "type": "BrokenTowerC",
+      "description": "The third in a series of ruined towers.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 0,
+        "y": 3
+      },
+      "biomes": ["Mountain", "Plains"],
+      "spawn_weight": 0.4,
+      "interaction_type": "Exploration",
+      "services": ["Treasure"],
+      "lighting": {
+        "enabled": false
+      }
+    },
+    {
+      "id": "crystal_gate",
+      "name": "Crystal Gate",
+      "type": "CrystalGate",
+      "description": "A shimmering gate made of pure crystal.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 1,
+        "y": 3
+      },
+      "biomes": ["Mountain", "Lake"],
+      "spawn_weight": 0.1,
+      "interaction_type": "Building",
+      "services": ["Information", "Quest"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 250,
+        "intensity": 1.2
+      }
+    },
+    {
+      "id": "mana_obelisk_a",
+      "name": "Mana Obelisk A",
+      "type": "ManaObeliskA",
+      "description": "A towering obelisk pulsing with magical energy.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 2,
+        "y": 3
+      },
+      "biomes": ["Mountain", "DenseForest"],
+      "spawn_weight": 0.2,
+      "interaction_type": "Building",
+      "services": ["Information", "Blessing"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 220,
+        "intensity": 1.1
+      }
+    },
+    {
+      "id": "mana_obelisk_b",
+      "name": "Mana Obelisk B",
+      "type": "ManaObeliskB",
+      "description": "A second obelisk resonating with the first.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 3,
+        "y": 3
+      },
+      "biomes": ["Mountain", "DenseForest"],
+      "spawn_weight": 0.2,
+      "interaction_type": "Building",
+      "services": ["Information", "Blessing"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 220,
+        "intensity": 1.1
+      }
+    },
+    {
+      "id": "magic_portal",
+      "name": "Magic Portal",
+      "type": "MagicPortal",
+      "description": "A swirling portal to unknown destinations.",
+      "sprite": {
+        "sheet": "building1",
+        "x": 4,
+        "y": 3
+      },
+      "biomes": ["Mountain", "Lake", "DenseForest"],
+      "spawn_weight": 0.1,
+      "interaction_type": "Building",
+      "services": ["Information", "Quest"],
+      "lighting": {
+        "enabled": true,
+        "color": "Mystical",
+        "radius": 240,
+        "intensity": 1.3
+      }
+    }
+  ]
+}

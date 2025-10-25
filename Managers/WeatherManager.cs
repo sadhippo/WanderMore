@@ -38,7 +38,7 @@ public class WeatherManager
         _weatherChangeTimer += deltaTime;
         
         // Check if it's time for weather to change
-        float hoursElapsed = _weatherChangeTimer / (_timeManager.DayDuration + _timeManager.NightDuration) * 24f;
+        float hoursElapsed = _weatherChangeTimer / _timeManager.DayLengthInSeconds * 24f;
         
         if (hoursElapsed >= _nextWeatherChange)
         {

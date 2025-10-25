@@ -1,4 +1,4 @@
-﻿using Microsoft.Xna.Framework;
+using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 using System;
@@ -88,6 +88,13 @@ public class Game1 : Game
             _adventurer = new Adventurer(new Vector2(1000, 1000)); // Start in center of first zone
             System.Console.WriteLine("Adventurer created");
             
+            // Add some test items to inventory
+            _adventurer.CollectItem("berries", 5);
+            _adventurer.CollectItem("wood", 10);
+            _adventurer.CollectItem("shiny_stone", 1);
+            _adventurer.CollectItem("flower", 3);
+            System.Console.WriteLine("Test items added to inventory");
+            
             _camera = new Camera(_virtualResolution.GetVirtualViewport());
             System.Console.WriteLine("Camera created");
             
@@ -96,11 +103,8 @@ public class Game1 : Game
             
             // Initialize time system
             _timeManager = new TimeManager();
-            // Set longer durations to better see the lighting transitions
-            _timeManager.SetDawnDuration(15f);  // 15 seconds dawn
-            _timeManager.SetDayDuration(45f);   // 45 seconds day  
-            _timeManager.SetDuskDuration(15f);  // 15 seconds dusk
-            _timeManager.SetNightDuration(25f); // 25 seconds night
+            // Set day length - 24 game hours = 2 real minutes (120 seconds)
+            _timeManager.SetDayLength(120f); // Simple clock that runs at constant speed
             _lastTimeOfDay = _timeManager.CurrentTimeOfDay;
             System.Console.WriteLine("TimeManager created");
             
@@ -155,7 +159,8 @@ public class Game1 : Game
             // Initialize lighting system
             _lightingManager = new LightingManager(GraphicsDevice, _virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
             _adventurer.SetLightingManager(_lightingManager);
-            System.Console.WriteLine("LightingManager created and connected to adventurer");
+            _poiManager.SetLightingManager(_lightingManager);
+            System.Console.WriteLine("LightingManager created and connected to adventurer and PoI system");
             
             // Initialize EventCardBox and DialogueManager
             _eventCardBox = new EventCardBox(GraphicsDevice);
@@ -282,22 +287,27 @@ public class Game1 : Game
             }
             System.Console.WriteLine("Adventurer content loaded");
             
-            // Set up zone manager
-            _zoneManager.LoadContent(_assetManager, _poiManager);
-            System.Console.WriteLine("ZoneManager content loaded");
-            
-            // Set up PoI manager
+            // Set up PoI manager FIRST (must load JSON data before zone generation)
             _poiManager.LoadContent();
             System.Console.WriteLine("PoI content loaded");
+            
+            // Set up zone manager (this will call GeneratePoIsForZone)
+            _zoneManager.LoadContent(_assetManager, _poiManager);
+            System.Console.WriteLine("ZoneManager content loaded");
             
             // Initialize PoIManager with the starting zone
             _poiManager.SetCurrentZone(_zoneManager.CurrentZone.Id);
             System.Console.WriteLine($"PoIManager initialized with starting zone: {_zoneManager.CurrentZone.Id}");
             
+            // DEBUG: Uncomment to spawn all PoI types in first zone for testing
+            //  _poiManager.DEBUG_SpawnAllPoITypes(_zoneManager.CurrentZone);
+            //  System.Console.WriteLine("[DEBUG] All PoI types spawned in starting zone");
+            
             // Now create UI manager with zone manager reference
             _uiManager = new UIManager(GraphicsDevice, _timeManager, _zoneManager, _weatherManager, _statsManager, _journalManager);
             _uiManager.UpdateScreenSize(_virtualResolution.VirtualWidth, _virtualResolution.VirtualHeight);
             _uiManager.SetAudioManager(_audioManager);
+            _uiManager.SetInventoryManager(_adventurer.GetInventoryManager());
             
             // Wire up escape menu exit event
             if (_uiManager.EscapeMenu != null)
@@ -432,6 +442,10 @@ public class Game1 : Game
                 System.Console.WriteLine($"[PATHFINDING TEST] Position: {_adventurer.Position}");
                 System.Console.WriteLine($"[PATHFINDING TEST] Current Zone: {_zoneManager.CurrentZone.Name} ({_zoneManager.CurrentZone.BiomeType})");
                 
+                // Print total PoI count for debugging
+                int totalPoIs = _poiManager.GetPoICountForZone(_zoneManager.CurrentZone.Id);
+                System.Console.WriteLine($"[DEBUG] Total PoIs in current zone: {totalPoIs}");
+                
                 // Print nearby PoIs for testing
                 var nearbyPoIs = _poiManager.GetNearbyPoIs(_adventurer.Position, 200f, _zoneManager.CurrentZone?.Id);
                 System.Console.WriteLine($"[PATHFINDING TEST] Nearby PoIs ({nearbyPoIs.Count}):");
@@ -445,10 +459,23 @@ public class Game1 : Game
                 _questManager.PrintQuestStatus();
             }
             
+            // Handle L key for light diagnostic
+            if (keyboardState.IsKeyDown(Keys.L) && !_previousKeyboardState.IsKeyDown(Keys.L))
+            {
+                System.Console.WriteLine("[DEBUG] L key pressed - Running light diagnostic...");
+                _poiManager.DEBUG_DiagnosePhantomLights();
+            }
+            
             // Handle S key for stats page toggle
             if (keyboardState.IsKeyDown(Keys.S) && !_previousKeyboardState.IsKeyDown(Keys.S))
             {
                 _statsPage?.Toggle();
+            }
+            
+            // Handle I key for inventory toggle
+            if (keyboardState.IsKeyDown(Keys.I) && !_previousKeyboardState.IsKeyDown(Keys.I))
+            {
+                _uiManager?.ToggleInventory();
             }
             
             // Handle R key for aspect ratio toggle
@@ -533,6 +560,9 @@ public class Game1 : Game
                     // Keep torch on during dark periods: Night, Dawn, and Dusk
                     bool needsLight = _timeManager.CurrentTimeOfDay != TimeOfDay.Day;
                     _adventurer.SetNightMode(needsLight);
+                    
+                    // Control PoI lights based on time of day
+                    _poiManager.SetLightsEnabled(needsLight);
                     
                     // Update weather system
                     _weatherManager.Update(gameTime);
@@ -643,14 +673,17 @@ public class Game1 : Game
                 // Draw world with camera transform
                 _spriteBatch.Begin(transformMatrix: _camera.GetTransformMatrix(), samplerState: SamplerState.PointClamp);
                 
-                // Draw zone (terrain and objects)
-                _zoneManager.Draw(_spriteBatch);
+                // Draw terrain (ground tiles) - bottom layer
+                _zoneManager.DrawTerrain(_spriteBatch);
                 
-                // Draw PoIs (buildings, NPCs, etc.)
+                // Draw adventurer (middle layer - above ground, below trees)
+                _adventurer.Draw(_spriteBatch);
+                
+                // Draw PoIs (buildings, NPCs, etc.) - same layer as adventurer
                 _poiManager.Draw(_spriteBatch, _zoneManager.CurrentZone?.Id);
                 
-                // Draw adventurer (foreground)
-                _adventurer.Draw(_spriteBatch);
+                // Draw objects (trees, rocks, etc.) - top layer
+                _zoneManager.DrawObjects(_spriteBatch);
                 
                 _spriteBatch.End();
                 

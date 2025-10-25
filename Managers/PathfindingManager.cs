@@ -37,7 +37,6 @@ public class PathfindingManager
         _stuckTimer = 0f;
         _pathRecalculationAttempts = 0;
         _lastPosition = Vector2.Zero;
-        System.Console.WriteLine("[PATHFINDING] PathfindingManager created successfully");
     }
     
     public void Update(Vector2 currentPosition, ZoneManager zoneManager, PoIManager poiManager, float deltaTime, QuestManager questManager = null)
@@ -59,11 +58,6 @@ public class PathfindingManager
                 break;
         }
         
-        // Debug logging every 5 seconds when pathfinding is active
-        if (HasActiveTarget && _detectionTimer % 5.0f < deltaTime)
-        {
-            System.Console.WriteLine($"[PATHFINDING] Status: {GetPathfindingStatus()}");
-        }
     }
     
     private void UpdateWandering(Vector2 currentPosition, PoIManager poiManager, QuestManager questManager = null)
@@ -88,7 +82,6 @@ public class PathfindingManager
             if (nearbyPoI != null)
             {
                 SetDiscoveredTarget(nearbyPoI);
-                System.Console.WriteLine($"[PATHFINDING] Setting discovered target: {nearbyPoI.Type}");
             }
             _detectionTimer = 0f;
         }
@@ -99,10 +92,6 @@ public class PathfindingManager
         // Check if target is still valid
         if (CurrentTarget == null || _poiDetector.IsPoIOnCooldown(CurrentTarget))
         {
-            if (CurrentTarget != null && _poiDetector.IsPoIOnCooldown(CurrentTarget))
-            {
-                System.Console.WriteLine($"[PATHFINDING] Target {CurrentTarget.Type} is on cooldown, abandoning");
-            }
             AbandonCurrentTarget();
             return;
         }
@@ -117,18 +106,15 @@ public class PathfindingManager
                 CurrentState = PathfindingState.Moving;
                 _pathfindingTimer = 0f;
                 _pathRecalculationAttempts = 0; // Reset attempts on successful pathfinding
-                System.Console.WriteLine($"[PATHFINDING] Found path with {CurrentPath.Count} waypoints to {CurrentTarget.Type} at distance {Vector2.Distance(currentPosition, CurrentTarget.Position):F1}");
             }
             else
             {
                 // No path found, abandon target
-                System.Console.WriteLine($"[PATHFINDING] No path found to {CurrentTarget.Type}, abandoning target");
                 AbandonCurrentTarget();
             }
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            System.Console.WriteLine($"Pathfinding error: {ex.Message}");
             AbandonCurrentTarget();
         }
     }
@@ -140,7 +126,6 @@ public class PathfindingManager
         // Check for timeout
         if (_pathfindingTimer > PathfindingConfig.PATH_TIMEOUT)
         {
-            System.Console.WriteLine("Pathfinding: Timeout reached, abandoning target");
             AbandonCurrentTarget();
             return;
         }
@@ -151,12 +136,11 @@ public class PathfindingManager
             float distanceToTarget = Vector2.Distance(currentPosition, CurrentTarget.Position);
             if (distanceToTarget <= CurrentTarget.InteractionRange)
             {
-                // Reached target - trigger proper interaction instead of just adding cooldown
-                System.Console.WriteLine($"[PATHFINDING] SUCCESS: Reached {CurrentPriority} target {CurrentTarget.Type} (distance: {distanceToTarget:F1}) - Starting interaction");
+                // Reached target - abandon so Adventurer can handle interaction
                 
-                // Set a flag or trigger interaction - the Adventurer class should handle the actual interaction
-                // Don't abandon target immediately - let the interaction system handle it
-                CurrentState = PathfindingState.Wandering; // Stop pathfinding but keep target for interaction
+                // Don't add to cooldown yet - let the Adventurer interact first
+                // The Adventurer will add to cooldown after successful interaction
+                AbandonCurrentTarget();
                 return;
             }
         }
@@ -169,11 +153,9 @@ public class PathfindingManager
             if (_stuckTimer > PathfindingConfig.STUCK_DETECTION_TIME)
             {
                 _pathRecalculationAttempts++;
-                System.Console.WriteLine($"Pathfinding: Stuck detected (attempt {_pathRecalculationAttempts}/{MAX_RECALCULATION_ATTEMPTS}), recalculating path");
                 
                 if (_pathRecalculationAttempts >= MAX_RECALCULATION_ATTEMPTS)
                 {
-                    System.Console.WriteLine($"[PATHFINDING] FAILED: Maximum recalculation attempts reached for {CurrentTarget.Type}, abandoning");
                     AbandonCurrentTarget();
                     return;
                 }
@@ -198,11 +180,9 @@ public class PathfindingManager
             if (distanceToWaypoint > PathfindingConfig.PATH_RECALC_DISTANCE)
             {
                 _pathRecalculationAttempts++;
-                System.Console.WriteLine($"Pathfinding: Deviated from path (attempt {_pathRecalculationAttempts}/{MAX_RECALCULATION_ATTEMPTS}), recalculating");
                 
                 if (_pathRecalculationAttempts >= MAX_RECALCULATION_ATTEMPTS)
                 {
-                    System.Console.WriteLine("Pathfinding: Maximum recalculation attempts reached, abandoning target");
                     AbandonCurrentTarget();
                     return;
                 }
@@ -215,7 +195,6 @@ public class PathfindingManager
             if (distanceToWaypoint < 32f) // TILE_SIZE equivalent
             {
                 CurrentPath.Dequeue(); // Remove reached waypoint
-                System.Console.WriteLine($"Pathfinding: Reached waypoint, {CurrentPath.Count} remaining");
             }
         }
         
@@ -262,8 +241,6 @@ public class PathfindingManager
             CurrentPriority = TargetPriority.Quest;
             CurrentState = PathfindingState.Pathfinding;
             CurrentPath.Clear();
-            
-            System.Console.WriteLine($"Pathfinding: Set quest target {target.Type} at {target.Position}");
         }
     }
     
@@ -278,18 +255,11 @@ public class PathfindingManager
             CurrentPriority = TargetPriority.Discovered;
             CurrentState = PathfindingState.Pathfinding;
             CurrentPath.Clear();
-            
-            System.Console.WriteLine($"Pathfinding: Discovered target {target.Type} at {target.Position}");
         }
     }
     
     public void AbandonCurrentTarget()
     {
-        if (CurrentTarget != null)
-        {
-            System.Console.WriteLine($"Pathfinding: Abandoning target {CurrentTarget.Type}");
-        }
-        
         CurrentTarget = null;
         CurrentPriority = TargetPriority.Wandering;
         CurrentState = PathfindingState.Wandering;

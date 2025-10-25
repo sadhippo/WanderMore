@@ -1,0 +1,46 @@
+{
+  "biome_spawn_rates": {
+    "Forest": {
+      "base_poi_count": 1.2,
+      "gatherable_multiplier": 1.0,
+      "building_multiplier": 0.8,
+      "npc_multiplier": 1.0
+    },
+    "DenseForest": {
+      "base_poi_count": 0.8,
+      "gatherable_multiplier": 1.3,
+      "building_multiplier": 0.4,
+      "npc_multiplier": 0.7
+    },
+    "Plains": {
+      "base_poi_count": 1.5,
+      "gatherable_multiplier": 0.8,
+      "building_multiplier": 1.2,
+      "npc_multiplier": 1.1
+    },
+    "Lake": {
+      "base_poi_count": 0.9,
+      "gatherable_multiplier": 0.6,
+      "building_multiplier": 0.7,
+      "npc_multiplier": 0.8
+    },
+    "Mountain": {
+      "base_poi_count": 0.7,
+      "gatherable_multiplier": 0.4,
+      "building_multiplier": 0.9,
+      "npc_multiplier": 0.6
+    },
+    "Swamp": {
+      "base_poi_count": 0.6,
+      "gatherable_multiplier": 0.9,
+      "building_multiplier": 0.3,
+      "npc_multiplier": 0.5
+    }
+  },
+  "rarity_weights": {
+    "Common": 1.0,
+    "Uncommon": 0.7,
+    "Rare": 0.4,
+    "Epic": 0.2
+  }
+}

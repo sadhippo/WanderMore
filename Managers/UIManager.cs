@@ -16,12 +16,14 @@ public class UIManager
     private JournalManager _journalManager;
     private StatsHUD _statsHUD;
     private EscapeMenu _escapeMenu;
+    private InventoryUI _inventoryUI;
     private Rectangle _clockArea;
     private Rectangle _dayCounterArea;
     private Rectangle _zoneNameArea;
     private Rectangle _weatherArea;
     private Rectangle _pauseButtonArea;
     private Rectangle _muteButtonArea;
+    private Rectangle _inventoryButtonArea;
     
     // Pause system
     private bool _isPaused;
@@ -60,6 +62,9 @@ public class UIManager
         // Initialize escape menu
         _escapeMenu = new EscapeMenu(graphicsDevice);
         
+        // Initialize inventory UI
+        _inventoryUI = new InventoryUI(graphicsDevice);
+        
         // Create pixel texture for UI backgrounds
         _pixelTexture = new Texture2D(graphicsDevice, 1, 1);
         _pixelTexture.SetData(new[] { Color.White });
@@ -71,6 +76,7 @@ public class UIManager
         _weatherArea = new Rectangle(10, 130, 220, 30);
         _pauseButtonArea = new Rectangle(220, 10, 40, 40); // Next to clock
         _muteButtonArea = new Rectangle(220, 55, 60, 30); // Next to day counter
+        _inventoryButtonArea = new Rectangle(290, 10, 60, 30); // Next to pause button
         
         // Define pause button sprite source (full image)
         _pauseButtonSource = new Rectangle(0, 0, 32, 32);
@@ -89,12 +95,18 @@ public class UIManager
         _font = font;
         _statsHUD?.LoadContent(font);
         _escapeMenu?.LoadContent(font);
+        _inventoryUI?.LoadContent(font);
     }
     
     public void SetAudioManager(AudioManager audioManager)
     {
         _audioManager = audioManager;
         _escapeMenu?.SetAudioManager(audioManager);
+    }
+    
+    public void SetInventoryManager(InventoryManager inventoryManager)
+    {
+        _inventoryUI?.SetInventoryManager(inventoryManager);
     }
 
     public void UpdateScreenSize(int screenWidth, int screenHeight)
@@ -104,6 +116,9 @@ public class UIManager
         
         // Update escape menu screen size
         _escapeMenu?.UpdateScreenSize(screenWidth, screenHeight);
+        
+        // Update inventory UI screen size
+        _inventoryUI?.UpdateScreenSize(screenWidth, screenHeight);
     }
 
     public void LoadUITextures(ContentManager content)
@@ -145,6 +160,9 @@ public class UIManager
         
         // Update escape menu
         _escapeMenu?.Update(gameTime);
+        
+        // Update inventory UI
+        _inventoryUI?.Update(gameTime);
     }
 
     public void Draw(SpriteBatch spriteBatch)
@@ -170,6 +188,10 @@ public class UIManager
             Color muteBackgroundColor = _isMuted ? new Color(150, 50, 50, 150) : new Color(0, 0, 0, 120);
             DrawUIPanel(spriteBatch, _muteButtonArea, muteBackgroundColor);
             
+            // Draw inventory button background
+            Color inventoryBackgroundColor = _inventoryUI?.IsVisible == true ? new Color(100, 150, 100, 150) : new Color(0, 0, 0, 120);
+            DrawUIPanel(spriteBatch, _inventoryButtonArea, inventoryBackgroundColor);
+            
             // Draw time progress bar
             DrawTimeProgressBar(spriteBatch);
             
@@ -192,6 +214,9 @@ public class UIManager
         
         // Draw escape menu on top of everything else
         _escapeMenu?.Draw(spriteBatch);
+        
+        // Draw inventory UI on top of everything else
+        _inventoryUI?.Draw(spriteBatch);
     }
 
     private void DrawTextUI(SpriteBatch spriteBatch)
@@ -261,6 +286,12 @@ public class UIManager
         Color muteTextColor = _isMuted ? Color.Red : Color.White;
         Vector2 muteTextPos = new Vector2(_muteButtonArea.X + 10, _muteButtonArea.Y + 8);
         spriteBatch.DrawString(_font, muteText, muteTextPos, muteTextColor);
+        
+        // Draw inventory button
+        string inventoryText = "INV";
+        Color inventoryTextColor = _inventoryUI?.IsVisible == true ? Color.Green : Color.White;
+        Vector2 inventoryTextPos = new Vector2(_inventoryButtonArea.X + 15, _inventoryButtonArea.Y + 8);
+        spriteBatch.DrawString(_font, inventoryText, inventoryTextPos, inventoryTextColor);
         
         // Draw stats HUD
         try
@@ -447,9 +478,7 @@ public class UIManager
     private float GetOverallDayProgress()
     {
         // Calculate progress through the entire day cycle (0.0 to 1.0)
-        float cyclePosition = _timeManager.CurrentTime % (_timeManager.DawnDuration + _timeManager.DayDuration + _timeManager.DuskDuration + _timeManager.NightDuration);
-        float totalCycleTime = _timeManager.DawnDuration + _timeManager.DayDuration + _timeManager.DuskDuration + _timeManager.NightDuration;
-        return cyclePosition / totalCycleTime;
+        return _timeManager.CurrentGameHour / 24f;
     }
 
     private void DrawJournalTicker(SpriteBatch spriteBatch)
@@ -494,7 +523,13 @@ public class UIManager
 
     public bool HandleMouseClick(Vector2 mousePosition)
     {
-        // Check escape menu first (highest priority)
+        // Check inventory UI first (highest priority when visible)
+        if (_inventoryUI != null && _inventoryUI.HandleMouseClick(mousePosition))
+        {
+            return true;
+        }
+        
+        // Check escape menu next
         if (_escapeMenu != null && _escapeMenu.HandleMouseClick(mousePosition))
         {
             return true;
@@ -514,12 +549,25 @@ public class UIManager
             return true; // Consumed the click
         }
         
+        // Check if inventory button was clicked
+        if (_inventoryButtonArea.Contains(mousePosition))
+        {
+            _inventoryUI?.Toggle();
+            return true; // Consumed the click
+        }
+        
         return false; // Click not handled
     }
 
     public bool HandleMouseHover(Vector2 mousePosition, out string tooltip)
     {
         tooltip = null;
+        
+        // Check inventory UI hover first
+        if (_inventoryUI != null && _inventoryUI.HandleMouseHover(mousePosition))
+        {
+            return true;
+        }
         
         // Check stats HUD hover
         if (_statsManager != null && _statsHUD != null)
@@ -577,6 +625,13 @@ public class UIManager
 
     public EscapeMenu EscapeMenu => _escapeMenu;
     
+    public void ToggleInventory()
+    {
+        _inventoryUI?.Toggle();
+    }
+    
+    public bool IsInventoryVisible => _inventoryUI?.IsVisible ?? false;
+    
     private float _previousMasterVolume = 1.0f;
     
     public void ToggleMute()
@@ -613,15 +668,15 @@ public class UIManager
         _pixelTexture?.Dispose();
         _statsHUD?.Dispose();
         _escapeMenu?.Dispose();
+        _inventoryUI?.Dispose();
     }
 }
 
 // Extension class for easy time configuration
 public static class TimeManagerExtensions
 {
-    public static void SetDayNightCycle(this TimeManager timeManager, float dayMinutes, float nightMinutes)
+    public static void SetDayNightCycle(this TimeManager timeManager, float totalDayMinutes)
     {
-        timeManager.SetDayDuration(dayMinutes * 60f);
-        timeManager.SetNightDuration(nightMinutes * 60f);
+        timeManager.SetDayLength(totalDayMinutes * 60f);
     }
 }

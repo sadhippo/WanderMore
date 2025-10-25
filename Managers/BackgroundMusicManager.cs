@@ -179,7 +179,28 @@ public class BackgroundMusicManager
     private void UpdateTimeBasedEffects(float deltaTime)
     {
         // Apply sophisticated volume changes based on time of day progress
-        float timeProgress = _timeManager.TimeProgress;
+        float gameHour = _timeManager.CurrentGameHour;
+        float timeProgress = 0f;
+        
+        // Calculate progress within current time period
+        switch (_timeManager.CurrentTimeOfDay)
+        {
+            case TimeOfDay.Dawn:
+                timeProgress = (gameHour - 5f) / 1f; // 5-6 AM
+                break;
+            case TimeOfDay.Day:
+                timeProgress = (gameHour - 6f) / 12f; // 6 AM - 6 PM
+                break;
+            case TimeOfDay.Dusk:
+                timeProgress = (gameHour - 18f) / 1f; // 6-7 PM
+                break;
+            case TimeOfDay.Night:
+                if (gameHour >= 19f)
+                    timeProgress = (gameHour - 19f) / 10f; // 7 PM - 5 AM
+                else
+                    timeProgress = (gameHour + 5f) / 10f; // Handle wrap-around
+                break;
+        }
         
         if (_timeManager.CurrentTimeOfDay == TimeOfDay.Day)
         {

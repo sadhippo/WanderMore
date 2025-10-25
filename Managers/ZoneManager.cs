@@ -819,7 +819,13 @@ public class ZoneManager
 
     public void Draw(SpriteBatch spriteBatch)
     {
-        // Draw terrain
+        DrawTerrain(spriteBatch);
+        DrawObjects(spriteBatch);
+    }
+
+    public void DrawTerrain(SpriteBatch spriteBatch)
+    {
+        // Draw terrain (ground tiles)
         for (int x = 0; x < _currentZone.Width; x++)
         {
             for (int y = 0; y < _currentZone.Height; y++)
@@ -828,8 +834,11 @@ public class ZoneManager
                 _assetManager.DrawTerrain(spriteBatch, _currentZone.Terrain[x, y], position);
             }
         }
-        
-        // Draw objects
+    }
+
+    public void DrawObjects(SpriteBatch spriteBatch)
+    {
+        // Draw objects (trees, rocks, etc.)
         foreach (var obj in _currentZone.Objects)
         {
             _assetManager.DrawObject(spriteBatch, obj.Type, obj.Position);

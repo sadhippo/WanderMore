@@ -1,0 +1,152 @@
+{
+  "animals": [
+    {
+      "id": "cat",
+      "name": "Friendly Cat",
+      "type": "Cat",
+      "description": "A friendly cat that seems curious about travelers.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 18,
+        "y": 3
+      },
+      "biomes": ["Forest", "Lake", "Plains"],
+      "spawn_weight": 0.8,
+      "interaction_type": "Animal",
+      "interaction_message": "The cat purrs contentedly and follows you for a short distance.",
+      "behavior": "Friendly"
+    },
+    {
+      "id": "dog",
+      "name": "Loyal Dog",
+      "type": "Dog",
+      "description": "A loyal dog that wags its tail at approaching adventurers.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 17,
+        "y": 3
+      },
+      "biomes": ["Forest", "Plains"],
+      "spawn_weight": 0.9,
+      "interaction_type": "Animal",
+      "interaction_message": "The friendly dog wags its tail and seems eager to play.",
+      "behavior": "Friendly"
+    },
+    {
+      "id": "deer",
+      "name": "Graceful Deer",
+      "type": "Deer",
+      "description": "A graceful deer grazing peacefully in the wilderness.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 16,
+        "y": 3
+      },
+      "biomes": ["Forest", "Plains"],
+      "spawn_weight": 0.7,
+      "interaction_type": "Animal",
+      "interaction_message": "The deer looks up briefly, then returns to grazing, unafraid.",
+      "behavior": "Timid"
+    },
+    {
+      "id": "chicken",
+      "name": "Wild Chicken",
+      "type": "Chicken",
+      "description": "A wild chicken pecking at the ground for seeds.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 4,
+        "y": 3
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.8,
+      "interaction_type": "Animal",
+      "interaction_message": "The chicken clucks and scurries away, leaving behind a fresh egg.",
+      "behavior": "Skittish",
+      "loot": {
+        "item_id": "egg",
+        "chance": 0.5
+      }
+    },
+    {
+      "id": "pig",
+      "name": "Wild Pig",
+      "type": "Pig",
+      "description": "A stout pig rooting through the undergrowth.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 5,
+        "y": 3
+      },
+      "biomes": ["Plains", "Forest"],
+      "spawn_weight": 0.7,
+      "interaction_type": "Animal",
+      "interaction_message": "The pig snorts and continues rooting around, unbothered by your presence.",
+      "behavior": "Neutral"
+    },
+    {
+      "id": "sheep",
+      "name": "Woolly Sheep",
+      "type": "Sheep",
+      "description": "A fluffy sheep grazing contentedly.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 15,
+        "y": 4
+      },
+      "biomes": ["Plains"],
+      "spawn_weight": 0.9,
+      "interaction_type": "Animal",
+      "interaction_message": "The sheep bleats softly and continues grazing peacefully.",
+      "behavior": "Docile"
+    },
+    {
+      "id": "lizard",
+      "name": "Swamp Lizard",
+      "type": "Lizard",
+      "description": "A large lizard basking in the sun.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 11,
+        "y": 5
+      },
+      "biomes": ["Swamp", "Lake", "DenseForest"],
+      "spawn_weight": 0.6,
+      "interaction_type": "Animal",
+      "interaction_message": "The lizard flicks its tongue and watches you warily before scurrying away.",
+      "behavior": "Wary"
+    },
+    {
+      "id": "bat",
+      "name": "Cave Bat",
+      "type": "Bat",
+      "description": "A bat hanging from a nearby branch or cave entrance.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 7,
+        "y": 5
+      },
+      "biomes": ["DenseForest", "Mountain", "Swamp"],
+      "spawn_weight": 0.7,
+      "interaction_type": "Animal",
+      "interaction_message": "The bat squeaks and flutters its wings, disturbed by your approach.",
+      "behavior": "Skittish"
+    },
+    {
+      "id": "unicorn",
+      "name": "Majestic Unicorn",
+      "type": "Unicorn",
+      "description": "A rare and majestic unicorn, its horn gleaming in the light.",
+      "sprite": {
+        "sheet": "poi",
+        "x": 5,
+        "y": 5
+      },
+      "biomes": ["Forest"],
+      "spawn_weight": 0.2,
+      "interaction_type": "Animal",
+      "interaction_message": "The majestic unicorn allows you to approach, a rare honor indeed.",
+      "behavior": "Mystical"
+    }
+  ]
+}

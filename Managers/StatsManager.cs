@@ -147,7 +147,8 @@ public class StatsManager
                 
             case TimeOfDay.Day:
                 // During day: gradually get more tired as the day progresses
-                float dayProgressFactor = _timeManager.TimeProgress * 0.5f + 0.5f; // 0.5 to 1.0 multiplier
+                float dayProgress = (_timeManager.CurrentGameHour - 6f) / 12f; // 0.0 to 1.0 through day
+                float dayProgressFactor = dayProgress * 0.5f + 0.5f; // 0.5 to 1.0 multiplier
                 tirednessChange = -_config.DayTirednessRate * dayProgressFactor;
                 break;
                 
@@ -159,7 +160,9 @@ public class StatsManager
             case TimeOfDay.Night:
                 // During night: recover tiredness (rest)
                 // Better recovery early in the night
-                float nightProgressFactor = (1.0f - _timeManager.TimeProgress) * 0.5f + 0.5f; // 0.5 to 1.0 multiplier  
+                float nightHour = _timeManager.CurrentGameHour >= 19f ? _timeManager.CurrentGameHour - 19f : _timeManager.CurrentGameHour + 5f;
+                float nightProgress = nightHour / 10f; // 0.0 to 1.0 through night
+                float nightProgressFactor = (1.0f - nightProgress) * 0.5f + 0.5f; // 0.5 to 1.0 multiplier  
                 tirednessChange = _config.NightRestRate * nightProgressFactor;
                 break;
         }
@@ -334,7 +337,7 @@ public class StatsManager
     {
         float oldTiredness = CurrentStats.Tiredness;
         CurrentStats.SetStat(StatType.Tiredness, CurrentStats.Tiredness + amount);
-        System.Console.WriteLine($"[REGEN DEBUG] RegenerateTiredness called: {oldTiredness:F1} + {amount:F2} = {CurrentStats.Tiredness:F1}");
+
     }
     
     private void OnStatChanged(StatType statType, float oldValue, float newValue)
